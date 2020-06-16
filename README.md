@@ -1,6 +1,6 @@
 # deploy-sourcegraph-dhall
 
-(work in progress)
+(work in progress - implementation of https://github.com/sourcegraph/sourcegraph/issues/10936)
 
 Translation of [sourcegraph/deploy-sourcegraph](https://github.com/sourcegraph/deploy-sourcegraph) into dhall.
 
