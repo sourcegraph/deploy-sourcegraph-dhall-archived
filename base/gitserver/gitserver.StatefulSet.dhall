@@ -1,12 +1,59 @@
-let kubernetes = (../../imports.dhall).Kubernetes
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
 
-let prelude = (../../imports.dhall).Prelude
+let Kubernetes/Container =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.Container.dhall
 
-let Optional/default = prelude.Optional.default
+let Kubernetes/ContainerPort =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ContainerPort.dhall
+
+let Kubernetes/IntOrString =
+      ../../deps/k8s/types/io.k8s.apimachinery.pkg.util.intstr.IntOrString.dhall
+
+let Kubernetes/LabelSelector =
+      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector.dhall
+
+let Kubernetes/ObjectMeta =
+      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.dhall
+
+let Kubernetes/PersistentVolumeClaim =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaim.dhall
+
+let Kubernetes/PersistentVolumeClaimSpec =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaimSpec.dhall
+
+let Kubernetes/PodSecurityContext =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSecurityContext.dhall
+
+let Kubernetes/PodSpec = ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSpec.dhall
+
+let Kubernetes/PodTemplateSpec =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodTemplateSpec.dhall
+
+let Kubernetes/Probe = ../../deps/k8s/schemas/io.k8s.api.core.v1.Probe.dhall
+
+let Kubernetes/ResourceRequirements =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
+
+let Kubernetes/StatefulSet =
+      ../../deps/k8s/schemas/io.k8s.api.apps.v1.StatefulSet.dhall
+
+let Kubernetes/StatefulSetSpec =
+      ../../deps/k8s/schemas/io.k8s.api.apps.v1.StatefulSetSpec.dhall
+
+let Kubernetes/TCPSocketAction =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.TCPSocketAction.dhall
+
+let Kubernetes/Volume = ../../deps/k8s/schemas/io.k8s.api.core.v1.Volume.dhall
+
+let Kubernetes/VolumeMount =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.VolumeMount.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
-let util = ../../util.dhall
+let Util/KeyValuePair = ../../util/key-value-pair.dhall
+
+let Util/JaegerAgent = ../../util/jaeger-agent.dhall
 
 let gitserverContainer/render =
       λ(c : Configuration/global.Type) →
@@ -22,7 +69,7 @@ let gitserverContainer/render =
 
         let resources =
               Optional/default
-                kubernetes.ResourceRequirements.Type
+                Kubernetes/ResourceRequirements.Type
                 { limits = Some
                   [ { mapKey = "cpu", mapValue = "4" }
                   , { mapKey = "memory", mapValue = "8G" }
@@ -35,20 +82,20 @@ let gitserverContainer/render =
                 overrides.resources
 
         let container =
-              kubernetes.Container::{
+              Kubernetes/Container::{
               , args = Some [ "run" ]
               , image = Some image
               , env = environment
-              , livenessProbe = Some kubernetes.Probe::{
+              , livenessProbe = Some Kubernetes/Probe::{
                 , initialDelaySeconds = Some 5
-                , tcpSocket = Some kubernetes.TCPSocketAction::{
-                  , port = kubernetes.IntOrString.String "rpc"
+                , tcpSocket = Some Kubernetes/TCPSocketAction::{
+                  , port = Kubernetes/IntOrString.String "rpc"
                   }
                 , timeoutSeconds = Some 5
                 }
               , name = "gitserver"
               , ports = Some
-                [ kubernetes.ContainerPort::{
+                [ Kubernetes/ContainerPort::{
                   , containerPort = 3178
                   , name = Some "rpc"
                   }
@@ -56,7 +103,7 @@ let gitserverContainer/render =
               , resources = Some resources
               , terminationMessagePolicy = Some "FallbackToLogsOnError"
               , volumeMounts = Some
-                [ kubernetes.VolumeMount::{
+                [ Kubernetes/VolumeMount::{
                   , mountPath = "/data/repos"
                   , name = "repos"
                   }
@@ -71,14 +118,14 @@ let render =
 
         let additionalAnnotations =
               Optional/default
-                (List util.keyValuePair)
-                ([] : List util.keyValuePair)
+                (List Util/KeyValuePair)
+                ([] : List Util/KeyValuePair)
                 overrides.additionalAnnotations
 
         let additionalLabels =
               Optional/default
-                (List util.keyValuePair)
-                ([] : List util.keyValuePair)
+                (List Util/KeyValuePair)
+                ([] : List Util/KeyValuePair)
                 overrides.additionalLabels
 
         let replicas = Optional/default Natural 1 overrides.replicas
@@ -86,8 +133,8 @@ let render =
         let gitserverContainer = gitserverContainer/render c
 
         let statefulSet =
-              kubernetes.StatefulSet::{
-              , metadata = kubernetes.ObjectMeta::{
+              Kubernetes/StatefulSet::{
+              , metadata = Kubernetes/ObjectMeta::{
                 , annotations = Some
                     (   [ { mapKey = "description"
                           , mapValue =
@@ -107,16 +154,16 @@ let render =
                 , namespace = overrides.namespace
                 , name = Some "gitserver"
                 }
-              , spec = Some kubernetes.StatefulSetSpec::{
+              , spec = Some Kubernetes/StatefulSetSpec::{
                 , replicas = Some replicas
                 , revisionHistoryLimit = Some 10
-                , selector = kubernetes.LabelSelector::{
+                , selector = Kubernetes/LabelSelector::{
                   , matchLabels = Some
                     [ { mapKey = "app", mapValue = "gitserver" } ]
                   }
                 , serviceName = "gitserver"
-                , template = kubernetes.PodTemplateSpec::{
-                  , metadata = kubernetes.ObjectMeta::{
+                , template = Kubernetes/PodTemplateSpec::{
+                  , metadata = Kubernetes/ObjectMeta::{
                     , labels = Some
                       [ { mapKey = "app", mapValue = "gitserver" }
                       , { mapKey = "deploy", mapValue = "sourcegraph" }
@@ -124,13 +171,13 @@ let render =
                       , { mapKey = "type", mapValue = "gitserver" }
                       ]
                     }
-                  , spec = Some kubernetes.PodSpec::{
-                    , containers = [ gitserverContainer, util.jaegerAgent ]
+                  , spec = Some Kubernetes/PodSpec::{
+                    , containers = [ gitserverContainer, Util/JaegerAgent ]
                     , schedulerName = None Text
-                    , securityContext = Some kubernetes.PodSecurityContext::{
+                    , securityContext = Some Kubernetes/PodSecurityContext::{
                       , runAsUser = Some 0
                       }
-                    , volumes = Some [ kubernetes.Volume::{ name = "repos" } ]
+                    , volumes = Some [ Kubernetes/Volume::{ name = "repos" } ]
                     }
                   }
                 , updateStrategy = Some
@@ -138,11 +185,11 @@ let render =
                   , type = Some "RollingUpdate"
                   }
                 , volumeClaimTemplates = Some
-                  [ kubernetes.PersistentVolumeClaim::{
-                    , metadata = kubernetes.ObjectMeta::{ name = Some "repos" }
-                    , spec = Some kubernetes.PersistentVolumeClaimSpec::{
+                  [ Kubernetes/PersistentVolumeClaim::{
+                    , metadata = Kubernetes/ObjectMeta::{ name = Some "repos" }
+                    , spec = Some Kubernetes/PersistentVolumeClaimSpec::{
                       , accessModes = Some [ "ReadWriteOnce" ]
-                      , resources = Some kubernetes.ResourceRequirements::{
+                      , resources = Some Kubernetes/ResourceRequirements::{
                         , requests = Some
                           [ { mapKey = "storage", mapValue = "200Gi" } ]
                         }

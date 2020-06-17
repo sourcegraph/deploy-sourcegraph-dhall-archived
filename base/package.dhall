@@ -1,4 +1,9 @@
-let List/concatMap = (../imports.dhall).Prelude.List.concatMap
+let List/concatMap =
+      https://prelude.dhall-lang.org/v17.0.0/List/concatMap sha256:3b2167061d11fda1e4f6de0522cbe83e0d5ac4ef5ddf6bb0b2064470c5d3fb64
+
+let Kubernetes/List = ../util/kubernetes-list.dhall
+
+let Kubernetes/TypesUnion = ../deps/k8s/typesUnion.dhall
 
 let Postgres/render = (./postgres/package.dhall).Render
 
@@ -14,10 +19,6 @@ let Frontend/toList = (./frontend/package.dhall).ToList
 
 let Configure/global = ../configuration/global.dhall
 
-let Kubernetes/list = (../util.dhall).kubernetesList
-
-let Kubernetes/typeUnion = (../imports.dhall).KubernetesTypeUnion
-
 let toList =
       λ(c : Configure/global.Type) →
         let allResourceLists =
@@ -26,12 +27,12 @@ let toList =
               , Frontend/toList (Frontend/render c)
               ]
 
-        in  Kubernetes/list::{
+        in  Kubernetes/List::{
             , items =
                 List/concatMap
-                  Kubernetes/list.Type
-                  Kubernetes/typeUnion
-                  (λ(x : Kubernetes/list.Type) → x.items)
+                  Kubernetes/List.Type
+                  Kubernetes/TypesUnion
+                  (λ(x : Kubernetes/List.Type) → x.items)
                   allResourceLists
             }
 

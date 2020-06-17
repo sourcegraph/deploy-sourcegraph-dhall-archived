@@ -1,6 +1,6 @@
-let kubernetes = (../../imports.dhall).Kubernetes
+let Kubernetes/List = ../../util/kubernetes-list.dhall
 
-let Configuration/global = ../../configuration/global.dhall
+let Kubernetes/TypesUnion = ../../deps/k8s/typesUnion.dhall
 
 let ConfigMap/render = ./pgsql.ConfigMap.dhall
 
@@ -10,18 +10,9 @@ let PersistentVolumeClaim/render = ./pgsql.PersistentVolumeClaim.dhall
 
 let Service/render = ./pgsql.Service.dhall
 
-let util = ../../util.dhall
+let Configuration/global = ../../configuration/global.dhall
 
-let Kubernetes/list = util.kubernetesList
-
-let Kubernetes/typeUnion = (../../imports.dhall).KubernetesTypeUnion
-
-let component =
-      { ConfigMap : kubernetes.ConfigMap.Type
-      , Deployment : kubernetes.Deployment.Type
-      , PersistentVolumeClaim : kubernetes.PersistentVolumeClaim.Type 
-      , Service : kubernetes.Service.Type
-      }
+let component = ./component.dhall
 
 let render =
         ( λ(c : Configuration/global.Type) →
@@ -35,16 +26,16 @@ let render =
 
 let toList =
         ( λ(c : component) →
-            Kubernetes/list::{
+            Kubernetes/List::{
             , items =
-              [ Kubernetes/typeUnion.Deployment c.Deployment
-              , Kubernetes/typeUnion.Service c.Service
-              , Kubernetes/typeUnion.PersistentVolumeClaim
+              [ Kubernetes/TypesUnion.Deployment c.Deployment
+              , Kubernetes/TypesUnion.Service c.Service
+              , Kubernetes/TypesUnion.PersistentVolumeClaim
                   c.PersistentVolumeClaim
-              , Kubernetes/typeUnion.ConfigMap c.ConfigMap
+              , Kubernetes/TypesUnion.ConfigMap c.ConfigMap
               ]
             }
         )
-      : ∀(c : component) → Kubernetes/list.Type
+      : ∀(c : component) → Kubernetes/List.Type
 
 in  { Render = render, ToList = toList }

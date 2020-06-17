@@ -1,21 +1,14 @@
-let kubernetes = (../../imports.dhall).Kubernetes
+let Kubernetes/List = ../../util/kubernetes-list.dhall
 
-let Configuration/global = ../../configuration/global.dhall
+let Kubernetes/TypesUnion = ../../deps/k8s/typesUnion.dhall
 
 let StatefulSet/render = ./gitserver.Statefulset.dhall
 
 let Service/render = ./gitserver.Service.dhall
 
-let util = ../../util.dhall
+let Configuration/global = ../../configuration/global.dhall
 
-let Kubernetes/list = util.kubernetesList
-
-let Kubernetes/typeUnion = (../../imports.dhall).KubernetesTypeUnion
-
-let component =
-      { StatefulSet : kubernetes.StatefulSet.Type
-      , Service : kubernetes.Service.Type
-      }
+let component = ./component.dhall
 
 let render =
         ( λ(c : Configuration/global.Type) →
@@ -25,13 +18,13 @@ let render =
 
 let toList =
         ( λ(c : component) →
-            Kubernetes/list::{
+            Kubernetes/List::{
             , items =
-              [ Kubernetes/typeUnion.StatefulSet c.StatefulSet
-              , Kubernetes/typeUnion.Service c.Service
+              [ Kubernetes/TypesUnion.StatefulSet c.StatefulSet
+              , Kubernetes/TypesUnion.Service c.Service
               ]
             }
         )
-      : ∀(c : component) → Kubernetes/list.Type
+      : ∀(c : component) → Kubernetes/List.Type
 
 in  { Render = render, ToList = toList }

@@ -1,25 +1,31 @@
-let kubernetes = (../../imports.dhall).Kubernetes
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
 
-let prelude = (../../imports.dhall).Prelude
+let Kubernetes/ObjectMeta =
+      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.dhall
 
-let Optional/default = prelude.Optional.default
+let Kubernetes/PolicyRule =
+      ../../deps/k8s/schemas/io.k8s.api.rbac.v1.PolicyRule.dhall
+
+let Kubernetes/Role = ../../deps/k8s/schemas/io.k8s.api.rbac.v1.Role.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
-let util = ../../util.dhall
+let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let render =
       λ(c : Configuration/global.Type) →
-      let overrides = c.Frontend.Role
+        let overrides = c.Frontend.Role
+
         let additionalLabels =
               Optional/default
-                (List util.keyValuePair)
-                ([] : List util.keyValuePair)
+                (List Util/KeyValuePair)
+                ([] : List Util/KeyValuePair)
                 overrides.additionalLabels
 
         let role =
-              kubernetes.Role::{
-              , metadata = kubernetes.ObjectMeta::{
+              Kubernetes/Role::{
+              , metadata = Kubernetes/ObjectMeta::{
                 , annotations = overrides.additionalAnnotations
                 , labels = Some
                     (   [ { mapKey = "category", mapValue = "rbac" }
@@ -34,7 +40,7 @@ let render =
                 , name = Some "sourcegraph-frontend"
                 }
               , rules = Some
-                [ kubernetes.PolicyRule::{
+                [ Kubernetes/PolicyRule::{
                   , apiGroups = Some [ "" ]
                   , resources = Some [ "endpoints", "services" ]
                   , verbs = [ "get", "list", "watch" ]

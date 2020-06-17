@@ -1,12 +1,58 @@
-let kubernetes = (../../imports.dhall).Kubernetes
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
 
-let prelude = (../../imports.dhall).Prelude
+let Kubernetes/ConfigMapVolumeSource =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ConfigMapVolumeSource.dhall
 
-let Optional/default = prelude.Optional.default
+let Kubernetes/Container =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.Container.dhall
+
+let Kubernetes/ContainerPort =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ContainerPort.dhall
+
+let Kubernetes/Deployment =
+      ../../deps/k8s/schemas/io.k8s.api.apps.v1.Deployment.dhall
+
+let Kubernetes/DeploymentSpec =
+      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DeploymentSpec.dhall
+
+let Kubernetes/DeploymentStrategy =
+      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DeploymentStrategy.dhall
+
+let Kubernetes/EnvVar = ../../deps/k8s/schemas/io.k8s.api.core.v1.EnvVar.dhall
+
+let Kubernetes/LabelSelector =
+      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector.dhall
+
+let Kubernetes/ObjectMeta =
+      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.dhall
+
+let Kubernetes/PodSecurityContext =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSecurityContext.dhall
+
+let Kubernetes/PodSpec = ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSpec.dhall
+
+let Kubernetes/PodTemplateSpec =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodTemplateSpec.dhall
+
+let Kubernetes/Probe = ../../deps/k8s/schemas/io.k8s.api.core.v1.Probe.dhall
+
+let Kubernetes/ResourceRequirements =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
+
+let Kubernetes/SecurityContext =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.SecurityContext.dhall
+
+let Kubernetes/Volume = ../../deps/k8s/schemas/io.k8s.api.core.v1.Volume.dhall
+
+let Kubernetes/VolumeMount =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.VolumeMount.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
-let util = ../../util.dhall
+let Util/DeploySourcegraphLabel = ../../util/deploy-sourcegraph-label.dhall
+
+let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let postgresContainer/render =
       λ(c : Configuration/global.Type) →
@@ -22,7 +68,7 @@ let postgresContainer/render =
 
         let resources =
               Optional/default
-                kubernetes.ResourceRequirements.Type
+                Kubernetes/ResourceRequirements.Type
                 { limits = Some
                   [ { mapKey = "cpu", mapValue = "4" }
                   , { mapKey = "memory", mapValue = "2Gi" }
@@ -35,28 +81,28 @@ let postgresContainer/render =
                 overrides.resources
 
         let container =
-              kubernetes.Container::{
+              Kubernetes/Container::{
               , image = Some image
-              , livenessProbe = Some kubernetes.Probe::{
+              , livenessProbe = Some Kubernetes/Probe::{
                 , exec = Some { command = Some [ "/liveness.sh" ] }
                 , initialDelaySeconds = Some 15
                 }
               , name = "pgsql"
               , ports = Some
-                [ kubernetes.ContainerPort::{
+                [ Kubernetes/ContainerPort::{
                   , containerPort = 5432
                   , name = Some "pgsql"
                   }
                 ]
-              , readinessProbe = Some kubernetes.Probe::{
+              , readinessProbe = Some Kubernetes/Probe::{
                 , exec = Some { command = Some [ "/ready.sh" ] }
                 }
               , env = environment
               , resources = Some resources
               , terminationMessagePolicy = Some "FallbackToLogsOnError"
               , volumeMounts = Some
-                [ kubernetes.VolumeMount::{ mountPath = "/data", name = "disk" }
-                , kubernetes.VolumeMount::{
+                [ Kubernetes/VolumeMount::{ mountPath = "/data", name = "disk" }
+                , Kubernetes/VolumeMount::{
                   , mountPath = "/conf"
                   , name = "pgsql-conf"
                   }
@@ -71,12 +117,12 @@ let postgresExporterContainer/render =
 
         let additionalEnvironmentVariables =
               Optional/default
-                (List kubernetes.EnvVar.Type)
-                ([] : List kubernetes.EnvVar.Type)
+                (List Kubernetes/EnvVar.Type)
+                ([] : List Kubernetes/EnvVar.Type)
                 overrides.additionalEnvironmentVariables
 
         let environment =
-                [ kubernetes.EnvVar::{
+                [ Kubernetes/EnvVar::{
                   , name = "DATA_SOURCE_NAME"
                   , value = Some
                       "postgres://sg:@localhost:5432/?sslmode=disable"
@@ -92,7 +138,7 @@ let postgresExporterContainer/render =
 
         let resources =
               Optional/default
-                kubernetes.ResourceRequirements.Type
+                Kubernetes/ResourceRequirements.Type
                 { limits = Some
                   [ { mapKey = "cpu", mapValue = "10m" }
                   , { mapKey = "memory", mapValue = "50Mi" }
@@ -105,7 +151,7 @@ let postgresExporterContainer/render =
                 overrides.resources
 
         let container =
-              kubernetes.Container::{
+              Kubernetes/Container::{
               , env = Some environment
               , image = Some image
               , name = "pgsql-exporter"
@@ -130,7 +176,7 @@ let initContainer/render =
         let resources = overrides.resources
 
         let container =
-              kubernetes.Container::{
+              Kubernetes/Container::{
               , command = Some
                 [ "sh"
                 , "-c"
@@ -139,12 +185,12 @@ let initContainer/render =
               , env = environment
               , image = Some image
               , name = "correct-data-dir-permissions"
-              , securityContext = Some kubernetes.SecurityContext::{
+              , securityContext = Some Kubernetes/SecurityContext::{
                 , runAsUser = Some 0
                 }
               , resources
               , volumeMounts = Some
-                [ kubernetes.VolumeMount::{ mountPath = "/data", name = "disk" }
+                [ Kubernetes/VolumeMount::{ mountPath = "/data", name = "disk" }
                 ]
               }
 
@@ -154,14 +200,14 @@ let render =
       λ(c : Configuration/global.Type) →
         let additionalAnnotations =
               Optional/default
-                (List util.keyValuePair)
-                ([] : List util.keyValuePair)
+                (List Util/KeyValuePair)
+                ([] : List Util/KeyValuePair)
                 c.Postgres.Deployment.additionalAnnotations
 
         let additionalLabels =
               Optional/default
-                (List util.keyValuePair)
-                ([] : List util.keyValuePair)
+                (List Util/KeyValuePair)
+                ([] : List Util/KeyValuePair)
                 c.Postgres.Deployment.additionalLabels
 
         let postgresContainer = postgresContainer/render c
@@ -171,8 +217,8 @@ let render =
         let initContainer = initContainer/render c
 
         let deployment =
-              kubernetes.Deployment::{
-              , metadata = kubernetes.ObjectMeta::{
+              Kubernetes/Deployment::{
+              , metadata = Kubernetes/ObjectMeta::{
                 , annotations = Some
                     (   [ { mapKey = "description"
                           , mapValue = "Postgres database for various data."
@@ -181,7 +227,7 @@ let render =
                       # additionalAnnotations
                     )
                 , labels = Some
-                    (   util.deploySourcegraphLabel
+                    (   Util/DeploySourcegraphLabel
                       # [ { mapKey = "sourcegraph-resource-requires"
                           , mapValue = "no-cluster-admin"
                           }
@@ -191,40 +237,40 @@ let render =
                 , namespace = c.Postgres.Deployment.namespace
                 , name = Some "pgsql"
                 }
-              , spec = Some kubernetes.DeploymentSpec::{
+              , spec = Some Kubernetes/DeploymentSpec::{
                 , minReadySeconds = Some 10
                 , replicas = Some 1
                 , revisionHistoryLimit = Some 10
-                , selector = kubernetes.LabelSelector::{
+                , selector = Kubernetes/LabelSelector::{
                   , matchLabels = Some
                     [ { mapKey = "app", mapValue = "pgsql" } ]
                   }
-                , strategy = Some kubernetes.DeploymentStrategy::{
+                , strategy = Some Kubernetes/DeploymentStrategy::{
                   , type = Some "Recreate"
                   }
-                , template = kubernetes.PodTemplateSpec::{
-                  , metadata = kubernetes.ObjectMeta::{
+                , template = Kubernetes/PodTemplateSpec::{
+                  , metadata = Kubernetes/ObjectMeta::{
                     , labels = Some
                       [ { mapKey = "app", mapValue = "pgsql" }
                       , { mapKey = "deploy", mapValue = "sourcegraph" }
                       , { mapKey = "group", mapValue = "backend" }
                       ]
                     }
-                  , spec = Some kubernetes.PodSpec::{
+                  , spec = Some Kubernetes/PodSpec::{
                     , containers =
                       [ postgresContainer, postgresExporterContainer ]
                     , initContainers = Some [ initContainer ]
-                    , securityContext = Some kubernetes.PodSecurityContext::{
+                    , securityContext = Some Kubernetes/PodSecurityContext::{
                       , runAsUser = Some 0
                       }
                     , volumes = Some
-                      [ kubernetes.Volume::{
+                      [ Kubernetes/Volume::{
                         , name = "disk"
                         , persistentVolumeClaim = Some
                           { claimName = "pgsql", readOnly = None Bool }
                         }
-                      , kubernetes.Volume::{
-                        , configMap = Some kubernetes.ConfigMapVolumeSource::{
+                      , Kubernetes/Volume::{
+                        , configMap = Some Kubernetes/ConfigMapVolumeSource::{
                           , defaultMode = Some 777
                           , name = Some "pgsql-conf"
                           }

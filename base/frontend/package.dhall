@@ -1,6 +1,6 @@
-let kubernetes = (../../imports.dhall).Kubernetes
+let Kubernetes/List = ../../util/kubernetes-list.dhall
 
-let Configuration/global = ../../configuration/global.dhall
+let Kubernetes/TypesUnion = ../../deps/k8s/typesUnion.dhall
 
 let Deployment/render = ./sourcegraph-frontend.Deployment.dhall
 
@@ -16,21 +16,9 @@ let ServiceAccount/render = ./sourcegraph-frontend.ServiceAccount.dhall
 
 let ServiceInternal/render = ./sourcegraph-frontend-internal.Service.dhall
 
-let util = ../../util.dhall
+let component = ./component.dhall
 
-let Kubernetes/list = util.kubernetesList
-
-let Kubernetes/typeUnion = (../../imports.dhall).KubernetesTypeUnion
-
-let component =
-      { Deployment : kubernetes.Deployment.Type
-      , Ingress : kubernetes.Ingress.Type
-      , Role : kubernetes.Role.Type
-      , RoleBinding : kubernetes.RoleBinding.Type
-      , Service : kubernetes.Service.Type
-      , ServiceAccount : kubernetes.ServiceAccount.Type
-      , ServiceInternal : kubernetes.Service.Type
-      }
+let Configuration/global = ../../configuration/global.dhall
 
 let render =
         ( λ(c : Configuration/global.Type) →
@@ -47,18 +35,18 @@ let render =
 
 let toList =
         ( λ(c : component) →
-            Kubernetes/list::{
+            Kubernetes/List::{
             , items =
-              [ Kubernetes/typeUnion.Deployment c.Deployment
-              , Kubernetes/typeUnion.Ingress c.Ingress
-              , Kubernetes/typeUnion.Role c.Role
-              , Kubernetes/typeUnion.RoleBinding c.RoleBinding
-              , Kubernetes/typeUnion.Service c.Service
-              , Kubernetes/typeUnion.ServiceAccount c.ServiceAccount
-              , Kubernetes/typeUnion.Service c.ServiceInternal
+              [ Kubernetes/TypesUnion.Deployment c.Deployment
+              , Kubernetes/TypesUnion.Ingress c.Ingress
+              , Kubernetes/TypesUnion.Role c.Role
+              , Kubernetes/TypesUnion.RoleBinding c.RoleBinding
+              , Kubernetes/TypesUnion.Service c.Service
+              , Kubernetes/TypesUnion.ServiceAccount c.ServiceAccount
+              , Kubernetes/TypesUnion.Service c.ServiceInternal
               ]
             }
         )
-      : ∀(c : component) → Kubernetes/list.Type
+      : ∀(c : component) → Kubernetes/List.Type
 
 in  { Render = render, ToList = toList }

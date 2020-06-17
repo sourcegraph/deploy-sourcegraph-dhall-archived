@@ -1,12 +1,30 @@
-let kubernetes = (../../imports.dhall).Kubernetes
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
 
-let prelude = (../../imports.dhall).Prelude
+let Kubernetes/Ingress =
+      ../../deps/k8s/schemas/io.k8s.api.extensions.v1beta1.Ingress.dhall
 
-let Optional/default = prelude.Optional.default
+let Kubernetes/IngressSpec =
+      ../../deps/k8s/schemas/io.k8s.api.extensions.v1beta1.IngressSpec.dhall
+
+let Kubernetes/IngressRule =
+      ../../deps/k8s/schemas/io.k8s.api.extensions.v1beta1.IngressRule.dhall
+
+let Kubernetes/HTTPIngressRuleValue =
+      ../../deps/k8s/schemas/io.k8s.api.extensions.v1beta1.HTTPIngressRuleValue.dhall
+
+let Kubernetes/HTTPIngressPath =
+      ../../deps/k8s/schemas/io.k8s.api.extensions.v1beta1.HTTPIngressPath.dhall
+
+let Kubernetes/IntOrString =
+      ../../deps/k8s/types/io.k8s.apimachinery.pkg.util.intstr.IntOrString.dhall
+
+let Kubernetes/ObjectMeta =
+      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
-let util = ../../util.dhall
+let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let render =
       λ(c : Configuration/global.Type) →
@@ -14,25 +32,25 @@ let render =
 
         let additionalAnnotations =
               Optional/default
-                (List util.keyValuePair)
-                ([] : List util.keyValuePair)
+                (List Util/KeyValuePair)
+                ([] : List Util/KeyValuePair)
                 overrides.additionalAnnotations
 
         let additionalLabels =
               Optional/default
-                (List util.keyValuePair)
-                ([] : List util.keyValuePair)
+                (List Util/KeyValuePair)
+                ([] : List Util/KeyValuePair)
                 overrides.additionalLabels
 
         let ingress =
-              kubernetes.Ingress::{
-              , metadata = kubernetes.ObjectMeta::{
+              Kubernetes/Ingress::{
+              , metadata = Kubernetes/ObjectMeta::{
                 , annotations = Some
-                    (   [ { mapKey = "kubernetes.io/ingress.class"
+                    (   [ { mapKey = "Kubernetes/io/ingress.class"
                           , mapValue = "nginx"
                           }
                         , { mapKey =
-                              "nginx.ingress.kubernetes.io/proxy-body-size"
+                              "nginx.ingress.Kubernetes/io/proxy-body-size"
                           , mapValue = "150m"
                           }
                         ]
@@ -50,15 +68,15 @@ let render =
                 , namespace = overrides.namespace
                 , name = Some "sourcegraph-frontend"
                 }
-              , spec = Some kubernetes.IngressSpec::{
+              , spec = Some Kubernetes/IngressSpec::{
                 , rules = Some
-                  [ kubernetes.IngressRule::{
-                    , http = Some kubernetes.HTTPIngressRuleValue::{
+                  [ Kubernetes/IngressRule::{
+                    , http = Some Kubernetes/HTTPIngressRuleValue::{
                       , paths =
-                        [ kubernetes.HTTPIngressPath::{
+                        [ Kubernetes/HTTPIngressPath::{
                           , backend =
                             { serviceName = "sourcegraph-frontend"
-                            , servicePort = kubernetes.IntOrString.Int 30080
+                            , servicePort = Kubernetes/IntOrString.Int 30080
                             }
                           , path = Some "/"
                           }

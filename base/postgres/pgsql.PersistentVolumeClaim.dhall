@@ -1,12 +1,21 @@
-let kubernetes = (../../imports.dhall).Kubernetes
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
 
-let prelude = (../../imports.dhall).Prelude
+let Kubernetes/ObjectMeta =
+      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.dhall
 
-let Optional/default = prelude.Optional.default
+let Kubernetes/PersistentVolumeClaim =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaim.dhall
+
+let Kubernetes/PersistentVolumeClaimSpec =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaimSpec.dhall
+
+let Kubernetes/ResourceRequirements =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
-let util = ../../util.dhall
+let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let render =
       λ(c : Configuration/global.Type) →
@@ -16,8 +25,8 @@ let render =
 
         let additionalLabels =
               Optional/default
-                (List util.keyValuePair)
-                ([] : List util.keyValuePair)
+                (List Util/KeyValuePair)
+                ([] : List Util/KeyValuePair)
                 overrides.additionalLabels
 
         let labels =
@@ -28,18 +37,18 @@ let render =
               # additionalLabels
 
         let persistentVolumeClaim =
-              kubernetes.PersistentVolumeClaim::{
+              Kubernetes/PersistentVolumeClaim::{
               , apiVersion = "v1"
               , kind = "PersistentVolumeClaim"
-              , metadata = kubernetes.ObjectMeta::{
+              , metadata = Kubernetes/ObjectMeta::{
                 , annotations
                 , labels = Some labels
                 , namespace = overrides.namespace
                 , name = Some "pgsql"
                 }
-              , spec = Some kubernetes.PersistentVolumeClaimSpec::{
+              , spec = Some Kubernetes/PersistentVolumeClaimSpec::{
                 , accessModes = Some [ "ReadWriteOnce" ]
-                , resources = Some kubernetes.ResourceRequirements::{
+                , resources = Some Kubernetes/ResourceRequirements::{
                   , requests = Some (toMap { storage = "200Gi" })
                   }
                 , storageClassName = Some "sourcegraph"

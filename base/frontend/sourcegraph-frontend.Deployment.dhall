@@ -1,16 +1,67 @@
-let kubernetes = (../../imports.dhall).Kubernetes
+let Natural/enumerate =
+      https://prelude.dhall-lang.org/v17.0.0/Natural/enumerate sha256:0cf083980a752b21ce0df9fc2222a4c139f50909e2353576e26a191002aa1ce3
 
-let prelude = (../../imports.dhall).Prelude
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
 
-let Optional/default = prelude.Optional.default
+let Text/concatMapSep =
+      https://prelude.dhall-lang.org/v17.0.0/Text/concatMapSep sha256:c272aca80a607bc5963d1fcb38819e7e0d3e72ac4d02b1183b1afb6a91340840
 
-let Natural/enumerate = prelude.Natural.enumerate
+let Kubernetes/Container =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.Container.dhall
 
-let Text/concatMapSep = prelude.Text.concatMapSep
+let Kubernetes/ContainerPort =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ContainerPort.dhall
+
+let Kubernetes/Deployment =
+      ../../deps/k8s/schemas/io.k8s.api.apps.v1.Deployment.dhall
+
+let Kubernetes/DeploymentSpec =
+      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DeploymentSpec.dhall
+
+let Kubernetes/DeploymentStrategy =
+      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DeploymentStrategy.dhall
+
+let Kubernetes/EnvVar = ../../deps/k8s/schemas/io.k8s.api.core.v1.EnvVar.dhall
+
+let Kubernetes/EnvVarSource =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.EnvVarSource.dhall
+
+let Kubernetes/HTTPGetAction =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.HTTPGetAction.dhall
+
+let Kubernetes/IntOrString =
+      ../../deps/k8s/types/io.k8s.apimachinery.pkg.util.intstr.IntOrString.dhall
+
+let Kubernetes/LabelSelector =
+      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector.dhall
+
+let Kubernetes/ObjectMeta =
+      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.dhall
+
+let Kubernetes/PodSecurityContext =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSecurityContext.dhall
+
+let Kubernetes/PodSpec = ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSpec.dhall
+
+let Kubernetes/PodTemplateSpec =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodTemplateSpec.dhall
+
+let Kubernetes/Probe = ../../deps/k8s/schemas/io.k8s.api.core.v1.Probe.dhall
+
+let Kubernetes/ResourceRequirements =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
+
+let Kubernetes/VolumeMount =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.VolumeMount.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
-let util = ../../util.dhall
+let Util/JaegerAgent = ../../util/jaeger-agent.dhall
+
+let Util/KeyValuePair = ../../util/key-value-pair.dhall
+
+let Util/EmptyCacheSSDVolume = ../../util/empty-cache-ssd-volume.dhall
 
 let makeGitserverEnvVar =
       λ(replicas : Natural) →
@@ -26,50 +77,50 @@ let frontendContainer/render =
 
         let additionalEnvironmentVariables =
               Optional/default
-                (List kubernetes.EnvVar.Type)
-                ([] : List kubernetes.EnvVar.Type)
+                (List Kubernetes/EnvVar.Type)
+                ([] : List Kubernetes/EnvVar.Type)
                 overrides.additionalEnvironmentVariables
 
         let gitserverReplicas =
               Optional/default Natural 1 c.Gitserver.StatefulSet.replicas
 
         let environment =
-                [ kubernetes.EnvVar::{ name = "PGDATABASE", value = Some "sg" }
-                , kubernetes.EnvVar::{ name = "PGHOST", value = Some "pgsql" }
-                , kubernetes.EnvVar::{ name = "PGPORT", value = Some "5432" }
-                , kubernetes.EnvVar::{
+                [ Kubernetes/EnvVar::{ name = "PGDATABASE", value = Some "sg" }
+                , Kubernetes/EnvVar::{ name = "PGHOST", value = Some "pgsql" }
+                , Kubernetes/EnvVar::{ name = "PGPORT", value = Some "5432" }
+                , Kubernetes/EnvVar::{
                   , name = "PGSSLMODE"
                   , value = Some "disable"
                   }
-                , kubernetes.EnvVar::{ name = "PGUSER", value = Some "sg" }
-                , kubernetes.EnvVar::{
+                , Kubernetes/EnvVar::{ name = "PGUSER", value = Some "sg" }
+                , Kubernetes/EnvVar::{
                   , name = "SRC_GIT_SERVERS"
                   , value = Some (makeGitserverEnvVar gitserverReplicas)
                   }
-                , kubernetes.EnvVar::{
+                , Kubernetes/EnvVar::{
                   , name = "POD_NAME"
-                  , valueFrom = Some kubernetes.EnvVarSource::{
+                  , valueFrom = Some Kubernetes/EnvVarSource::{
                     , fieldRef = Some
                       { apiVersion = None Text, fieldPath = "metadata.name" }
                     }
                   }
-                , kubernetes.EnvVar::{
+                , Kubernetes/EnvVar::{
                   , name = "CACHE_DIR"
                   , value = Some "/mnt/cache/\$(POD_NAME)"
                   }
-                , kubernetes.EnvVar::{
+                , Kubernetes/EnvVar::{
                   , name = "GRAFANA_SERVER_URL"
                   , value = Some "http://grafana:30070"
                   }
-                , kubernetes.EnvVar::{
+                , Kubernetes/EnvVar::{
                   , name = "JAEGER_SERVER_URL"
                   , value = Some "http://jaeger-query:16686"
                   }
-                , kubernetes.EnvVar::{
+                , Kubernetes/EnvVar::{
                   , name = "PRECISE_CODE_INTEL_BUNDLE_MANAGER_URL"
                   , value = Some "http://precise-code-intel-bundle-manager:3187"
                   }
-                , kubernetes.EnvVar::{
+                , Kubernetes/EnvVar::{
                   , name = "PROMETHEUS_URL"
                   , value = Some "http://prometheus:30090"
                   }
@@ -78,7 +129,7 @@ let frontendContainer/render =
 
         let resources =
               Optional/default
-                kubernetes.ResourceRequirements.Type
+                Kubernetes/ResourceRequirements.Type
                 { limits = Some
                   [ { mapKey = "cpu", mapValue = "2" }
                   , { mapKey = "memory", mapValue = "4G" }
@@ -97,14 +148,14 @@ let frontendContainer/render =
                 overrides.image
 
         let container =
-              kubernetes.Container::{
+              Kubernetes/Container::{
               , args = Some [ "serve" ]
               , env = Some environment
               , image = Some image
-              , livenessProbe = Some kubernetes.Probe::{
-                , httpGet = Some kubernetes.HTTPGetAction::{
+              , livenessProbe = Some Kubernetes/Probe::{
+                , httpGet = Some Kubernetes/HTTPGetAction::{
                   , path = Some "/healthz"
-                  , port = kubernetes.IntOrString.String "http"
+                  , port = Kubernetes/IntOrString.String "http"
                   , scheme = Some "HTTP"
                   }
                 , initialDelaySeconds = Some 300
@@ -112,19 +163,19 @@ let frontendContainer/render =
                 }
               , name = "frontend"
               , ports = Some
-                [ kubernetes.ContainerPort::{
+                [ Kubernetes/ContainerPort::{
                   , containerPort = 3080
                   , name = Some "http"
                   }
-                , kubernetes.ContainerPort::{
+                , Kubernetes/ContainerPort::{
                   , containerPort = 3090
                   , name = Some "http-internal"
                   }
                 ]
-              , readinessProbe = Some kubernetes.Probe::{
-                , httpGet = Some kubernetes.HTTPGetAction::{
+              , readinessProbe = Some Kubernetes/Probe::{
+                , httpGet = Some Kubernetes/HTTPGetAction::{
                   , path = Some "/healthz"
-                  , port = kubernetes.IntOrString.String "http"
+                  , port = Kubernetes/IntOrString.String "http"
                   , scheme = Some "HTTP"
                   }
                 , periodSeconds = Some 5
@@ -133,7 +184,7 @@ let frontendContainer/render =
               , resources = Some resources
               , terminationMessagePolicy = Some "FallbackToLogsOnError"
               , volumeMounts = Some
-                [ kubernetes.VolumeMount::{
+                [ Kubernetes/VolumeMount::{
                   , mountPath = "/mnt/cache"
                   , name = "cache-ssd"
                   }
@@ -148,14 +199,14 @@ let render =
 
         let additionalAnnotations =
               Optional/default
-                (List util.keyValuePair)
-                ([] : List util.keyValuePair)
+                (List Util/KeyValuePair)
+                ([] : List Util/KeyValuePair)
                 overrides.additionalAnnotations
 
         let additionalLabels =
               Optional/default
-                (List util.keyValuePair)
-                ([] : List util.keyValuePair)
+                (List Util/KeyValuePair)
+                ([] : List Util/KeyValuePair)
                 overrides.additionalLabels
 
         let replicas = Optional/default Natural 1 overrides.replicas
@@ -163,8 +214,8 @@ let render =
         let frontendContainer = frontendContainer/render c
 
         let deployment =
-              kubernetes.Deployment::{
-              , metadata = kubernetes.ObjectMeta::{
+              Kubernetes/Deployment::{
+              , metadata = Kubernetes/ObjectMeta::{
                 , annotations = Some
                     (   [ { mapKey = "description"
                           , mapValue =
@@ -184,35 +235,35 @@ let render =
                 , namespace = overrides.namespace
                 , name = Some "sourcegraph-frontend"
                 }
-              , spec = Some kubernetes.DeploymentSpec::{
+              , spec = Some Kubernetes/DeploymentSpec::{
                 , minReadySeconds = Some 10
                 , replicas = Some replicas
                 , revisionHistoryLimit = Some 10
-                , selector = kubernetes.LabelSelector::{
+                , selector = Kubernetes/LabelSelector::{
                   , matchLabels = Some
                     [ { mapKey = "app", mapValue = "sourcegraph-frontend" } ]
                   }
-                , strategy = Some kubernetes.DeploymentStrategy::{
+                , strategy = Some Kubernetes/DeploymentStrategy::{
                   , rollingUpdate = Some
-                    { maxSurge = Some (kubernetes.IntOrString.Int 2)
-                    , maxUnavailable = Some (kubernetes.IntOrString.Int 0)
+                    { maxSurge = Some (Kubernetes/IntOrString.Int 2)
+                    , maxUnavailable = Some (Kubernetes/IntOrString.Int 0)
                     }
                   , type = Some "RollingUpdate"
                   }
-                , template = kubernetes.PodTemplateSpec::{
-                  , metadata = kubernetes.ObjectMeta::{
+                , template = Kubernetes/PodTemplateSpec::{
+                  , metadata = Kubernetes/ObjectMeta::{
                     , labels = Some
                       [ { mapKey = "app", mapValue = "sourcegraph-frontend" }
                       , { mapKey = "deploy", mapValue = "sourcegraph" }
                       ]
                     }
-                  , spec = Some kubernetes.PodSpec::{
-                    , containers = [ frontendContainer, util.jaegerAgent ]
-                    , securityContext = Some kubernetes.PodSecurityContext::{
+                  , spec = Some Kubernetes/PodSpec::{
+                    , containers = [ frontendContainer, Util/JaegerAgent ]
+                    , securityContext = Some Kubernetes/PodSecurityContext::{
                       , runAsUser = Some 0
                       }
                     , serviceAccountName = Some "sourcegraph-frontend"
-                    , volumes = Some [ util.emptyCacheSSDVolume ]
+                    , volumes = Some [ Util/EmptyCacheSSDVolume ]
                     }
                   }
                 }

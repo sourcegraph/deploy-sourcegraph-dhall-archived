@@ -1,16 +1,19 @@
-let kubernetes = (../../imports.dhall).Kubernetes
+let Kubernetes/ResourceRequirements =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
+
+let Kubernetes/EnvVar = ../../deps/k8s/schemas/io.k8s.api.core.v1.EnvVar.dhall
 
 let configuration =
       { Type =
           { image : Optional Text
-          , resources : Optional kubernetes.ResourceRequirements.Type
+          , resources : Optional Kubernetes/ResourceRequirements.Type
           , additionalEnvironmentVariables :
-              Optional (List kubernetes.EnvVar.Type)
+              Optional (List Kubernetes/EnvVar.Type)
           }
       , default =
         { image = None Text
-        , resources = None kubernetes.ResourceRequirements.Type
-        , additionalEnvironmentVariables = None (List kubernetes.EnvVar.Type)
+        , resources = None Kubernetes/ResourceRequirements.Type
+        , additionalEnvironmentVariables = None (List Kubernetes/EnvVar.Type)
         }
       }
 

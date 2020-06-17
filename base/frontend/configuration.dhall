@@ -2,7 +2,7 @@ let Configuration/universal = ../../configuration/universal.dhall
 
 let Configuration/container = ../../configuration/resource/container.dhall
 
-let util = ../../util.dhall
+let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let containers =
       { Type = { SourcegraphFrontend : Configuration/container.Type }
@@ -12,15 +12,15 @@ let containers =
 let Deployment =
       { Type =
           { namespace : Optional Text
-          , additionalAnnotations : Optional (List util.keyValuePair)
-          , additionalLabels : Optional (List util.keyValuePair)
+          , additionalAnnotations : Optional (List Util/KeyValuePair)
+          , additionalLabels : Optional (List Util/KeyValuePair)
           , replicas : Optional Natural
           , Containers : containers.Type
           }
       , default =
         { namespace = None Text
-        , additionalAnnotations = None (List util.keyValuePair)
-        , additionalLabels = None (List util.keyValuePair)
+        , additionalAnnotations = None (List Util/KeyValuePair)
+        , additionalLabels = None (List Util/KeyValuePair)
         , replicas = None Natural
         , Containers = containers.default
         }
