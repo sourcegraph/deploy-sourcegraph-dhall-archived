@@ -5,26 +5,38 @@ let Kubernetes/List = ../util/kubernetes-list.dhall
 
 let Kubernetes/TypesUnion = ../deps/k8s/typesUnion.dhall
 
-let Postgres/render = (./postgres/package.dhall).Render
+let Postgres/Render = ./postgres/package.dhall
 
-let Postgres/toList = (./postgres/package.dhall).ToList
+let Frontend/Render = ./frontend/package.dhall
 
-let Gitserver/render = (./gitserver/package.dhall).Render
+let Gitserver/Render = ./gitserver/package.dhall
 
-let Gitserver/toList = (./gitserver/package.dhall).ToList
+let IndexedSearch/Render = ./indexed-search/package.dhall
 
-let Frontend/render = (./frontend/package.dhall).Render
+let Symbols/Render = ./symbols/package.dhall
 
-let Frontend/toList = (./frontend/package.dhall).ToList
+let Jaeger/Render = ./jaeger/package.dhall
+
+let SyntaxHighlighter/Render = ./syntax-highlighter/package.dhall
+
+let Searcher/Render = ./searcher/package.dhall
+
+let RepoUpdater/Render = ./repo-updater/package.dhall
 
 let Configure/global = ../configuration/global.dhall
 
 let toList =
       λ(c : Configure/global.Type) →
         let allResourceLists =
-              [ Postgres/toList (Postgres/render c)
-              , Gitserver/toList (Gitserver/render c)
-              , Frontend/toList (Frontend/render c)
+              [ Postgres/Render c
+              , Gitserver/Render c
+              , Frontend/Render c
+              , IndexedSearch/Render c
+              , Symbols/Render c
+              , Jaeger/Render c
+              , SyntaxHighlighter/Render c
+              , Searcher/Render c
+              , RepoUpdater/Render c
               ]
 
         in  Kubernetes/List::{

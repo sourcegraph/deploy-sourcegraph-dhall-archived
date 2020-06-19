@@ -2,5 +2,5 @@
 , kind = "SelfSubjectRulesReview"
 , status =
     None
-      ./../types/io.k8s.api.authorization.v1beta1.SubjectRulesReviewStatus.dhall
+      ../types/io.k8s.api.authorization.v1beta1.SubjectRulesReviewStatus.dhall
 }

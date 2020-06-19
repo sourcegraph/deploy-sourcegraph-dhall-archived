@@ -3,10 +3,9 @@
 , progressDeadlineSeconds = None Natural
 , replicas = None Natural
 , revisionHistoryLimit = None Natural
-, rollbackTo =
-    None ./../types/io.k8s.api.extensions.v1beta1.RollbackConfig.dhall
+, rollbackTo = None ../types/io.k8s.api.extensions.v1beta1.RollbackConfig.dhall
 , selector =
-    None ./../types/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector.dhall
+    None ../types/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector.dhall
 , strategy =
-    None ./../types/io.k8s.api.extensions.v1beta1.DeploymentStrategy.dhall
+    None ../types/io.k8s.api.extensions.v1beta1.DeploymentStrategy.dhall
 }

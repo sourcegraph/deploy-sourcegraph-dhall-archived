@@ -72,7 +72,7 @@ let component =
       , Service : Kubernetes/Service.Type
       }
 
-let Service/render =
+let Service/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Gitserver.Service
 
@@ -131,7 +131,7 @@ let Service/render =
 
         in  service
 
-let gitserverContainer/render =
+let gitserverContainer/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Gitserver.StatefulSet.Containers.Gitserver
 
@@ -188,7 +188,7 @@ let gitserverContainer/render =
 
         in  container
 
-let StatefulSet/render =
+let StatefulSet/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Gitserver.StatefulSet
 
@@ -206,7 +206,7 @@ let StatefulSet/render =
 
         let replicas = Optional/default Natural 1 overrides.replicas
 
-        let gitserverContainer = gitserverContainer/render c
+        let gitserverContainer = gitserverContainer/generate c
 
         let statefulSet =
               Kubernetes/StatefulSet::{
@@ -278,9 +278,11 @@ let StatefulSet/render =
 
         in  statefulSet
 
-let Render =
+let Generate =
         ( λ(c : Configuration/global.Type) →
-            { StatefulSet = StatefulSet/render c, Service = Service/render c }
+            { StatefulSet = StatefulSet/generate c
+            , Service = Service/generate c
+            }
         )
       : ∀(c : Configuration/global.Type) → component
 
@@ -295,4 +297,8 @@ let ToList =
         )
       : ∀(c : component) → Kubernetes/List.Type
 
-in  { Render, ToList, component }
+let Render =
+        (λ(c : Configuration/global.Type) → ToList (Generate c))
+      : ∀(c : Configuration/global.Type) → Kubernetes/List.Type
+
+in  Render

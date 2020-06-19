@@ -3,5 +3,5 @@
 , progressDeadlineSeconds = None Natural
 , replicas = None Natural
 , revisionHistoryLimit = None Natural
-, strategy = None ./../types/io.k8s.api.apps.v1beta2.DeploymentStrategy.dhall
+, strategy = None ../types/io.k8s.api.apps.v1beta2.DeploymentStrategy.dhall
 }

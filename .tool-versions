@@ -1,3 +1,4 @@
-dhall 1.32.0
+dhall 1.33.0
 shellcheck 0.7.1
 shfmt 3.1.1
+fd 7.4.0

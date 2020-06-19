@@ -1,4 +1,4 @@
-{ Type = ./../types/io.k8s.api.extensions.v1beta1.RollingUpdateDaemonSet.dhall
+{ Type = ../types/io.k8s.api.extensions.v1beta1.RollingUpdateDaemonSet.dhall
 , default =
-    ./../defaults/io.k8s.api.extensions.v1beta1.RollingUpdateDaemonSet.dhall
+    ../defaults/io.k8s.api.extensions.v1beta1.RollingUpdateDaemonSet.dhall
 }

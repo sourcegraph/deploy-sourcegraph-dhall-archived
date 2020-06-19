@@ -1,5 +1,5 @@
 { Type =
-    ./../types/io.k8s.api.authorization.v1beta1.SelfSubjectRulesReviewSpec.dhall
+    ../types/io.k8s.api.authorization.v1beta1.SelfSubjectRulesReviewSpec.dhall
 , default =
-    ./../defaults/io.k8s.api.authorization.v1beta1.SelfSubjectRulesReviewSpec.dhall
+    ../defaults/io.k8s.api.authorization.v1beta1.SelfSubjectRulesReviewSpec.dhall
 }

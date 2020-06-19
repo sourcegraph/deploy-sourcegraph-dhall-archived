@@ -2,23 +2,23 @@
 , `$schema` = None Text
 , default =
     None
-      ./../types/io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1.JSON.dhall sha256:0912602a19e01dcff30f351958d2d9b69519c9be61b57b1b32a2a569bf8bf5f9
+      ../types/io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1.JSON.dhall sha256:0912602a19e01dcff30f351958d2d9b69519c9be61b57b1b32a2a569bf8bf5f9
 , definitions = None (List { mapKey : Text, mapValue : Text })
 , dependencies = None (List { mapKey : Text, mapValue : Text })
 , description = None Text
 , enum =
     None
       ( List
-          ./../types/io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1.JSON.dhall sha256:0912602a19e01dcff30f351958d2d9b69519c9be61b57b1b32a2a569bf8bf5f9
+          ../types/io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1.JSON.dhall sha256:0912602a19e01dcff30f351958d2d9b69519c9be61b57b1b32a2a569bf8bf5f9
       )
 , example =
     None
-      ./../types/io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1.JSON.dhall sha256:0912602a19e01dcff30f351958d2d9b69519c9be61b57b1b32a2a569bf8bf5f9
+      ../types/io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1.JSON.dhall sha256:0912602a19e01dcff30f351958d2d9b69519c9be61b57b1b32a2a569bf8bf5f9
 , exclusiveMaximum = None Bool
 , exclusiveMinimum = None Bool
 , externalDocs =
     None
-      ./../types/io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1.ExternalDocumentation.dhall sha256:75a79c871f43a432b402f8a5d52f277bb827f5170ecfed101ed356a91ccbce91
+      ../types/io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1.ExternalDocumentation.dhall sha256:75a79c871f43a432b402f8a5d52f277bb827f5170ecfed101ed356a91ccbce91
 , format = None Text
 , id = None Text
 , maxItems = None Natural

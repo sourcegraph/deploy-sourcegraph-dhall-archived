@@ -1,5 +1,5 @@
 { Type =
-    ./../types/io.k8s.api.admissionregistration.v1beta1.ValidatingWebhook.dhall
+    ../types/io.k8s.api.admissionregistration.v1beta1.ValidatingWebhook.dhall
 , default =
-    ./../defaults/io.k8s.api.admissionregistration.v1beta1.ValidatingWebhook.dhall
+    ../defaults/io.k8s.api.admissionregistration.v1beta1.ValidatingWebhook.dhall
 }

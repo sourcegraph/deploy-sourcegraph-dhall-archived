@@ -1,5 +1,5 @@
 { Type =
-    ./../types/io.k8s.api.autoscaling.v2beta1.HorizontalPodAutoscalerSpec.dhall
+    ../types/io.k8s.api.autoscaling.v2beta1.HorizontalPodAutoscalerSpec.dhall
 , default =
-    ./../defaults/io.k8s.api.autoscaling.v2beta1.HorizontalPodAutoscalerSpec.dhall
+    ../defaults/io.k8s.api.autoscaling.v2beta1.HorizontalPodAutoscalerSpec.dhall
 }

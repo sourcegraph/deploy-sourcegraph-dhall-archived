@@ -123,7 +123,7 @@ let makeGitserverEnvVar =
 
         in  Text/concatMapSep "," Natural makeEndpoint indicies
 
-let frontendContainer/render =
+let frontendContainer/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Frontend.Deployment.Containers.SourcegraphFrontend
 
@@ -245,7 +245,7 @@ let frontendContainer/render =
 
         in  container
 
-let Deployment/render =
+let Deployment/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Frontend.Deployment
 
@@ -263,7 +263,7 @@ let Deployment/render =
 
         let replicas = Optional/default Natural 1 overrides.replicas
 
-        let frontendContainer = frontendContainer/render c
+        let frontendContainer = frontendContainer/generate c
 
         let deployment =
               Kubernetes/Deployment::{
@@ -323,7 +323,7 @@ let Deployment/render =
 
         in  deployment
 
-let Ingress/render =
+let Ingress/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Frontend.Ingress
 
@@ -386,7 +386,7 @@ let Ingress/render =
 
         in  ingress
 
-let Role/render =
+let Role/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Frontend.Role
 
@@ -423,7 +423,7 @@ let Role/render =
 
         in  role
 
-let RoleBinding/render =
+let RoleBinding/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Frontend.RoleBinding
 
@@ -463,7 +463,7 @@ let RoleBinding/render =
 
         in  roleBinding
 
-let Service/render =
+let Service/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Frontend.Service
 
@@ -518,7 +518,7 @@ let Service/render =
 
         in  service
 
-let ServiceAccount/render =
+let ServiceAccount/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Frontend.ServiceAccount
 
@@ -549,7 +549,7 @@ let ServiceAccount/render =
 
         in  serviceAccount
 
-let ServiceInternal/render =
+let ServiceInternal/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Frontend.ServiceInternal
 
@@ -592,15 +592,15 @@ let ServiceInternal/render =
 
         in  serviceInternal
 
-let Render =
+let Generate =
         ( λ(c : Configuration/global.Type) →
-            { Deployment = Deployment/render c
-            , Ingress = Ingress/render c
-            , Role = Role/render c
-            , RoleBinding = RoleBinding/render c
-            , Service = Service/render c
-            , ServiceAccount = ServiceAccount/render c
-            , ServiceInternal = ServiceInternal/render c
+            { Deployment = Deployment/generate c
+            , Ingress = Ingress/generate c
+            , Role = Role/generate c
+            , RoleBinding = RoleBinding/generate c
+            , Service = Service/generate c
+            , ServiceAccount = ServiceAccount/generate c
+            , ServiceInternal = ServiceInternal/generate c
             }
         )
       : ∀(c : Configuration/global.Type) → component
@@ -621,4 +621,8 @@ let ToList =
         )
       : ∀(c : component) → Kubernetes/List.Type
 
-in  { Component = component, Render, ToList }
+let Render =
+        (λ(c : Configuration/global.Type) → ToList (Generate c))
+      : ∀(c : Configuration/global.Type) → Kubernetes/List.Type
+
+in  Render
