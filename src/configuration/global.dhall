@@ -17,6 +17,8 @@ let Searcher/configuration = ../base/syntax-highlighter/configuration.dhall
 
 let RepoUpdater/configuration = ../base/repo-updater/configuration.dhall
 
+let Cadvisor/configuration = ../base/cadvisor/configuration.dhall
+
 let configuration =
       { Type =
           { Frontend : Frontend/configuration.Type
@@ -28,6 +30,7 @@ let configuration =
           , SyntaxHighlighter : SyntaxHighlighter/configuration.Type
           , Searcher : Searcher/configuration.Type
           , RepoUpdater : RepoUpdater/configuration.Type
+          , Cadvisor : Cadvisor/configuration.Type
           }
       , default =
         { Frontend = Frontend/configuration.default
@@ -39,6 +42,7 @@ let configuration =
         , SyntaxHighlighter = SyntaxHighlighter/configuration.default
         , Searcher = Searcher/configuration.default
         , RepoUpdater = RepoUpdater/configuration.default
+        , Cadvisor = Cadvisor/configuration.default
         }
       }
 
