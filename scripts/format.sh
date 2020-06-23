@@ -5,11 +5,7 @@ set -eu pipefail
 
 DHALL_FILES=()
 
-IGNORE_DIRS=(
-  "deps"
-)
-
-mapfile -t DHALL_FILES < <(fd --extension dhall --exclude "${IGNORE_DIRS[@]}")
+mapfile -t DHALL_FILES < <(scripts/ls-dhall-files.sh)
 
 function format() {
   local file="$1"
@@ -37,6 +33,4 @@ function format() {
 }
 export -f format
 
-echo 'will cite' | parallel --citation &>/dev/null
-
-parallel --keep-order --line-buffer format {} ::: "${DHALL_FILES[@]}"
+./scripts/parallel_run.sh format {} ::: "${DHALL_FILES[@]}"

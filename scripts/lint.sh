@@ -5,11 +5,7 @@ set -eu pipefail
 
 DHALL_FILES=()
 
-IGNORE_DIRS=(
-  "deps"
-)
-
-mapfile -t DHALL_FILES < <(fd --extension dhall --exclude "${IGNORE_DIRS[@]}")
+mapfile -t DHALL_FILES < <(scripts/ls-dhall-files.sh)
 
 function lint() {
   local file="$1"
@@ -37,6 +33,4 @@ function lint() {
 }
 export -f lint
 
-echo 'will cite' | parallel --citation &>/dev/null
-
-parallel --keep-order --line-buffer lint {} ::: "${DHALL_FILES[@]}"
+./scripts/parallel_run.sh lint {} ::: "${DHALL_FILES[@]}"

@@ -5,8 +5,8 @@ let Configuration/container = ../../configuration/resource/container.dhall
 let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let containers =
-      { Type = { Syntect : Configuration/container.Type }
-      , default.Symbols = Configuration/container.default
+      { Type = { SyntaxHighlighter : Configuration/container.Type }
+      , default.SyntaxHighlighter = Configuration/container.default
       }
 
 let Deployment =

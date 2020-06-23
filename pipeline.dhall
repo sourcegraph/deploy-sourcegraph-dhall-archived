@@ -1,7 +1,7 @@
-let Base/toList = ./base/package.dhall
+let Sourcegraph = ./package.dhall
 
-let Configuration/global = ./configuration/global.dhall
+let ToList = Sourcegraph.ToList
 
-let c = Configuration/global::{=}
+let c = Sourcegraph.Configuration::{=}
 
-in  Base/toList c
+in  ToList c
