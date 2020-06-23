@@ -23,6 +23,12 @@ let Searcher/Render = ./searcher/package.dhall
 
 let RepoUpdater/Render = ./repo-updater/package.dhall
 
+let GithubProxy/Render = ./github-proxy/package.dhall
+
+let Cadvisor/Render = ./cadvisor/package.dhall
+
+let Grafana/Render = ./grafana/package.dhall
+
 let Configure/global = ../configuration/global.dhall
 
 let toList =
@@ -37,6 +43,8 @@ let toList =
               , SyntaxHighlighter/Render c
               , Searcher/Render c
               , RepoUpdater/Render c
+              , GithubProxy/Render c
+              , Cadvisor/Render c
               ]
 
         in  Kubernetes/List::{

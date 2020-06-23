@@ -12,5 +12,5 @@ trap "exit" SIGINT
 LS_DHALL_SCRIPT="$(dirname "${BASH_SOURCE[0]}")/ls-dhall-files.sh"
 
 while true; do
-  "${LS_DHALL_SCRIPT}" | entr -cd "$@" || true
+  "${LS_DHALL_SCRIPT}" | (entr -cd "$@" || true)
 done

@@ -19,6 +19,8 @@ let RepoUpdater/configuration = ../base/repo-updater/configuration.dhall
 
 let Cadvisor/configuration = ../base/cadvisor/configuration.dhall
 
+let Grafana/configuration = ../base/grafana/configuration.dhall
+
 let configuration =
       { Type =
           { Frontend : Frontend/configuration.Type
@@ -31,6 +33,7 @@ let configuration =
           , Searcher : Searcher/configuration.Type
           , RepoUpdater : RepoUpdater/configuration.Type
           , Cadvisor : Cadvisor/configuration.Type
+          , Grafana : Grafana/configuration.Type
           }
       , default =
         { Frontend = Frontend/configuration.default
@@ -43,6 +46,7 @@ let configuration =
         , Searcher = Searcher/configuration.default
         , RepoUpdater = RepoUpdater/configuration.default
         , Cadvisor = Cadvisor/configuration.default
+        , Grafana = Grafana/configuration.default
         }
       }
 
