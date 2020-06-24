@@ -21,6 +21,9 @@ let Cadvisor/configuration = ../base/cadvisor/configuration.dhall
 
 let Grafana/configuration = ../base/grafana/configuration.dhall
 
+let PreciseCodeIntel/configuration =
+      ../base/precise-code-intel/configuration.dhall
+
 let configuration =
       { Type =
           { Frontend : Frontend/configuration.Type
@@ -34,6 +37,7 @@ let configuration =
           , RepoUpdater : RepoUpdater/configuration.Type
           , Cadvisor : Cadvisor/configuration.Type
           , Grafana : Grafana/configuration.Type
+          , PreciseCodeIntel : PreciseCodeIntel/configuration.Type
           }
       , default =
         { Frontend = Frontend/configuration.default
@@ -47,6 +51,7 @@ let configuration =
         , RepoUpdater = RepoUpdater/configuration.default
         , Cadvisor = Cadvisor/configuration.default
         , Grafana = Grafana/configuration.default
+        , PreciseCodeIntel = PreciseCodeIntel/configuration.default
         }
       }
 

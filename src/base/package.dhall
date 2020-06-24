@@ -29,6 +29,8 @@ let Cadvisor/Render = ./cadvisor/package.dhall
 
 let Grafana/Render = ./grafana/package.dhall
 
+let PreciseCodeIntel/Render = ./precise-code-intel/package.dhall
+
 let Configure/global = ../configuration/global.dhall
 
 let toList =
@@ -45,6 +47,7 @@ let toList =
               , RepoUpdater/Render c
               , GithubProxy/Render c
               , Cadvisor/Render c
+              , PreciseCodeIntel/Render c
               ]
 
         in  Kubernetes/List::{
