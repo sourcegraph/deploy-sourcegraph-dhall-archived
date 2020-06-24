@@ -24,6 +24,8 @@ let Grafana/configuration = ../base/grafana/configuration.dhall
 let PreciseCodeIntel/configuration =
       ../base/precise-code-intel/configuration.dhall
 
+let Redis/configuration = ../base/redis/configuration.dhall
+
 let configuration =
       { Type =
           { Frontend : Frontend/configuration.Type
@@ -38,6 +40,7 @@ let configuration =
           , Cadvisor : Cadvisor/configuration.Type
           , Grafana : Grafana/configuration.Type
           , PreciseCodeIntel : PreciseCodeIntel/configuration.Type
+          , Redis : Redis/configuration.Type
           }
       , default =
         { Frontend = Frontend/configuration.default
@@ -52,6 +55,7 @@ let configuration =
         , Cadvisor = Cadvisor/configuration.default
         , Grafana = Grafana/configuration.default
         , PreciseCodeIntel = PreciseCodeIntel/configuration.default
+        , Redis = Redis/configuration.default
         }
       }
 
