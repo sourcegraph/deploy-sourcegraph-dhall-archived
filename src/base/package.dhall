@@ -35,6 +35,8 @@ let Redis/Render = ./redis/package.dhall
 
 let Replacer/Render = ./replacer/package.dhall
 
+let QueryRunner/Render = ./query-runner/package.dhall
+
 let Configure/global = ../configuration/global.dhall
 
 let toList =
@@ -54,6 +56,7 @@ let toList =
               , PreciseCodeIntel/Render c
               , Redis/Render c
               , Replacer/Render c
+              , QueryRunner/Render c
               ]
 
         in  Kubernetes/List::{
