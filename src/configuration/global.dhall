@@ -26,6 +26,8 @@ let PreciseCodeIntel/configuration =
 
 let Redis/configuration = ../base/redis/configuration.dhall
 
+let Replacer/configuration = ../base/replacer/configuration.dhall
+
 let configuration =
       { Type =
           { Frontend : Frontend/configuration.Type
@@ -41,6 +43,7 @@ let configuration =
           , Grafana : Grafana/configuration.Type
           , PreciseCodeIntel : PreciseCodeIntel/configuration.Type
           , Redis : Redis/configuration.Type
+          , Replacer : Replacer/configuration.Type
           }
       , default =
         { Frontend = Frontend/configuration.default
@@ -56,6 +59,7 @@ let configuration =
         , Grafana = Grafana/configuration.default
         , PreciseCodeIntel = PreciseCodeIntel/configuration.default
         , Redis = Redis/configuration.default
+        , Replacer = Replacer/configuration.default
         }
       }
 

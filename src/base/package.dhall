@@ -33,6 +33,8 @@ let PreciseCodeIntel/Render = ./precise-code-intel/package.dhall
 
 let Redis/Render = ./redis/package.dhall
 
+let Replacer/Render = ./replacer/package.dhall
+
 let Configure/global = ../configuration/global.dhall
 
 let toList =
@@ -51,6 +53,7 @@ let toList =
               , Cadvisor/Render c
               , PreciseCodeIntel/Render c
               , Redis/Render c
+              , Replacer/Render c
               ]
 
         in  Kubernetes/List::{

@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
-cd "$(dirname "${BASH_SOURCE[0]}")"/..
 set -eu pipefail
 
 IGNORE_DIRS=(
   "src/deps"
 )
 
-fd --extension dhall --exclude "${IGNORE_DIRS[@]}"
+REPOSITORY_ROOT_RELATIVE_PATH="$(realpath --relative-to="$(pwd)" "$(dirname "${BASH_SOURCE[0]}")"/..)"
+
+fd --extension dhall --exclude "${IGNORE_DIRS[@]}" . "${REPOSITORY_ROOT_RELATIVE_PATH}"
