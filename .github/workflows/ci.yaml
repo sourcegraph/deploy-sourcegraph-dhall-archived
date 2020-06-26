@@ -14,7 +14,7 @@ jobs:
       - name: Install asdf tools versions
         run: "./ci/asdf-install.sh"
       - name: Check that the CI pipeline definition is up-to-date with the dhall configuration
-        run: scripts/ci/check-rendered-pipeline-up-to-date.sh
+        run: ci/check-rendered-pipeline-up-to-date.sh
   dhallFormat:
     name: dhall-format
     runs-on: ubuntu-latest
@@ -63,7 +63,7 @@ jobs:
       - name: Install asdf tools versions
         run: "./ci/asdf-install.sh"
       - name: Lint shell scripts
-        run: scripts/ci/shellcheck.sh
+        run: ci/shellcheck.sh
   shfmt:
     name: shfmt
     runs-on: ubuntu-latest
@@ -78,7 +78,7 @@ jobs:
       - name: Install asdf tools versions
         run: "./ci/asdf-install.sh"
       - name: Check that scripts are formatted consistently
-        run: scripts/ci/shfmt.sh
+        run: ci/shfmt.sh
 name: CI
 on:
   pull_request: {}
