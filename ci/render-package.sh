@@ -4,6 +4,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"/..
 set -euxo pipefail
 
 pwd
+df -T
 # sudo apt-get install tree --yes
 # tree src/
 echo
