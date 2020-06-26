@@ -5,38 +5,32 @@ set -eu pipefail
 
 DHALL_FILES=()
 
-IGNORE_DIRS=(
-  "deps"
-)
-
-mapfile -t DHALL_FILES < <(fd --extension dhall --exclude "${IGNORE_DIRS[@]}")
+mapfile -t DHALL_FILES < <(scripts/ls-dhall-files.sh)
 
 function format() {
-  local file="$1"
+	local file="$1"
 
-  local FORMAT_ARGS=(
-    "format"
-    "--inplace"
-    "${file}"
-  )
+	local FORMAT_ARGS=(
+		"format"
+		"--inplace"
+		"${file}"
+	)
 
-  if [ "${CHECK:-"false"}" == "true" ]; then
-    FORMAT_ARGS+=("--check")
-  fi
+	if [ "${CHECK:-"false"}" == "true" ]; then
+		FORMAT_ARGS+=("--check")
+	fi
 
-  result=$(dhall "${FORMAT_ARGS[@]}" 2>&1)
-  rc=$?
+	result=$(dhall "${FORMAT_ARGS[@]}" 2>&1)
+	rc=$?
 
-  if [ -n "$result" ]; then
-    echo "${file}:"
-    echo "$result"
-    echo
-  fi
+	if [ -n "$result" ]; then
+		echo "${file}:"
+		echo "$result"
+		echo
+	fi
 
-  exit "$rc"
+	exit "$rc"
 }
 export -f format
 
-echo 'will cite' | parallel --citation &>/dev/null
-
-parallel --keep-order --line-buffer format {} ::: "${DHALL_FILES[@]}"
+./scripts/parallel_run.sh format {} ::: "${DHALL_FILES[@]}"

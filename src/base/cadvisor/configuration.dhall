@@ -5,35 +5,39 @@ let Configuration/container = ../../configuration/resource/container.dhall
 let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let containers =
-      { Type = { Syntect : Configuration/container.Type }
-      , default.Symbols = Configuration/container.default
+      { Type = { Cadvisor : Configuration/container.Type }
+      , default.Cadvisor = Configuration/container.default
       }
 
-let Deployment =
+let DaemonSet =
       { Type =
           { namespace : Optional Text
           , additionalAnnotations : Optional (List Util/KeyValuePair)
           , additionalLabels : Optional (List Util/KeyValuePair)
-          , replicas : Optional Natural
           , Containers : containers.Type
           }
       , default =
         { namespace = None Text
         , additionalAnnotations = None (List Util/KeyValuePair)
         , additionalLabels = None (List Util/KeyValuePair)
-        , replicas = None Natural
         , Containers = containers.default
         }
       }
 
 let configuration =
       { Type =
-          { Deployment : Deployment.Type
-          , Service : Configuration/universal.Type
+          { DaemonSet : DaemonSet.Type
+          , ClusterRole : Configuration/universal.Type
+          , ClusterRoleBinding : Configuration/universal.Type
+          , PodSecurityPolicy : Configuration/universal.Type
+          , ServiceAccount : Configuration/universal.Type
           }
       , default =
-        { Deployment = Deployment.default
-        , Service = Configuration/universal.default
+        { DaemonSet = DaemonSet.default
+        , ClusterRole = Configuration/universal.default
+        , ClusterRoleBinding = Configuration/universal.default
+        , PodSecurityPolicy = Configuration/universal.default
+        , ServiceAccount = Configuration/universal.default
         }
       }
 

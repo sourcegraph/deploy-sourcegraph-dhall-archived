@@ -5,38 +5,32 @@ set -eu pipefail
 
 DHALL_FILES=()
 
-IGNORE_DIRS=(
-  "deps"
-)
-
-mapfile -t DHALL_FILES < <(fd --extension dhall --exclude "${IGNORE_DIRS[@]}")
+mapfile -t DHALL_FILES < <(scripts/ls-dhall-files.sh)
 
 function lint() {
-  local file="$1"
+	local file="$1"
 
-  local LINT_ARGS=(
-    "lint"
-    "--inplace"
-    "${file}"
-  )
+	local LINT_ARGS=(
+		"lint"
+		"--inplace"
+		"${file}"
+	)
 
-  if [ "${CHECK:-"false"}" == "true" ]; then
-    LINT_ARGS+=("--check")
-  fi
+	if [ "${CHECK:-"false"}" == "true" ]; then
+		LINT_ARGS+=("--check")
+	fi
 
-  result=$(dhall "${LINT_ARGS[@]}" 2>&1)
-  rc=$?
+	result=$(dhall "${LINT_ARGS[@]}" 2>&1)
+	rc=$?
 
-  if [ -n "$result" ]; then
-    echo "${file}:"
-    echo "$result"
-    echo
-  fi
+	if [ -n "$result" ]; then
+		echo "${file}:"
+		echo "$result"
+		echo
+	fi
 
-  exit "$rc"
+	exit "$rc"
 }
 export -f lint
 
-echo 'will cite' | parallel --citation &>/dev/null
-
-parallel --keep-order --line-buffer lint {} ::: "${DHALL_FILES[@]}"
+./scripts/parallel_run.sh lint {} ::: "${DHALL_FILES[@]}"

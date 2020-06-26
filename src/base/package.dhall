@@ -23,6 +23,20 @@ let Searcher/Render = ./searcher/package.dhall
 
 let RepoUpdater/Render = ./repo-updater/package.dhall
 
+let GithubProxy/Render = ./github-proxy/package.dhall
+
+let Cadvisor/Render = ./cadvisor/package.dhall
+
+let PreciseCodeIntel/Render = ./precise-code-intel/package.dhall
+
+let Redis/Render = ./redis/package.dhall
+
+let Replacer/Render = ./replacer/package.dhall
+
+let QueryRunner/Render = ./query-runner/package.dhall
+
+let Prometheus/Render = ./prometheus/package.dhall
+
 let Configure/global = ../configuration/global.dhall
 
 let toList =
@@ -37,6 +51,13 @@ let toList =
               , SyntaxHighlighter/Render c
               , Searcher/Render c
               , RepoUpdater/Render c
+              , GithubProxy/Render c
+              , Cadvisor/Render c
+              , PreciseCodeIntel/Render c
+              , Redis/Render c
+              , Replacer/Render c
+              , QueryRunner/Render c
+              , Prometheus/Render c
               ]
 
         in  Kubernetes/List::{

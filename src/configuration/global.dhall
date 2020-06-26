@@ -17,6 +17,21 @@ let Searcher/configuration = ../base/syntax-highlighter/configuration.dhall
 
 let RepoUpdater/configuration = ../base/repo-updater/configuration.dhall
 
+let Cadvisor/configuration = ../base/cadvisor/configuration.dhall
+
+let Grafana/configuration = ../base/grafana/configuration.dhall
+
+let PreciseCodeIntel/configuration =
+      ../base/precise-code-intel/configuration.dhall
+
+let Redis/configuration = ../base/redis/configuration.dhall
+
+let Replacer/configuration = ../base/replacer/configuration.dhall
+
+let QueryRunner/configuration = ../base/query-runner/configuration.dhall
+
+let Prometheus/configuration = ../base/prometheus/configuration.dhall
+
 let configuration =
       { Type =
           { Frontend : Frontend/configuration.Type
@@ -28,6 +43,13 @@ let configuration =
           , SyntaxHighlighter : SyntaxHighlighter/configuration.Type
           , Searcher : Searcher/configuration.Type
           , RepoUpdater : RepoUpdater/configuration.Type
+          , Cadvisor : Cadvisor/configuration.Type
+          , Grafana : Grafana/configuration.Type
+          , PreciseCodeIntel : PreciseCodeIntel/configuration.Type
+          , Redis : Redis/configuration.Type
+          , Replacer : Replacer/configuration.Type
+          , QueryRunner : QueryRunner/configuration.Type
+          , Prometheus : Prometheus/configuration.Type
           }
       , default =
         { Frontend = Frontend/configuration.default
@@ -39,6 +61,13 @@ let configuration =
         , SyntaxHighlighter = SyntaxHighlighter/configuration.default
         , Searcher = Searcher/configuration.default
         , RepoUpdater = RepoUpdater/configuration.default
+        , Cadvisor = Cadvisor/configuration.default
+        , Grafana = Grafana/configuration.default
+        , PreciseCodeIntel = PreciseCodeIntel/configuration.default
+        , Redis = Redis/configuration.default
+        , Replacer = Replacer/configuration.default
+        , QueryRunner = QueryRunner/configuration.default
+        , Prometheus = Prometheus/configuration.default
         }
       }
 
