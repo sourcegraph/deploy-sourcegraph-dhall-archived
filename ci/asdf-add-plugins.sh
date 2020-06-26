@@ -8,12 +8,12 @@ set -euxo pipefail
 # ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
 
 OTHER_PACKAGES=(
-	"dhall"
-	"shellcheck"
-	"shfmt"
-	"fd"
+  "dhall"
+  "shellcheck"
+  "shfmt"
+  "fd"
 )
 
 for package in "${OTHER_PACKAGES[@]}"; do
-	asdf plugin-add "${package}"
+  asdf plugin-add "${package}"
 done

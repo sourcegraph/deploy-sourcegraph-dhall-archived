@@ -10,10 +10,10 @@ DEPENDENCIES=()
 mapfile -t DEPENDENCIES < <(dhall resolve --no-cache --transitive-dependencies --file "${DHALL_FILE}")
 
 for dependency in "${DEPENDENCIES[@]}"; do
-	DEPENDENCY_FILE=$(cut -d' ' -f1 <<<"$dependency")
-	if test -f "$DEPENDENCY_FILE" && [[ "$DEPENDENCY_FILE" =~ \.dhall$ ]]; then
+  DEPENDENCY_FILE=$(cut -d' ' -f1 <<<"$dependency")
+  if test -f "$DEPENDENCY_FILE" && [[ "$DEPENDENCY_FILE" =~ \.dhall$ ]]; then
 
-		echo "${DEPENDENCY_FILE}"
-		dhall freeze --all --inplace "${DEPENDENCY_FILE}"
-	fi
+    echo "${DEPENDENCY_FILE}"
+    dhall freeze --all --inplace "${DEPENDENCY_FILE}"
+  fi
 done
