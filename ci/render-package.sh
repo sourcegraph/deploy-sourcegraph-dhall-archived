@@ -5,6 +5,7 @@ set -euxo pipefail
 
 ls
 pwd
+sudo apt-get install tree --yes
 tree src/
 
 dhall --explain --file ./package.dhall >/dev/null
