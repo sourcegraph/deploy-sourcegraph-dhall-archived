@@ -4,9 +4,7 @@ jobs:
     name: Rendered CI pipeline is up to date
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@master"
-        with:
-          submodules: recursive
+      - uses: "actions/checkout@v2"
       - name: Install asdf
         uses: "asdf-vm/actions/setup@v1.0.0"
       - name: Install asdf plugins
@@ -19,9 +17,7 @@ jobs:
     name: dhall-format
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@master"
-        with:
-          submodules: recursive
+      - uses: "actions/checkout@v2"
       - name: Install asdf
         uses: "asdf-vm/actions/setup@v1.0.0"
       - name: Install asdf plugins
@@ -36,9 +32,7 @@ jobs:
     name: dhall-lint
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@master"
-        with:
-          submodules: recursive
+      - uses: "actions/checkout@v2"
       - name: Install asdf
         uses: "asdf-vm/actions/setup@v1.0.0"
       - name: Install asdf plugins
@@ -49,13 +43,24 @@ jobs:
           CHECK: 'true'
         name: Check that dhall files are linted properly
         run: scripts/lint.sh
+  renderPackage:
+    name: render-package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: "actions/checkout@v2"
+      - name: Install asdf
+        uses: "asdf-vm/actions/setup@v1.0.0"
+      - name: Install asdf plugins
+        run: "./ci/asdf-add-plugins.sh"
+      - name: Install asdf tools versions
+        run: "./ci/asdf-install.sh"
+      - name: Check that deploy-sourcegraph-dhall compiles without any errors
+        run: ci/render-package.sh
   shellcheck:
     name: shellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@master"
-        with:
-          submodules: recursive
+      - uses: "actions/checkout@v2"
       - name: Install asdf
         uses: "asdf-vm/actions/setup@v1.0.0"
       - name: Install asdf plugins
@@ -68,9 +73,7 @@ jobs:
     name: shfmt
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@master"
-        with:
-          submodules: recursive
+      - uses: "actions/checkout@v2"
       - name: Install asdf
         uses: "asdf-vm/actions/setup@v1.0.0"
       - name: Install asdf plugins

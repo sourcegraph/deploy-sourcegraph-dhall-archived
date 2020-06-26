@@ -1,5 +1,5 @@
 let Kubernetes/DaemonSet =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.Daemonset.dhall
+      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DaemonSet.dhall
 
 let Kubernetes/List = ../../util/kubernetes-list.dhall
 
