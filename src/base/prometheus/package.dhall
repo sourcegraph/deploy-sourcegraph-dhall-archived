@@ -1,127 +1,22 @@
+let Kubernetes/ServiceAccount =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServiceAccount.dhall
+
+let Kubernetes/ConfigMap =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ConfigMap.dhall
+
 let Kubernetes/Deployment =
       ../../deps/k8s/schemas/io.k8s.api.apps.v1.Deployment.dhall
 
 let Kubernetes/List = ../../util/kubernetes-list.dhall
+
+let Kubernetes/PersistentVolumeClaim =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaim.dhall
 
 let Kubernetes/Service = ../../deps/k8s/schemas/io.k8s.api.core.v1.Service.dhall
 
 let Kubernetes/TypesUnion = ../../deps/k8s/typesUnion.dhall
 
 let Configuration/global = ../../configuration/global.dhall
-
-let component =
-      { Deployment : Kubernetes/Deployment.Type
-      , Service : Kubernetes/Service.Type
-      }
-
-let Service/generate =
-      λ(c : Configuration/global.Type) →
-        let service =
-              Kubernetes/Service::{
-              , apiVersion = "v1"
-              , kind = "Service"
-              , metadata =
-                { annotations = Some
-                    ( toMap
-                        { `sourcegraph.prometheus/scrape` = "true"
-                        , `prometheus.io/port` = "6060"
-                        }
-                    )
-                , clusterName = None Text
-                , creationTimestamp = None Text
-                , deletionGracePeriodSeconds = None Natural
-                , deletionTimestamp = None Text
-                , finalizers = None (List Text)
-                , generateName = None Text
-                , generation = None Natural
-                , labels = Some
-                    ( toMap
-                        { sourcegraph-resource-requires = "no-cluster-admin"
-                        , app = "replacer"
-                        , deploy = "sourcegraph"
-                        }
-                    )
-                , managedFields =
-                    None
-                      ( List
-                          { apiVersion : Text
-                          , fieldsType : Optional Text
-                          , fieldsV1 :
-                              Optional (List { mapKey : Text, mapValue : Text })
-                          , manager : Optional Text
-                          , operation : Optional Text
-                          , time : Optional Text
-                          }
-                      )
-                , name = Some "replacer"
-                , namespace = None Text
-                , ownerReferences =
-                    None
-                      ( List
-                          { apiVersion : Text
-                          , blockOwnerDeletion : Optional Bool
-                          , controller : Optional Bool
-                          , kind : Text
-                          , name : Text
-                          , uid : Text
-                          }
-                      )
-                , resourceVersion = None Text
-                , selfLink = None Text
-                , uid = None Text
-                }
-              , spec = Some
-                { clusterIP = None Text
-                , externalIPs = None (List Text)
-                , externalName = None Text
-                , externalTrafficPolicy = None Text
-                , healthCheckNodePort = None Natural
-                , ipFamily = None Text
-                , loadBalancerIP = None Text
-                , loadBalancerSourceRanges = None (List Text)
-                , ports = Some
-                  [ { name = Some "http"
-                    , nodePort = None Natural
-                    , port = 3185
-                    , protocol = None Text
-                    , targetPort = Some
-                        (< Int : Natural | String : Text >.String "http")
-                    }
-                  , { name = Some "debug"
-                    , nodePort = None Natural
-                    , port = 6060
-                    , protocol = None Text
-                    , targetPort = Some
-                        (< Int : Natural | String : Text >.String "debug")
-                    }
-                  ]
-                , publishNotReadyAddresses = None Bool
-                , selector = Some (toMap { app = "replacer" })
-                , sessionAffinity = None Text
-                , sessionAffinityConfig =
-                    None
-                      { clientIP :
-                          Optional { timeoutSeconds : Optional Natural }
-                      }
-                , topologyKeys = None (List Text)
-                , type = Some "ClusterIP"
-                }
-              , status =
-                  None
-                    { loadBalancer :
-                        Optional
-                          { ingress :
-                              Optional
-                                ( List
-                                    { hostname : Optional Text
-                                    , ip : Optional Text
-                                    }
-                                )
-                          }
-                    }
-              }
-
-        in  service
 
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
@@ -131,7 +26,11 @@ let Deployment/generate =
               , kind = "Deployment"
               , metadata =
                 { annotations = Some
-                    (toMap { description = "Backend for replace operations." })
+                    ( toMap
+                        { description =
+                            "Collects metrics and aggregates them into graphs."
+                        }
+                    )
                 , clusterName = None Text
                 , creationTimestamp = None Text
                 , deletionGracePeriodSeconds = None Natural
@@ -157,7 +56,7 @@ let Deployment/generate =
                           , time : Optional Text
                           }
                       )
-                , name = Some "replacer"
+                , name = Some "prometheus"
                 , namespace = None Text
                 , ownerReferences =
                     None
@@ -189,15 +88,16 @@ let Deployment/generate =
                             , values : Optional (List Text)
                             }
                         )
-                  , matchLabels = Some (toMap { app = "replacer" })
+                  , matchLabels = Some (toMap { app = "prometheus" })
                   }
                 , strategy = Some
-                  { rollingUpdate = Some
-                    { maxSurge = Some (< Int : Natural | String : Text >.Int 1)
-                    , maxUnavailable = Some
-                        (< Int : Natural | String : Text >.Int 1)
-                    }
-                  , type = Some "RollingUpdate"
+                  { rollingUpdate =
+                      None
+                        { maxSurge : Optional < Int : Natural | String : Text >
+                        , maxUnavailable :
+                            Optional < Int : Natural | String : Text >
+                        }
+                  , type = Some "Recreate"
                   }
                 , template =
                   { metadata =
@@ -211,7 +111,7 @@ let Deployment/generate =
                     , generateName = None Text
                     , generation = None Natural
                     , labels = Some
-                        (toMap { app = "replacer", deploy = "sourcegraph" })
+                        (toMap { app = "prometheus", deploy = "sourcegraph" })
                     , managedFields =
                         None
                           ( List
@@ -426,93 +326,39 @@ let Deployment/generate =
                     , containers =
                       [ { args = None (List Text)
                         , command = None (List Text)
-                        , env = Some
-                          [ { name = "REPLACER_CACHE_SIZE_MB"
-                            , value = Some "100000"
-                            , valueFrom =
-                                None
-                                  { configMapKeyRef :
+                        , env =
+                            None
+                              ( List
+                                  { name : Text
+                                  , value : Optional Text
+                                  , valueFrom :
                                       Optional
-                                        { key : Text
-                                        , name : Optional Text
-                                        , optional : Optional Bool
-                                        }
-                                  , fieldRef :
-                                      Optional
-                                        { apiVersion : Optional Text
-                                        , fieldPath : Text
-                                        }
-                                  , resourceFieldRef :
-                                      Optional
-                                        { containerName : Optional Text
-                                        , divisor : Optional Text
-                                        , resource : Text
-                                        }
-                                  , secretKeyRef :
-                                      Optional
-                                        { key : Text
-                                        , name : Optional Text
-                                        , optional : Optional Bool
-                                        }
-                                  }
-                            }
-                          , { name = "POD_NAME"
-                            , value = None Text
-                            , valueFrom = Some
-                              { configMapKeyRef =
-                                  None
-                                    { key : Text
-                                    , name : Optional Text
-                                    , optional : Optional Bool
-                                    }
-                              , fieldRef = Some
-                                { apiVersion = None Text
-                                , fieldPath = "metadata.name"
-                                }
-                              , resourceFieldRef =
-                                  None
-                                    { containerName : Optional Text
-                                    , divisor : Optional Text
-                                    , resource : Text
-                                    }
-                              , secretKeyRef =
-                                  None
-                                    { key : Text
-                                    , name : Optional Text
-                                    , optional : Optional Bool
-                                    }
-                              }
-                            }
-                          , { name = "CACHE_DIR"
-                            , value = Some "/mnt/cache/\$(POD_NAME)"
-                            , valueFrom =
-                                None
-                                  { configMapKeyRef :
-                                      Optional
-                                        { key : Text
-                                        , name : Optional Text
-                                        , optional : Optional Bool
-                                        }
-                                  , fieldRef :
-                                      Optional
-                                        { apiVersion : Optional Text
-                                        , fieldPath : Text
-                                        }
-                                  , resourceFieldRef :
-                                      Optional
-                                        { containerName : Optional Text
-                                        , divisor : Optional Text
-                                        , resource : Text
-                                        }
-                                  , secretKeyRef :
-                                      Optional
-                                        { key : Text
-                                        , name : Optional Text
-                                        , optional : Optional Bool
+                                        { configMapKeyRef :
+                                            Optional
+                                              { key : Text
+                                              , name : Optional Text
+                                              , optional : Optional Bool
+                                              }
+                                        , fieldRef :
+                                            Optional
+                                              { apiVersion : Optional Text
+                                              , fieldPath : Text
+                                              }
+                                        , resourceFieldRef :
+                                            Optional
+                                              { containerName : Optional Text
+                                              , divisor : Optional Text
+                                              , resource : Text
+                                              }
+                                        , secretKeyRef :
+                                            Optional
+                                              { key : Text
+                                              , name : Optional Text
+                                              , optional : Optional Bool
+                                              }
                                         }
                                   }
-                            }
-                          ]
+                              )
                         , envFrom =
                             None
                               ( List
@@ -530,7 +376,7 @@ let Deployment/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/replacer:3.16.1@sha256:bda8152c95bc64935b9fe309751b54ce6b99fdb563ff73d59a0720d1a2bdbead"
+                            "index.docker.io/sourcegraph/prometheus:3.16.1@sha256:ba02429d8c2d20abf05351ba0d61c892d04ac8b1eb7aaf433236ed1568db7fb0"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None
@@ -589,72 +435,61 @@ let Deployment/generate =
                                           }
                                     }
                               }
-                        , livenessProbe =
-                            None
-                              { exec :
-                                  Optional { command : Optional (List Text) }
-                              , failureThreshold : Optional Natural
-                              , httpGet :
-                                  Optional
-                                    { host : Optional Text
-                                    , httpHeaders :
-                                        Optional
-                                          (List { name : Text, value : Text })
-                                    , path : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    , scheme : Optional Text
-                                    }
-                              , initialDelaySeconds : Optional Natural
-                              , periodSeconds : Optional Natural
-                              , successThreshold : Optional Natural
-                              , tcpSocket :
-                                  Optional
-                                    { host : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    }
-                              , timeoutSeconds : Optional Natural
-                              }
-                        , name = "replacer"
-                        , ports = Some
-                          [ { containerPort = 3185
-                            , hostIP = None Text
-                            , hostPort = None Natural
-                            , name = Some "http"
-                            , protocol = None Text
-                            }
-                          , { containerPort = 6060
-                            , hostIP = None Text
-                            , hostPort = None Natural
-                            , name = Some "debug"
-                            , protocol = None Text
-                            }
-                          ]
-                        , readinessProbe = Some
+                        , livenessProbe = Some
                           { exec = None { command : Optional (List Text) }
-                          , failureThreshold = Some 1
+                          , failureThreshold = None Natural
                           , httpGet = Some
                             { host = None Text
                             , httpHeaders =
                                 None (List { name : Text, value : Text })
-                            , path = Some "/healthz"
-                            , port =
-                                < Int : Natural | String : Text >.String "http"
-                            , scheme = Some "HTTP"
+                            , path = Some "/-/healthy"
+                            , port = < Int : Natural | String : Text >.Int 9090
+                            , scheme = None Text
                             }
-                          , initialDelaySeconds = None Natural
-                          , periodSeconds = Some 1
+                          , initialDelaySeconds = Some 30
+                          , periodSeconds = None Natural
                           , successThreshold = None Natural
                           , tcpSocket =
                               None
                                 { host : Optional Text
                                 , port : < Int : Natural | String : Text >
                                 }
-                          , timeoutSeconds = None Natural
+                          , timeoutSeconds = Some 30
+                          }
+                        , name = "prometheus"
+                        , ports = Some
+                          [ { containerPort = 9090
+                            , hostIP = None Text
+                            , hostPort = None Natural
+                            , name = Some "http"
+                            , protocol = None Text
+                            }
+                          ]
+                        , readinessProbe = Some
+                          { exec = None { command : Optional (List Text) }
+                          , failureThreshold = None Natural
+                          , httpGet = Some
+                            { host = None Text
+                            , httpHeaders =
+                                None (List { name : Text, value : Text })
+                            , path = Some "/-/ready"
+                            , port = < Int : Natural | String : Text >.Int 9090
+                            , scheme = None Text
+                            }
+                          , initialDelaySeconds = Some 30
+                          , periodSeconds = None Natural
+                          , successThreshold = None Natural
+                          , tcpSocket =
+                              None
+                                { host : Optional Text
+                                , port : < Int : Natural | String : Text >
+                                }
+                          , timeoutSeconds = Some 30
                           }
                         , resources = Some
-                          { limits = Some (toMap { memory = "500M", cpu = "4" })
+                          { limits = Some (toMap { memory = "3G", cpu = "2" })
                           , requests = Some
-                              (toMap { memory = "500M", cpu = "500m" })
+                              (toMap { memory = "3G", cpu = "500m" })
                           }
                         , securityContext =
                             None
@@ -718,279 +553,21 @@ let Deployment/generate =
                         , volumeDevices =
                             None (List { devicePath : Text, name : Text })
                         , volumeMounts = Some
-                          [ { mountPath = "/mnt/cache"
+                          [ { mountPath = "/prometheus"
                             , mountPropagation = None Text
-                            , name = "cache-ssd"
+                            , name = "data"
+                            , readOnly = None Bool
+                            , subPath = None Text
+                            , subPathExpr = None Text
+                            }
+                          , { mountPath = "/sg_prometheus_add_ons"
+                            , mountPropagation = None Text
+                            , name = "config"
                             , readOnly = None Bool
                             , subPath = None Text
                             , subPathExpr = None Text
                             }
                           ]
-                        , workingDir = None Text
-                        }
-                      , { args = Some
-                          [ "--reporter.grpc.host-port=jaeger-collector:14250"
-                          , "--reporter.type=grpc"
-                          ]
-                        , command = None (List Text)
-                        , env = Some
-                          [ { name = "POD_NAME"
-                            , value = None Text
-                            , valueFrom = Some
-                              { configMapKeyRef =
-                                  None
-                                    { key : Text
-                                    , name : Optional Text
-                                    , optional : Optional Bool
-                                    }
-                              , fieldRef = Some
-                                { apiVersion = Some "v1"
-                                , fieldPath = "metadata.name"
-                                }
-                              , resourceFieldRef =
-                                  None
-                                    { containerName : Optional Text
-                                    , divisor : Optional Text
-                                    , resource : Text
-                                    }
-                              , secretKeyRef =
-                                  None
-                                    { key : Text
-                                    , name : Optional Text
-                                    , optional : Optional Bool
-                                    }
-                              }
-                            }
-                          ]
-                        , envFrom =
-                            None
-                              ( List
-                                  { configMapRef :
-                                      Optional
-                                        { name : Optional Text
-                                        , optional : Optional Bool
-                                        }
-                                  , prefix : Optional Text
-                                  , secretRef :
-                                      Optional
-                                        { name : Optional Text
-                                        , optional : Optional Bool
-                                        }
-                                  }
-                              )
-                        , image = Some
-                            "index.docker.io/sourcegraph/jaeger-agent:3.16.1@sha256:2fc0cdd7db449e411a01a6ba175ad0b33f8515c343edd7c19569e6f87c6f7fe2"
-                        , imagePullPolicy = None Text
-                        , lifecycle =
-                            None
-                              { postStart :
-                                  Optional
-                                    { exec :
-                                        Optional
-                                          { command : Optional (List Text) }
-                                    , httpGet :
-                                        Optional
-                                          { host : Optional Text
-                                          , httpHeaders :
-                                              Optional
-                                                ( List
-                                                    { name : Text
-                                                    , value : Text
-                                                    }
-                                                )
-                                          , path : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          , scheme : Optional Text
-                                          }
-                                    , tcpSocket :
-                                        Optional
-                                          { host : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          }
-                                    }
-                              , preStop :
-                                  Optional
-                                    { exec :
-                                        Optional
-                                          { command : Optional (List Text) }
-                                    , httpGet :
-                                        Optional
-                                          { host : Optional Text
-                                          , httpHeaders :
-                                              Optional
-                                                ( List
-                                                    { name : Text
-                                                    , value : Text
-                                                    }
-                                                )
-                                          , path : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          , scheme : Optional Text
-                                          }
-                                    , tcpSocket :
-                                        Optional
-                                          { host : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          }
-                                    }
-                              }
-                        , livenessProbe =
-                            None
-                              { exec :
-                                  Optional { command : Optional (List Text) }
-                              , failureThreshold : Optional Natural
-                              , httpGet :
-                                  Optional
-                                    { host : Optional Text
-                                    , httpHeaders :
-                                        Optional
-                                          (List { name : Text, value : Text })
-                                    , path : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    , scheme : Optional Text
-                                    }
-                              , initialDelaySeconds : Optional Natural
-                              , periodSeconds : Optional Natural
-                              , successThreshold : Optional Natural
-                              , tcpSocket :
-                                  Optional
-                                    { host : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    }
-                              , timeoutSeconds : Optional Natural
-                              }
-                        , name = "jaeger-agent"
-                        , ports = Some
-                          [ { containerPort = 5775
-                            , hostIP = None Text
-                            , hostPort = None Natural
-                            , name = None Text
-                            , protocol = Some "UDP"
-                            }
-                          , { containerPort = 5778
-                            , hostIP = None Text
-                            , hostPort = None Natural
-                            , name = None Text
-                            , protocol = Some "TCP"
-                            }
-                          , { containerPort = 6831
-                            , hostIP = None Text
-                            , hostPort = None Natural
-                            , name = None Text
-                            , protocol = Some "UDP"
-                            }
-                          , { containerPort = 6832
-                            , hostIP = None Text
-                            , hostPort = None Natural
-                            , name = None Text
-                            , protocol = Some "UDP"
-                            }
-                          ]
-                        , readinessProbe =
-                            None
-                              { exec :
-                                  Optional { command : Optional (List Text) }
-                              , failureThreshold : Optional Natural
-                              , httpGet :
-                                  Optional
-                                    { host : Optional Text
-                                    , httpHeaders :
-                                        Optional
-                                          (List { name : Text, value : Text })
-                                    , path : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    , scheme : Optional Text
-                                    }
-                              , initialDelaySeconds : Optional Natural
-                              , periodSeconds : Optional Natural
-                              , successThreshold : Optional Natural
-                              , tcpSocket :
-                                  Optional
-                                    { host : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    }
-                              , timeoutSeconds : Optional Natural
-                              }
-                        , resources = Some
-                          { limits = Some (toMap { memory = "500M", cpu = "1" })
-                          , requests = Some
-                              (toMap { memory = "100M", cpu = "100m" })
-                          }
-                        , securityContext =
-                            None
-                              { allowPrivilegeEscalation : Optional Bool
-                              , capabilities :
-                                  Optional
-                                    { add : Optional (List Text)
-                                    , drop : Optional (List Text)
-                                    }
-                              , privileged : Optional Bool
-                              , procMount : Optional Text
-                              , readOnlyRootFilesystem : Optional Bool
-                              , runAsGroup : Optional Natural
-                              , runAsNonRoot : Optional Bool
-                              , runAsUser : Optional Natural
-                              , seLinuxOptions :
-                                  Optional
-                                    { level : Optional Text
-                                    , role : Optional Text
-                                    , type : Optional Text
-                                    , user : Optional Text
-                                    }
-                              , windowsOptions :
-                                  Optional
-                                    { gmsaCredentialSpec : Optional Text
-                                    , gmsaCredentialSpecName : Optional Text
-                                    , runAsUserName : Optional Text
-                                    }
-                              }
-                        , startupProbe =
-                            None
-                              { exec :
-                                  Optional { command : Optional (List Text) }
-                              , failureThreshold : Optional Natural
-                              , httpGet :
-                                  Optional
-                                    { host : Optional Text
-                                    , httpHeaders :
-                                        Optional
-                                          (List { name : Text, value : Text })
-                                    , path : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    , scheme : Optional Text
-                                    }
-                              , initialDelaySeconds : Optional Natural
-                              , periodSeconds : Optional Natural
-                              , successThreshold : Optional Natural
-                              , tcpSocket :
-                                  Optional
-                                    { host : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    }
-                              , timeoutSeconds : Optional Natural
-                              }
-                        , stdin = None Bool
-                        , stdinOnce = None Bool
-                        , terminationMessagePath = None Text
-                        , terminationMessagePolicy = None Text
-                        , tty = None Bool
-                        , volumeDevices =
-                            None (List { devicePath : Text, name : Text })
-                        , volumeMounts =
-                            None
-                              ( List
-                                  { mountPath : Text
-                                  , mountPropagation : Optional Text
-                                  , name : Text
-                                  , readOnly : Optional Bool
-                                  , subPath : Optional Text
-                                  , subPathExpr : Optional Text
-                                  }
-                              )
                         , workingDir = None Text
                         }
                       ]
@@ -1644,7 +1221,7 @@ let Deployment/generate =
                             }
                       }
                     , serviceAccount = None Text
-                    , serviceAccountName = None Text
+                    , serviceAccountName = Some "prometheus"
                     , shareProcessNamespace = None Bool
                     , subdomain = None Text
                     , terminationGracePeriodSeconds = None Natural
@@ -1768,8 +1345,11 @@ let Deployment/generate =
                                         }
                                     )
                               }
-                        , emptyDir = Some
-                          { medium = None Text, sizeLimit = None Text }
+                        , emptyDir =
+                            None
+                              { medium : Optional Text
+                              , sizeLimit : Optional Text
+                              }
                         , fc =
                             None
                               { fsType : Optional Text
@@ -1827,7 +1407,296 @@ let Deployment/generate =
                               , secretRef : Optional { name : Optional Text }
                               , targetPortal : Text
                               }
-                        , name = "cache-ssd"
+                        , name = "data"
+                        , nfs =
+                            None
+                              { path : Text
+                              , readOnly : Optional Bool
+                              , server : Text
+                              }
+                        , persistentVolumeClaim = Some
+                          { claimName = "prometheus", readOnly = None Bool }
+                        , photonPersistentDisk =
+                            None { fsType : Optional Text, pdID : Text }
+                        , portworxVolume =
+                            None
+                              { fsType : Optional Text
+                              , readOnly : Optional Bool
+                              , volumeID : Text
+                              }
+                        , projected =
+                            None
+                              { defaultMode : Optional Natural
+                              , sources :
+                                  List
+                                    { configMap :
+                                        Optional
+                                          { items :
+                                              Optional
+                                                ( List
+                                                    { key : Text
+                                                    , mode : Optional Natural
+                                                    , path : Text
+                                                    }
+                                                )
+                                          , name : Optional Text
+                                          , optional : Optional Bool
+                                          }
+                                    , downwardAPI :
+                                        Optional
+                                          { items :
+                                              Optional
+                                                ( List
+                                                    { fieldRef :
+                                                        Optional
+                                                          { apiVersion :
+                                                              Optional Text
+                                                          , fieldPath : Text
+                                                          }
+                                                    , mode : Optional Natural
+                                                    , path : Text
+                                                    , resourceFieldRef :
+                                                        Optional
+                                                          { containerName :
+                                                              Optional Text
+                                                          , divisor :
+                                                              Optional Text
+                                                          , resource : Text
+                                                          }
+                                                    }
+                                                )
+                                          }
+                                    , secret :
+                                        Optional
+                                          { items :
+                                              Optional
+                                                ( List
+                                                    { key : Text
+                                                    , mode : Optional Natural
+                                                    , path : Text
+                                                    }
+                                                )
+                                          , name : Optional Text
+                                          , optional : Optional Bool
+                                          }
+                                    , serviceAccountToken :
+                                        Optional
+                                          { audience : Optional Text
+                                          , expirationSeconds : Optional Natural
+                                          , path : Text
+                                          }
+                                    }
+                              }
+                        , quobyte =
+                            None
+                              { group : Optional Text
+                              , readOnly : Optional Bool
+                              , registry : Text
+                              , tenant : Optional Text
+                              , user : Optional Text
+                              , volume : Text
+                              }
+                        , rbd =
+                            None
+                              { fsType : Optional Text
+                              , image : Text
+                              , keyring : Optional Text
+                              , monitors : List Text
+                              , pool : Optional Text
+                              , readOnly : Optional Bool
+                              , secretRef : Optional { name : Optional Text }
+                              , user : Optional Text
+                              }
+                        , scaleIO =
+                            None
+                              { fsType : Optional Text
+                              , gateway : Text
+                              , protectionDomain : Optional Text
+                              , readOnly : Optional Bool
+                              , secretRef : { name : Optional Text }
+                              , sslEnabled : Optional Bool
+                              , storageMode : Optional Text
+                              , storagePool : Optional Text
+                              , system : Text
+                              , volumeName : Optional Text
+                              }
+                        , secret =
+                            None
+                              { defaultMode : Optional Natural
+                              , items :
+                                  Optional
+                                    ( List
+                                        { key : Text
+                                        , mode : Optional Natural
+                                        , path : Text
+                                        }
+                                    )
+                              , optional : Optional Bool
+                              , secretName : Optional Text
+                              }
+                        , storageos =
+                            None
+                              { fsType : Optional Text
+                              , readOnly : Optional Bool
+                              , secretRef : Optional { name : Optional Text }
+                              , volumeName : Optional Text
+                              , volumeNamespace : Optional Text
+                              }
+                        , vsphereVolume =
+                            None
+                              { fsType : Optional Text
+                              , storagePolicyID : Optional Text
+                              , storagePolicyName : Optional Text
+                              , volumePath : Text
+                              }
+                        }
+                      , { awsElasticBlockStore =
+                            None
+                              { fsType : Optional Text
+                              , partition : Optional Natural
+                              , readOnly : Optional Bool
+                              , volumeID : Text
+                              }
+                        , azureDisk =
+                            None
+                              { cachingMode : Optional Text
+                              , diskName : Text
+                              , diskURI : Text
+                              , fsType : Optional Text
+                              , kind : Text
+                              , readOnly : Optional Bool
+                              }
+                        , azureFile =
+                            None
+                              { readOnly : Optional Bool
+                              , secretName : Text
+                              , shareName : Text
+                              }
+                        , cephfs =
+                            None
+                              { monitors : List Text
+                              , path : Optional Text
+                              , readOnly : Optional Bool
+                              , secretFile : Optional Text
+                              , secretRef : Optional { name : Optional Text }
+                              , user : Optional Text
+                              }
+                        , cinder =
+                            None
+                              { fsType : Optional Text
+                              , readOnly : Optional Bool
+                              , secretRef : Optional { name : Optional Text }
+                              , volumeID : Text
+                              }
+                        , configMap = Some
+                          { defaultMode = Some 777
+                          , items =
+                              None
+                                ( List
+                                    { key : Text
+                                    , mode : Optional Natural
+                                    , path : Text
+                                    }
+                                )
+                          , name = Some "prometheus"
+                          , optional = None Bool
+                          }
+                        , csi =
+                            None
+                              { driver : Text
+                              , fsType : Optional Text
+                              , nodePublishSecretRef :
+                                  Optional { name : Optional Text }
+                              , readOnly : Optional Bool
+                              , volumeAttributes :
+                                  Optional
+                                    (List { mapKey : Text, mapValue : Text })
+                              }
+                        , downwardAPI =
+                            None
+                              { defaultMode : Optional Natural
+                              , items :
+                                  Optional
+                                    ( List
+                                        { fieldRef :
+                                            Optional
+                                              { apiVersion : Optional Text
+                                              , fieldPath : Text
+                                              }
+                                        , mode : Optional Natural
+                                        , path : Text
+                                        , resourceFieldRef :
+                                            Optional
+                                              { containerName : Optional Text
+                                              , divisor : Optional Text
+                                              , resource : Text
+                                              }
+                                        }
+                                    )
+                              }
+                        , emptyDir =
+                            None
+                              { medium : Optional Text
+                              , sizeLimit : Optional Text
+                              }
+                        , fc =
+                            None
+                              { fsType : Optional Text
+                              , lun : Optional Natural
+                              , readOnly : Optional Bool
+                              , targetWWNs : Optional (List Text)
+                              , wwids : Optional (List Text)
+                              }
+                        , flexVolume =
+                            None
+                              { driver : Text
+                              , fsType : Optional Text
+                              , options :
+                                  Optional
+                                    (List { mapKey : Text, mapValue : Text })
+                              , readOnly : Optional Bool
+                              , secretRef : Optional { name : Optional Text }
+                              }
+                        , flocker =
+                            None
+                              { datasetName : Optional Text
+                              , datasetUUID : Optional Text
+                              }
+                        , gcePersistentDisk =
+                            None
+                              { fsType : Optional Text
+                              , partition : Optional Natural
+                              , pdName : Text
+                              , readOnly : Optional Bool
+                              }
+                        , gitRepo =
+                            None
+                              { directory : Optional Text
+                              , repository : Text
+                              , revision : Optional Text
+                              }
+                        , glusterfs =
+                            None
+                              { endpoints : Text
+                              , path : Text
+                              , readOnly : Optional Bool
+                              }
+                        , hostPath = None { path : Text, type : Optional Text }
+                        , iscsi =
+                            None
+                              { chapAuthDiscovery : Optional Bool
+                              , chapAuthSession : Optional Bool
+                              , fsType : Optional Text
+                              , initiatorName : Optional Text
+                              , iqn : Text
+                              , iscsiInterface : Optional Text
+                              , lun : Natural
+                              , portals : Optional (List Text)
+                              , readOnly : Optional Bool
+                              , secretRef : Optional { name : Optional Text }
+                              , targetPortal : Text
+                              }
+                        , name = "config"
                         , nfs =
                             None
                               { path : Text
@@ -1999,9 +1868,765 @@ let Deployment/generate =
 
         in  deployment
 
+let ServiceAccount/generate =
+      λ(c : Configuration/global.Type) →
+        let serviceAccount =
+              Kubernetes/ServiceAccount::{
+              , apiVersion = "v1"
+              , automountServiceAccountToken = None Bool
+              , imagePullSecrets = Some [ { name = Some "docker-registry" } ]
+              , kind = "ServiceAccount"
+              , metadata =
+                { annotations = None (List { mapKey : Text, mapValue : Text })
+                , clusterName = None Text
+                , creationTimestamp = None Text
+                , deletionGracePeriodSeconds = None Natural
+                , deletionTimestamp = None Text
+                , finalizers = None (List Text)
+                , generateName = None Text
+                , generation = None Natural
+                , labels = Some
+                    ( toMap
+                        { sourcegraph-resource-requires = "no-cluster-admin"
+                        , category = "rbac"
+                        , deploy = "sourcegraph"
+                        }
+                    )
+                , managedFields =
+                    None
+                      ( List
+                          { apiVersion : Text
+                          , fieldsType : Optional Text
+                          , fieldsV1 :
+                              Optional (List { mapKey : Text, mapValue : Text })
+                          , manager : Optional Text
+                          , operation : Optional Text
+                          , time : Optional Text
+                          }
+                      )
+                , name = Some "prometheus"
+                , namespace = None Text
+                , ownerReferences =
+                    None
+                      ( List
+                          { apiVersion : Text
+                          , blockOwnerDeletion : Optional Bool
+                          , controller : Optional Bool
+                          , kind : Text
+                          , name : Text
+                          , uid : Text
+                          }
+                      )
+                , resourceVersion = None Text
+                , selfLink = None Text
+                , uid = None Text
+                }
+              , secrets =
+                  None
+                    ( List
+                        { apiVersion : Text
+                        , fieldPath : Optional Text
+                        , kind : Text
+                        , name : Optional Text
+                        , namespace : Optional Text
+                        , resourceVersion : Optional Text
+                        , uid : Optional Text
+                        }
+                    )
+              }
+
+        in  serviceAccount
+
+let PersistentVolumeClaim/generate =
+      λ(c : Configuration/global.Type) →
+        let persistentVolumeClaim =
+              Kubernetes/PersistentVolumeClaim::{
+              , apiVersion = "v1"
+              , kind = "PersistentVolumeClaim"
+              , metadata =
+                { annotations = None (List { mapKey : Text, mapValue : Text })
+                , clusterName = None Text
+                , creationTimestamp = None Text
+                , deletionGracePeriodSeconds = None Natural
+                , deletionTimestamp = None Text
+                , finalizers = None (List Text)
+                , generateName = None Text
+                , generation = None Natural
+                , labels = Some
+                    ( toMap
+                        { sourcegraph-resource-requires = "no-cluster-admin"
+                        , deploy = "sourcegraph"
+                        }
+                    )
+                , managedFields =
+                    None
+                      ( List
+                          { apiVersion : Text
+                          , fieldsType : Optional Text
+                          , fieldsV1 :
+                              Optional (List { mapKey : Text, mapValue : Text })
+                          , manager : Optional Text
+                          , operation : Optional Text
+                          , time : Optional Text
+                          }
+                      )
+                , name = Some "prometheus"
+                , namespace = None Text
+                , ownerReferences =
+                    None
+                      ( List
+                          { apiVersion : Text
+                          , blockOwnerDeletion : Optional Bool
+                          , controller : Optional Bool
+                          , kind : Text
+                          , name : Text
+                          , uid : Text
+                          }
+                      )
+                , resourceVersion = None Text
+                , selfLink = None Text
+                , uid = None Text
+                }
+              , spec = Some
+                { accessModes = Some [ "ReadWriteOnce" ]
+                , dataSource =
+                    None { apiGroup : Optional Text, kind : Text, name : Text }
+                , resources = Some
+                  { limits = None (List { mapKey : Text, mapValue : Text })
+                  , requests = Some (toMap { storage = "200Gi" })
+                  }
+                , selector =
+                    None
+                      { matchExpressions :
+                          Optional
+                            ( List
+                                { key : Text
+                                , operator : Text
+                                , values : Optional (List Text)
+                                }
+                            )
+                      , matchLabels :
+                          Optional (List { mapKey : Text, mapValue : Text })
+                      }
+                , storageClassName = Some "sourcegraph"
+                , volumeMode = None Text
+                , volumeName = None Text
+                }
+              , status =
+                  None
+                    { accessModes : Optional (List Text)
+                    , capacity :
+                        Optional (List { mapKey : Text, mapValue : Text })
+                    , conditions :
+                        Optional
+                          ( List
+                              { lastProbeTime : Optional Text
+                              , lastTransitionTime : Optional Text
+                              , message : Optional Text
+                              , reason : Optional Text
+                              , status : Text
+                              , type : Text
+                              }
+                          )
+                    , phase : Optional Text
+                    }
+              }
+
+        in  persistentVolumeClaim
+
+let ClusterRole/generate =
+      λ(c : Configuration/global.Type) →
+        let clusterRole =
+              Kubernetes/ClusterRole::{
+              , aggregationRule =
+                  None
+                    { clusterRoleSelectors :
+                        Optional
+                          ( List
+                              { matchExpressions :
+                                  Optional
+                                    ( List
+                                        { key : Text
+                                        , operator : Text
+                                        , values : Optional (List Text)
+                                        }
+                                    )
+                              , matchLabels :
+                                  Optional
+                                    (List { mapKey : Text, mapValue : Text })
+                              }
+                          )
+                    }
+              , apiVersion = "rbac.authorization.k8s.io/v1"
+              , kind = "ClusterRole"
+              , metadata =
+                { annotations = None (List { mapKey : Text, mapValue : Text })
+                , clusterName = None Text
+                , creationTimestamp = None Text
+                , deletionGracePeriodSeconds = None Natural
+                , deletionTimestamp = None Text
+                , finalizers = None (List Text)
+                , generateName = None Text
+                , generation = None Natural
+                , labels = Some
+                    ( toMap
+                        { sourcegraph-resource-requires = "cluster-admin"
+                        , category = "rbac"
+                        , deploy = "sourcegraph"
+                        }
+                    )
+                , managedFields =
+                    None
+                      ( List
+                          { apiVersion : Text
+                          , fieldsType : Optional Text
+                          , fieldsV1 :
+                              Optional (List { mapKey : Text, mapValue : Text })
+                          , manager : Optional Text
+                          , operation : Optional Text
+                          , time : Optional Text
+                          }
+                      )
+                , name = Some "prometheus"
+                , namespace = None Text
+                , ownerReferences =
+                    None
+                      ( List
+                          { apiVersion : Text
+                          , blockOwnerDeletion : Optional Bool
+                          , controller : Optional Bool
+                          , kind : Text
+                          , name : Text
+                          , uid : Text
+                          }
+                      )
+                , resourceVersion = None Text
+                , selfLink = None Text
+                , uid = None Text
+                }
+              , rules = Some
+                [ { apiGroups = Some [ "" ]
+                  , nonResourceURLs = None (List Text)
+                  , resourceNames = None (List Text)
+                  , resources = Some
+                    [ "endpoints"
+                    , "namespaces"
+                    , "nodes"
+                    , "nodes/metrics"
+                    , "nodes/proxy"
+                    , "pods"
+                    , "services"
+                    ]
+                  , verbs = [ "get", "list", "watch" ]
+                  }
+                , { apiGroups = Some [ "" ]
+                  , nonResourceURLs = None (List Text)
+                  , resourceNames = None (List Text)
+                  , resources = Some [ "configmaps" ]
+                  , verbs = [ "get" ]
+                  }
+                , { apiGroups = None (List Text)
+                  , nonResourceURLs = Some [ "/metrics" ]
+                  , resourceNames = None (List Text)
+                  , resources = None (List Text)
+                  , verbs = [ "get" ]
+                  }
+                ]
+              }
+
+        in  clusterRole
+
+let ClusterRoleBinding/generate =
+      λ(c : Configuration/global.Type) →
+        let clusterRoleBinding =
+              Kubernetes/ClusterRoleBinding::{
+              , apiVersion = "rbac.authorization.k8s.io/v1"
+              , kind = "ClusterRoleBinding"
+              , metadata =
+                { annotations = None (List { mapKey : Text, mapValue : Text })
+                , clusterName = None Text
+                , creationTimestamp = None Text
+                , deletionGracePeriodSeconds = None Natural
+                , deletionTimestamp = None Text
+                , finalizers = None (List Text)
+                , generateName = None Text
+                , generation = None Natural
+                , labels = Some
+                    ( toMap
+                        { sourcegraph-resource-requires = "cluster-admin"
+                        , category = "rbac"
+                        , deploy = "sourcegraph"
+                        }
+                    )
+                , managedFields =
+                    None
+                      ( List
+                          { apiVersion : Text
+                          , fieldsType : Optional Text
+                          , fieldsV1 :
+                              Optional (List { mapKey : Text, mapValue : Text })
+                          , manager : Optional Text
+                          , operation : Optional Text
+                          , time : Optional Text
+                          }
+                      )
+                , name = Some "prometheus"
+                , namespace = None Text
+                , ownerReferences =
+                    None
+                      ( List
+                          { apiVersion : Text
+                          , blockOwnerDeletion : Optional Bool
+                          , controller : Optional Bool
+                          , kind : Text
+                          , name : Text
+                          , uid : Text
+                          }
+                      )
+                , resourceVersion = None Text
+                , selfLink = None Text
+                , uid = None Text
+                }
+              , roleRef =
+                { apiGroup = "", kind = "ClusterRole", name = "prometheus" }
+              , subjects = Some
+                [ { apiGroup = None Text
+                  , kind = "ServiceAccount"
+                  , name = "prometheus"
+                  , namespace = Some "default"
+                  }
+                ]
+              }
+
+        in  clusterRoleBinding
+
+let ConfigMap/generate =
+      λ(c : Configuration/global.Type) →
+        let configMap =
+              Kubernetes/ConfigMap::{
+              , apiVersion = "v1"
+              , binaryData = None (List { mapKey : Text, mapValue : Text })
+              , data = Some
+                  ( toMap
+                      { `prometheus.yml` =
+                          ''
+                          global:
+                            scrape_interval:     30s
+                            evaluation_interval: 30s
+
+                          alerting:
+                            alertmanagers:
+                              - kubernetes_sd_configs:
+                                - role: endpoints
+                                relabel_configs:
+                                  - source_labels: [__meta_kubernetes_service_name]
+                                    regex: alertmanager
+                                    action: keep
+
+                          rule_files:
+                            - '*_rules.yml'
+                            - "/sg_config_prometheus/*_rules.yml"
+                            - "/sg_prometheus_add_ons/*_rules.yml"
+
+                          # A scrape configuration for running Prometheus on a Kubernetes cluster.
+                          # This uses separate scrape configs for cluster components (i.e. API server, node)
+                          # and services to allow each to use different authentication configs.
+                          #
+                          # Kubernetes labels will be added as Prometheus labels on metrics via the
+                          # `labelmap` relabeling action.
+
+                          # Scrape config for API servers.
+                          #
+                          # Kubernetes exposes API servers as endpoints to the default/kubernetes
+                          # service so this uses `endpoints` role and uses relabelling to only keep
+                          # the endpoints associated with the default/kubernetes service using the
+                          # default named port `https`. This works for single API server deployments as
+                          # well as HA API server deployments.
+                          scrape_configs:
+                          - job_name: 'kubernetes-apiservers'
+
+                            kubernetes_sd_configs:
+                            - role: endpoints
+
+                            # Default to scraping over https. If required, just disable this or change to
+                            # `http`.
+                            scheme: https
+
+                            # This TLS & bearer token file config is used to connect to the actual scrape
+                            # endpoints for cluster components. This is separate to discovery auth
+                            # configuration because discovery & scraping are two separate concerns in
+                            # Prometheus. The discovery auth config is automatic if Prometheus runs inside
+                            # the cluster. Otherwise, more config options have to be provided within the
+                            # <kubernetes_sd_config>.
+                            tls_config:
+                              ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                              # If your node certificates are self-signed or use a different CA to the
+                              # master CA, then disable certificate verification below. Note that
+                              # certificate verification is an integral part of a secure infrastructure
+                              # so this should only be disabled in a controlled environment. You can
+                              # disable certificate verification by uncommenting the line below.
+                              #
+                              # insecure_skip_verify: true
+                            bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+                            # Keep only the default/kubernetes service endpoints for the https port. This
+                            # will add targets for each API server which Kubernetes adds an endpoint to
+                            # the default/kubernetes service.
+                            relabel_configs:
+                            - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+                              action: keep
+                              regex: default;kubernetes;https
+
+                          - job_name: 'kubernetes-nodes'
+
+                            # Default to scraping over https. If required, just disable this or change to
+                            # `http`.
+                            scheme: https
+
+                            # This TLS & bearer token file config is used to connect to the actual scrape
+                            # endpoints for cluster components. This is separate to discovery auth
+                            # configuration because discovery & scraping are two separate concerns in
+                            # Prometheus. The discovery auth config is automatic if Prometheus runs inside
+                            # the cluster. Otherwise, more config options have to be provided within the
+                            # <kubernetes_sd_config>.
+                            tls_config:
+                              ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                              # If your node certificates are self-signed or use a different CA to the
+                              # master CA, then disable certificate verification below. Note that
+                              # certificate verification is an integral part of a secure infrastructure
+                              # so this should only be disabled in a controlled environment. You can
+                              # disable certificate verification by uncommenting the line below.
+                              #
+                              insecure_skip_verify: true
+                            bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+                            kubernetes_sd_configs:
+                            - role: node
+
+                            relabel_configs:
+                            - action: labelmap
+                              regex: __meta_kubernetes_node_label_(.+)
+                            - target_label: __address__
+                              replacement: kubernetes.default.svc:443
+                            - source_labels: [__meta_kubernetes_node_name]
+                              regex: (.+)
+                              target_label: __metrics_path__
+                              replacement: /api/v1/nodes/''${1}/proxy/metrics
+
+                          # Scrape config for service endpoints.
+                          #
+                          # The relabeling allows the actual service scrape endpoint to be configured
+                          # via the following annotations:
+                          #
+                          # * `prometheus.io/scrape`: Only scrape services that have a value of `true`
+                          # * `prometheus.io/scheme`: If the metrics endpoint is secured then you will need
+                          # to set this to `https` & most likely set the `tls_config` of the scrape config.
+                          # * `prometheus.io/path`: If the metrics path is not `/metrics` override this.
+                          # * `prometheus.io/port`: If the metrics are exposed on a different port to the
+                          # service then set this appropriately.
+                          - job_name: 'kubernetes-service-endpoints'
+
+                            kubernetes_sd_configs:
+                            - role: endpoints
+
+                            relabel_configs:
+                            - source_labels: [__meta_kubernetes_service_annotation_sourcegraph_prometheus_scrape]
+                              action: keep
+                              regex: true
+                            - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
+                              action: replace
+                              target_label: __scheme__
+                              regex: (https?)
+                            - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+                              action: replace
+                              target_label: __metrics_path__
+                              regex: (.+)
+                            - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+                              action: replace
+                              target_label: __address__
+                              regex: (.+)(?::\d+);(\d+)
+                              replacement: $1:$2
+                            - action: labelmap
+                              regex: __meta_kubernetes_service_label_(.+)
+                            - source_labels: [__meta_kubernetes_namespace]
+                              action: replace
+                              # Sourcegraph specific customization. We want a more convenient to type label.
+                              # target_label: kubernetes_namespace
+                              target_label: ns
+                            - source_labels: [__meta_kubernetes_service_name]
+                              action: replace
+                              target_label: kubernetes_name
+                            # Sourcegraph specific customization. We want a nicer name for job
+                            - source_labels: [app]
+                              action: replace
+                              target_label: job
+                            # Sourcegraph specific customization. We want a nicer name for instance
+                            - source_labels: [__meta_kubernetes_pod_name]
+                              action: replace
+                              target_label: instance
+
+                          # Example scrape config for probing services via the Blackbox Exporter.
+                          #
+                          # The relabeling allows the actual service scrape endpoint to be configured
+                          # via the following annotations:
+                          #
+                          # * `prometheus.io/probe`: Only probe services that have a value of `true`
+                          - job_name: 'kubernetes-services'
+
+                            metrics_path: /probe
+                            params:
+                              module: [http_2xx]
+
+                            kubernetes_sd_configs:
+                            - role: service
+
+                            relabel_configs:
+                            - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_probe]
+                              action: keep
+                              regex: true
+                            - source_labels: [__address__]
+                              target_label: __param_target
+                            - target_label: __address__
+                              replacement: blackbox
+                            - source_labels: [__param_target]
+                              target_label: instance
+                            - action: labelmap
+                              regex: __meta_kubernetes_service_label_(.+)
+                            - source_labels: [__meta_kubernetes_service_namespace]
+                              # Sourcegraph specific customization. We want a more convenient to type label.
+                              # target_label: kubernetes_namespace
+                              target_label: ns
+                            - source_labels: [__meta_kubernetes_service_name]
+                              target_label: kubernetes_name
+
+                          # Example scrape config for pods
+                          #
+                          # The relabeling allows the actual pod scrape endpoint to be configured via the
+                          # following annotations:
+                          #
+                          # * `prometheus.io/scrape`: Only scrape pods that have a value of `true`
+                          # * `prometheus.io/path`: If the metrics path is not `/metrics` override this.
+                          # * `prometheus.io/port`: Scrape the pod on the indicated port instead of the default of `9102`.
+                          - job_name: 'kubernetes-pods'
+
+                            kubernetes_sd_configs:
+                            - role: pod
+
+                            relabel_configs:
+                            - source_labels: [__meta_kubernetes_pod_annotation_sourcegraph_prometheus_scrape]
+                              action: keep
+                              regex: true
+                            - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+                              action: replace
+                              target_label: __metrics_path__
+                              regex: (.+)
+                            - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+                              action: replace
+                              regex: (.+):(?:\d+);(\d+)
+                              replacement: ''${1}:''${2}
+                              target_label: __address__
+                            - action: labelmap
+                              regex: __meta_kubernetes_pod_label_(.+)
+                            - source_labels: [__meta_kubernetes_namespace]
+                              action: replace
+                              # Sourcegraph specific customization. We want a more convenient to type label.
+                              # target_label: kubernetes_namespace
+                              target_label: ns
+                            - source_labels: [__meta_kubernetes_pod_name]
+                              action: replace
+                              target_label: kubernetes_pod_name
+                          ''
+                      , `alert_rules.yml` =
+                          ''
+                          groups:
+                            - name: alert.rules
+                              rules:
+                                - alert: PodsMissing
+                                  expr: app:up:ratio{app!=""} < 0.9
+                                  for: 10m
+                                  labels:
+                                    severity: page
+                                  annotations:
+                                    description: 'Pods missing from {{`{{`}} $labels.app {{`}}`}}: {{`{{`}} $value
+                                  {{`}}`}}'
+                                    help: Alerts when pods are missing.
+                                    summary: Pods missing from {{`{{`}} $labels.app {{`}}`}}
+                                - alert: NoPodsRunning
+                                  expr: app:up:ratio{app!=""} < 0.1
+                                  for: 2m
+                                  labels:
+                                    severity: page
+                                  annotations:
+                                    description: 'No pods are running for {{`{{`}} $labels.app {{`}}`}}: {{`{{`}}
+                                  $value {{`}}`}}'
+                                    help: Alerts when no pods are running for a service.
+                                    summary: No pods are running for {{`{{`}} $labels.app {{`}}`}}
+                                - alert: ProdPageLoadLatency
+                                  expr: histogram_quantile(0.9, sum by(le) (rate(src_http_request_duration_seconds_bucket{job="sourcegraph-frontend",route!="raw"}[10m])))
+                                    > 20
+                                  labels:
+                                    severity: page
+                                  annotations:
+                                    description: 'Page load latency > 20s (90th percentile over all routes; current
+                                  value: {{`{{`}}$value{{`}}`}}s)'
+                                    help: Alerts when the page load latency is too high.
+                                    summary: High page load latency
+                                - alert: GoroutineLeak
+                                  expr: go_goroutines >= 10000
+                                  for: 10m
+                                  annotations:
+                                    description: '{{`{{`}} $labels.app {{`}}`}} has more than 10k goroutines. This
+                                  is probably a regression causing a goroutine leak'
+                                    help: Alerts when a service has excessive running goroutines.
+                                    summary: Excessive number of goroutines
+                                - alert: FSINodesRemainingLow
+                                  expr: sum by(instance) (container_fs_inodes_total{pod_name!=""}) > 3e+06
+                                  labels:
+                                    severity: page
+                                  annotations:
+                                    description: '{{`{{`}}$labels.instance{{`}}`}} is using {{`{{`}}humanize $value{{`}}`}}
+                                  inodes'
+                                    help: Alerts when a node's remaining FS inodes are low.
+                                    summary: '{{`{{`}}$labels.instance{{`}}`}} remaining fs inodes is low'
+                                - alert: DiskSpaceLow
+                                  expr: node:k8snode_filesystem_avail_bytes:ratio < 0.1
+                                  annotations:
+                                    help: Alerts when a node has less than 10% available disk space.
+                                    summary: '{{`{{`}}$labels.exported_name{{`}}`}} has less than 10% available
+                                  disk space'
+                                - alert: DiskSpaceLowCritical
+                                  expr: node:k8snode_filesystem_avail_bytes:ratio{exported_name=~".*prod.*"} < 0.05
+                                  labels:
+                                    severity: page
+                                  annotations:
+                                    help: Alerts when a node has less than 5% available disk space.
+                                    summary: Critical! {{`{{`}}$labels.exported_name{{`}}`}} has less than 5% available
+                                      disk space
+                                - alert: GitserverDiskSpaceLow
+                                  expr: src_gitserver_disk_space_available / src_gitserver_disk_space_total < 0.1
+                                  annotations:
+                                    help: Alerts when gitserverdisk space is low.
+                                    summary: gitserver {{`{{`}}$labels.instance{{`}}`}} disk space is less than 10% of available disk space
+                                - alert: GitserverDiskSpaceLowCritical
+                                  expr: src_gitserver_disk_space_available / src_gitserver_disk_space_total < 0.05
+                                  labels:
+                                    severity: page
+                                  annotations:
+                                    help: Alerts when gitserverdisk space is critically low.
+                                    summary: Critical! gitserver {{`{{`}}$labels.instance{{`}}`}} disk space is less than 5% of available disk space
+                                - alert: SearcherErrorRatioTooHigh
+                                  expr: searcher_errors:ratio10m > 0.1
+                                  for: 20m
+                                  annotations:
+                                    help: Alerts when the search service has more than 10% of requests failing.
+                                    summary: Error ratio exceeds 10%
+                                - alert: PrometheusMetricsBloat
+                                  expr: http_response_size_bytes{handler="prometheus",job!="kubernetes-apiservers",job!="kubernetes-nodes",quantile="0.5"}
+                                    > 20000
+                                  annotations:
+                                    help: Alerts when a service is probably leaking metrics (unbounded attribute).
+                                    summary: '{{`{{`}}$labels.job{{`}}`}} in {{`{{`}}$labels.ns{{`}}`}} is probably
+                                  leaking metrics (unbounded attribute)'
+                          ''
+                      , `extra_rules.yml` = ""
+                      , `node_rules.yml` =
+                          ''
+                          groups:
+                            - name: nodes.rules
+                              rules:
+                                - record: node:container_cpu_usage_seconds_total:ratio_rate5m
+                                  expr: sum by(instance) (rate(container_cpu_usage_seconds_total{kubernetes_pod_name=""}[5m]))
+                                    / max by(instance) (machine_cpu_cores)
+                                - record: task:container_memory_usage_bytes:max
+                                  expr: max by(namespace, container_name) (container_memory_usage_bytes{container_name!=""})
+                                - record: task:container_cpu_usage_seconds_total:sum
+                                  expr: sum by(id, namespace, container_name) (irate(container_cpu_usage_seconds_total{container_name!=""}[1m]))
+                                - record: node:k8snode_filesystem_avail_bytes:ratio
+                                  expr: min by(exported_name) (k8snode_filesystem_avail_bytes / k8snode_filesystem_size_bytes)
+                          ''
+                      , `sourcegraph_rules.yml` =
+                          ''
+                          groups:
+                            - name: sourcegraph.rules
+                              rules:
+                                - record: app:up:sum
+                                  expr: sum by(app) (up)
+                                - record: app:up:count
+                                  expr: count by(app) (up)
+                                - record: app:up:ratio
+                                  expr: app:up:sum / on(app) app:up:count
+                          ''
+                      }
+                  )
+              , kind = "ConfigMap"
+              , metadata =
+                { annotations = None (List { mapKey : Text, mapValue : Text })
+                , clusterName = None Text
+                , creationTimestamp = None Text
+                , deletionGracePeriodSeconds = None Natural
+                , deletionTimestamp = None Text
+                , finalizers = None (List Text)
+                , generateName = None Text
+                , generation = None Natural
+                , labels = Some
+                    ( toMap
+                        { sourcegraph-resource-requires = "no-cluster-admin"
+                        , deploy = "sourcegraph"
+                        }
+                    )
+                , managedFields =
+                    None
+                      ( List
+                          { apiVersion : Text
+                          , fieldsType : Optional Text
+                          , fieldsV1 :
+                              Optional (List { mapKey : Text, mapValue : Text })
+                          , manager : Optional Text
+                          , operation : Optional Text
+                          , time : Optional Text
+                          }
+                      )
+                , name = Some "prometheus"
+                , namespace = None Text
+                , ownerReferences =
+                    None
+                      ( List
+                          { apiVersion : Text
+                          , blockOwnerDeletion : Optional Bool
+                          , controller : Optional Bool
+                          , kind : Text
+                          , name : Text
+                          , uid : Text
+                          }
+                      )
+                , resourceVersion = None Text
+                , selfLink = None Text
+                , uid = None Text
+                }
+              }
+
+        in  configMap
+
+let component =
+      { Deployment : Kubernetes/Deployment.Type
+      , ClusterRole : Kubernetes/ClusterRole.Type
+      , ConfigMap : Kubernetes/ConfigMap.Type
+      , PersistentVolumeClaim : Kubernetes/PersistentVolumeClaim.Type
+      , ClusterRoleBinding : Kubernetes/ClusterRoleBinding.Type
+      , Service : Kubernetes/Service.Type
+      , ServiceAccount : Kubernetes/ServiceAccount.Type
+      }
+
 let Generate =
         ( λ(c : Configuration/global.Type) →
-            { Deployment = Deployment/generate c, Service = Service/generate c }
+            { Deployment = Deployment/generate c
+            , ClusterRole = ClusterRole/generate c
+            , ConfigMap = ConfigMap/generate c
+            , PersistentVolumeClaim = PersistentVolumeClaim/generate c
+            , ClusterRoleBinding = ClusterRoleBinding/generate c
+            , ServiceAccount = ServiceAccount/generate c
+            , Service = ServiceAccount/generate c
+            }
         )
       : ∀(c : Configuration/global.Type) → component
 
@@ -2010,6 +2635,12 @@ let ToList =
             Kubernetes/List::{
             , items =
               [ Kubernetes/TypesUnion.Deployment c.Deployment
+              , Kubernetes/TypesUnion.ClusterRole c.ClusterRole
+              , Kubernetes/TypesUnion.ConfigMap c.ConfigMap
+              , Kubernetes/TypesUnion.PersistentVolumeClaim
+                  c.PersistentVolumeClaim
+              , Kubernetes/TypesUnion.ClusterRoleBinding c.ClusterRoleBinding
+              , Kubernetes/TypesUnion.ServiceAccount c.ServiceAccount
               , Kubernetes/TypesUnion.Service c.Service
               ]
             }

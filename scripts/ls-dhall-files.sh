@@ -3,7 +3,7 @@
 set -eu pipefail
 
 IGNORE_DIRS=(
-  "src/deps"
+	"src/deps"
 )
 
 REPOSITORY_ROOT_RELATIVE_PATH="$(realpath --relative-to="$(pwd)" "$(dirname "${BASH_SOURCE[0]}")"/..)"

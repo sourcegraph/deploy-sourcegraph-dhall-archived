@@ -8,7 +8,7 @@ GIT_COMMIT="fd9cdd46470d4cd0ae2db6191fd214f954096af1"
 ARCHIVE="dhall-kubernetes.gz"
 
 cleanup() {
-  rm -rf "$ARCHIVE"
+	rm -rf "$ARCHIVE"
 }
 trap cleanup EXIT
 

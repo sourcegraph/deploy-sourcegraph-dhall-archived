@@ -30,6 +30,8 @@ let Replacer/configuration = ../base/replacer/configuration.dhall
 
 let QueryRunner/configuration = ../base/query-runner/configuration.dhall
 
+let Prometheus/configuration = ../base/prometheus/configuration.dhall
+
 let configuration =
       { Type =
           { Frontend : Frontend/configuration.Type
@@ -46,7 +48,8 @@ let configuration =
           , PreciseCodeIntel : PreciseCodeIntel/configuration.Type
           , Redis : Redis/configuration.Type
           , Replacer : Replacer/configuration.Type
-          , QueryRunner/configuration : QueryRunner/configuration.Type
+          , QueryRunner : QueryRunner/configuration.Type
+          , Prometheus : Prometheus/configuration.Type
           }
       , default =
         { Frontend = Frontend/configuration.default
@@ -63,7 +66,8 @@ let configuration =
         , PreciseCodeIntel = PreciseCodeIntel/configuration.default
         , Redis = Redis/configuration.default
         , Replacer = Replacer/configuration.default
-        , QueryRunner/configuration = QueryRunner/configuration.default
+        , QueryRunner = QueryRunner/configuration.default
+        , Prometheus = Prometheus/configuration.default
         }
       }
 
