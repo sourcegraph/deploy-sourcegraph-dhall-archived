@@ -37,13 +37,13 @@ let Kubernetes/HTTPIngressRuleValue =
       ../../deps/k8s/schemas/io.k8s.api.extensions.v1beta1.HTTPIngressRuleValue.dhall
 
 let Kubernetes/Ingress =
-      ../../deps/k8s/schemas/io.k8s.api.extensions.v1beta1.Ingress.dhall
+      ../../deps/k8s/schemas/io.k8s.api.networking.v1beta1.Ingress.dhall
 
 let Kubernetes/IngressRule =
-      ../../deps/k8s/schemas/io.k8s.api.extensions.v1beta1.IngressRule.dhall
+      ../../deps/k8s/schemas/io.k8s.api.networking.v1beta1.IngressRule.dhall
 
 let Kubernetes/IngressSpec =
-      ../../deps/k8s/schemas/io.k8s.api.extensions.v1beta1.IngressSpec.dhall
+      ../../deps/k8s/schemas/io.k8s.api.networking.v1beta1.IngressSpec.dhall
 
 let Kubernetes/IntOrString =
       ../../deps/k8s/types/io.k8s.apimachinery.pkg.util.intstr.IntOrString.dhall
@@ -119,7 +119,8 @@ let makeGitserverEnvVar =
       λ(replicas : Natural) →
         let indicies = Natural/enumerate replicas
 
-        let makeEndpoint = λ(i : Natural) → "gitserver-${Natural/show i}:3178"
+        let makeEndpoint =
+              λ(i : Natural) → "gitserver-${Natural/show i}.gitserver:3178"
 
         in  Text/concatMapSep "," Natural makeEndpoint indicies
 
@@ -196,7 +197,7 @@ let frontendContainer/generate =
         let image =
               Optional/default
                 Text
-                "index.docker.io/sourcegraph/frontend:3.16.1@sha256:8c144508a7f2a662d95c1831ba4b6542942aa25c0eb2f87abe80ff0a9151cf20"
+                "index.docker.io/sourcegraph/frontend:3.17.2@sha256:2378899365619635ce7acd983582407688d4def72a3fd62ae6fa0c23a0554fde"
                 overrides.image
 
         let container =
@@ -343,11 +344,11 @@ let Ingress/generate =
               Kubernetes/Ingress::{
               , metadata = Kubernetes/ObjectMeta::{
                 , annotations = Some
-                    (   [ { mapKey = "Kubernetes/io/ingress.class"
+                    (   [ { mapKey = "kubernetes.io/ingress.class"
                           , mapValue = "nginx"
                           }
                         , { mapKey =
-                              "nginx.ingress.Kubernetes/io/proxy-body-size"
+                              "nginx.ingress.kubernetes.io/proxy-body-size"
                           , mapValue = "150m"
                           }
                         ]
@@ -625,4 +626,4 @@ let Render =
         (λ(c : Configuration/global.Type) → ToList (Generate c))
       : ∀(c : Configuration/global.Type) → Kubernetes/List.Type
 
-in  Render
+in  { Render, Generate }
