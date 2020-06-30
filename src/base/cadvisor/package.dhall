@@ -332,7 +332,10 @@ let DaemonSet/generate =
                           }
                     , automountServiceAccountToken = Some False
                     , containers =
-                      [ { args = Some [ "-port=48080" ]
+                      [ { args = Some
+                          [ "--store_container_labels=false"
+                          , "--whitelisted_container_labels=io.kubernetes.container.name,io.kubernetes.pod.name,io.kubernetes.pod.namespace,io.kubernetes.pod.uid"
+                          ]
                         , command = None (List Text)
                         , env =
                             None
@@ -384,7 +387,7 @@ let DaemonSet/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/cadvisor:insiders@sha256:4074c8bc608b78af3ca3d6e60b3794369a190ab2efd992e31b3079b075401efa"
+                            "index.docker.io/sourcegraph/cadvisor:3.17.2@sha256:9fb42b067d1f9cc84558f61b6ec42f8cfe7ad874625c7673efa9b1f047fa3ced"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None
@@ -3157,4 +3160,4 @@ let Render =
         (λ(c : Configuration/global.Type) → ToList (Generate c))
       : ∀(c : Configuration/global.Type) → Kubernetes/List.Type
 
-in  Render
+in  { Render, Generate }
