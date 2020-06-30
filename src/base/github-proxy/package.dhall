@@ -473,7 +473,7 @@ let Deployment/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/github-proxy:3.16.1@sha256:1e2dd146d5e656b44f005b80e55c78bdcee7b06b398f442d9632952bad692c8e"
+                            "index.docker.io/sourcegraph/github-proxy:3.17.2@sha256:b54c845d7aa967791ea5f166a19df8f3abeeda408ae7ed9e1251f07e2c83a4f6"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None
@@ -721,7 +721,7 @@ let Deployment/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/jaeger-agent:3.16.1@sha256:2fc0cdd7db449e411a01a6ba175ad0b33f8515c343edd7c19569e6f87c6f7fe2"
+                            "index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None
@@ -1992,4 +1992,4 @@ let Render =
         (λ(c : Configuration/global.Type) → ToList (Generate c))
       : ∀(c : Configuration/global.Type) → Kubernetes/List.Type
 
-in  Render
+in  { Render, Generate }
