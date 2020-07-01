@@ -14,10 +14,7 @@ let renderPackage = ./jobs/render-package.dhall
 
 in  GitHubActions.Workflow::{
     , name = "CI"
-    , on = GitHubActions.On::{
-      , push = Some GitHubActions.Push::{ branches = Some [ "master" ] }
-      , pull_request = Some GitHubActions.PullRequest::{=}
-      }
+    , on = GitHubActions.On::{ push = Some GitHubActions.Push::{=} }
     , jobs = toMap
         { shellcheck
         , shfmt
