@@ -484,4 +484,4 @@ let Render =
         (λ(c : Configuration/global.Type) → ToList (Generate c))
       : ∀(c : Configuration/global.Type) → Kubernetes/List.Type
 
-in  Render
+in  { Render, Generate }

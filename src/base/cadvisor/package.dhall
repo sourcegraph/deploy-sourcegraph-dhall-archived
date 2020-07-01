@@ -22,13 +22,7 @@ let Kubernetes/TypesUnion = ../../deps/k8s/typesUnion.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
-let component =
-      { DaemonSet : Kubernetes/DaemonSet.Type
-      , ClusterRole : Kubernetes/ClusterRole.Type
-      , PodSecurityPolicy : Kubernetes/PodSecurityPolicy.Type
-      , ClusterRoleBinding : Kubernetes/ClusterRoleBinding.Type
-      , ServiceAccount : Kubernetes/ServiceAccount.Type
-      }
+let Component = ./component.dhall
 
 let DaemonSet/generate =
       λ(c : Configuration/global.Type) →
@@ -3140,10 +3134,10 @@ let Generate =
             , PodSecurityPolicy = PodSecurityPolicy/generate c
             }
         )
-      : ∀(c : Configuration/global.Type) → component
+      : ∀(c : Configuration/global.Type) → Component
 
 let ToList =
-        ( λ(c : component) →
+        ( λ(c : Component) →
             Kubernetes/List::{
             , items =
               [ Kubernetes/TypesUnion.DaemonSet c.DaemonSet
@@ -3154,7 +3148,7 @@ let ToList =
               ]
             }
         )
-      : ∀(c : component) → Kubernetes/List.Type
+      : ∀(c : Component) → Kubernetes/List.Type
 
 let Render =
         (λ(c : Configuration/global.Type) → ToList (Generate c))
