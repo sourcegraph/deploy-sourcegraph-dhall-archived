@@ -7,13 +7,13 @@ let SetupSteps = Setup.SetupSteps
 let Job = Setup.Job
 
 in  Job::{
-    , name = Some "render-package"
+    , name = Some "typecheck-dhall-package"
     , steps =
           SetupSteps
         # [ GitHubActions.Step::{
             , name = Some
-                "Check that deploy-sourcegraph-dhall compiles without any errors"
-            , run = Some "ci/render-package.sh"
+                "Check that deploy-sourcegraph-dhall typechecks without any errors"
+            , run = Some "ci/typecheck-package.sh"
             }
           ]
     }

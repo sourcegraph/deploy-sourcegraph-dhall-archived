@@ -7,7 +7,7 @@ let SetupSteps = Setup.SetupSteps
 let Job = Setup.Job
 
 in  Job::{
-    , name = Some "Rendered CI pipeline is up to date"
+    , name = Some "render-CI-pipeline"
     , steps =
           SetupSteps
         # [ GitHubActions.Step::{
