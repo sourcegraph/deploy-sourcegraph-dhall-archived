@@ -10,7 +10,7 @@ let dhallFormat = ./jobs/dhall-format.dhall
 
 let dhallLint = ./jobs/dhall-lint.dhall
 
-let renderPackage = ./jobs/render-package.dhall
+let renderPackage = ./jobs/typecheck-package.dhall
 
 in  GitHubActions.Workflow::{
     , name = "CI"
