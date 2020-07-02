@@ -12,9 +12,6 @@ let Kubernetes/ClusterRole =
 let Kubernetes/ClusterRoleBinding =
       ../../deps/k8s/schemas/io.k8s.api.rbac.v1.ClusterRoleBinding.dhall
 
-let Kubernetes/RoleBinding =
-      ../../deps/k8s/schemas/io.k8s.api.rbac.v1.RoleBinding.dhall
-
 let Kubernetes/ServiceAccount =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.ServiceAccount.dhall
 
@@ -2874,7 +2871,7 @@ let ClusterRole/generate =
 let ClusterRoleBinding/generate =
       λ(c : Configuration/global.Type) →
         let clusterRoleBinding =
-              Kubernetes/RoleBinding::{
+              Kubernetes/ClusterRoleBinding::{
               , apiVersion = "rbac.authorization.k8s.io/v1"
               , kind = "ClusterRoleBinding"
               , metadata =
