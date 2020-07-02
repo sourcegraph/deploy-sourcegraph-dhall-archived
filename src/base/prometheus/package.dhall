@@ -24,6 +24,8 @@ let Kubernetes/TypesUnion = ../../deps/k8s/typesUnion.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
+let component = ./component.dhall
+
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
         let deployment =
@@ -2709,16 +2711,6 @@ let ConfigMap/generate =
               }
 
         in  configMap
-
-let component =
-      { Deployment : Kubernetes/Deployment.Type
-      , ClusterRole : Kubernetes/ClusterRole.Type
-      , ConfigMap : Kubernetes/ConfigMap.Type
-      , PersistentVolumeClaim : Kubernetes/PersistentVolumeClaim.Type
-      , ClusterRoleBinding : Kubernetes/ClusterRoleBinding.Type
-      , Service : Kubernetes/Service.Type
-      , ServiceAccount : Kubernetes/ServiceAccount.Type
-      }
 
 let Generate =
         ( λ(c : Configuration/global.Type) →

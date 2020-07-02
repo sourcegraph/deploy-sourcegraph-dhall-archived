@@ -67,10 +67,7 @@ let Util/JaegerAgent = ../../util/jaeger-agent.dhall
 
 let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
-let component =
-      { StatefulSet : Kubernetes/StatefulSet.Type
-      , Service : Kubernetes/Service.Type
-      }
+let component = ./component.dhall
 
 let Service/generate =
       λ(c : Configuration/global.Type) →

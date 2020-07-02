@@ -15,12 +15,7 @@ let Kubernetes/ServiceAccount =
 
 let Configuration/global = ../../configuration/global.dhall
 
-let component =
-      { StatefulSet : Kubernetes/StatefulSet.Type
-      , Service : Kubernetes/Service.Type
-      , ConfigMap : Kubernetes/ConfigMap.Type
-      , ServiceAccount : Kubernetes/ServiceAccount.Type
-      }
+let component = ./component.dhall
 
 let ServiceAccount/generate =
       λ(c : Configuration/global.Type) →

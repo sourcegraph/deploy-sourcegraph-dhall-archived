@@ -12,17 +12,7 @@ let Kubernetes/TypesUnion = ../../deps/k8s/typesUnion.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
-let component =
-      { BundleManager :
-          { Deployment : Kubernetes/Deployment.Type
-          , Service : Kubernetes/Service.Type
-          , PersistentVolumeClaim : Kubernetes/PersistentVolumeClaim.Type
-          }
-      , Worker :
-          { Deployment : Kubernetes/Deployment.Type
-          , Service : Kubernetes/Service.Type
-          }
-      }
+let component = ./component.dhall
 
 let BundleManager/PersistentVolumeClaim/generate =
       λ(c : Configuration/global.Type) →

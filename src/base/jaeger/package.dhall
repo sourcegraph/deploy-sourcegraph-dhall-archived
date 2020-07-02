@@ -9,11 +9,7 @@ let Kubernetes/TypesUnion = ../../deps/k8s/typesUnion.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
-let component =
-      { Deployment : Kubernetes/Deployment.Type
-      , Collector : Kubernetes/Service.Type
-      , Query : Kubernetes/Service.Type
-      }
+let component = ./component.dhall
 
 let Service/Query/generate =
       λ(c : Configuration/global.Type) →

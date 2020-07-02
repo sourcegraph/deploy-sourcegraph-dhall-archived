@@ -12,18 +12,7 @@ let Kubernetes/TypesUnion = ../../deps/k8s/typesUnion.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
-let component =
-      { Cache :
-          { Deployment : Kubernetes/Deployment.Type
-          , Service : Kubernetes/Service.Type
-          , PersistentVolumeClaim : Kubernetes/PersistentVolumeClaim.Type
-          }
-      , Store :
-          { Deployment : Kubernetes/Deployment.Type
-          , PersistentVolumeClaim : Kubernetes/PersistentVolumeClaim.Type
-          , Service : Kubernetes/Service.Type
-          }
-      }
+let component = ./component.dhall
 
 let Cache/PersistentVolumeClaim/generate =
       λ(c : Configuration/global.Type) →

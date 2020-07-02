@@ -105,15 +105,7 @@ let Util/JaegerAgent = ../../util/jaeger-agent.dhall
 
 let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
-let component =
-      { Deployment : Kubernetes/Deployment.Type
-      , Ingress : Kubernetes/Ingress.Type
-      , Role : Kubernetes/Role.Type
-      , RoleBinding : Kubernetes/RoleBinding.Type
-      , Service : Kubernetes/Service.Type
-      , ServiceAccount : Kubernetes/ServiceAccount.Type
-      , ServiceInternal : Kubernetes/Service.Type
-      }
+let component = ./component.dhall
 
 let makeGitserverEnvVar =
       λ(replicas : Natural) →
@@ -626,4 +618,4 @@ let Render =
         (λ(c : Configuration/global.Type) → ToList (Generate c))
       : ∀(c : Configuration/global.Type) → Kubernetes/List.Type
 
-in  { Render, Generate }
+in  { Render, Generate, Component = component }

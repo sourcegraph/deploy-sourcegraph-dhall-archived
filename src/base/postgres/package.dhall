@@ -78,12 +78,7 @@ let Util/DeploySourcegraphLabel = ../../util/deploy-sourcegraph-label.dhall
 
 let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
-let component =
-      { ConfigMap : Kubernetes/ConfigMap.Type
-      , Deployment : Kubernetes/Deployment.Type
-      , PersistentVolumeClaim : Kubernetes/PersistentVolumeClaim.Type
-      , Service : Kubernetes/Service.Type
-      }
+let component = ./component.dhall
 
 let ConfigMap/generate =
       λ(c : Configuration/global.Type) →
