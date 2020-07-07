@@ -36,7 +36,7 @@ let component =
       { Frontend : Frontend/Component
       , Cadvisor : Cadvisor/Component
       , GitHubProxy : GithubProxy/Component
-      , GitServer : Gitserver/Component
+      , Gitserver : Gitserver/Component
       , Grafana : Grafana/Component
       , IndexedSearch : IndexedSearch/Component
       , Jaeger : Jaeger/Component
