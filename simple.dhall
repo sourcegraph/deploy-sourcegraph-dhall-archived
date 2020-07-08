@@ -13,5 +13,6 @@ in    { Cadvisor = ./src/base/cadvisor/simple.dhall
       , QueryRunner = ./src/base/query-runner/simple.dhall
       , Redis = ./src/base/redis/simple.dhall
         , Replacer = ./src/base/replacer/simple.dhall
+        , RepoUpdater = ./src/base/repo-updater/simple.dhall
       }
     : component
