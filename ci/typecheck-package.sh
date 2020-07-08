@@ -5,7 +5,7 @@ set -euxo pipefail
 
 FILES=(
   ./package.dhall
-  ./src/base/generate.dhall # generate isn't exported as a speed optimization
+  ./generate-plain.dhall # generate isn't exported as a speed optimization
 )
 
 for file in "${FILES[@]}"; do
