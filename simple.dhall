@@ -12,9 +12,10 @@ in    { Cadvisor = ./src/base/cadvisor/simple.dhall
       , Prometheus = ./src/base/prometheus/simple.dhall
       , QueryRunner = ./src/base/query-runner/simple.dhall
       , Redis = ./src/base/redis/simple.dhall
-        , Replacer = ./src/base/replacer/simple.dhall
-        , RepoUpdater = ./src/base/repo-updater/simple.dhall
-        , Searcher = ./src/base/searcher/simple.dhall
-        , Symbols = ./src/base/symbols/simple.dhall
+      , Replacer = ./src/base/replacer/simple.dhall
+      , RepoUpdater = ./src/base/repo-updater/simple.dhall
+      , Searcher = ./src/base/searcher/simple.dhall
+      , Symbols = ./src/base/symbols/simple.dhall
+      , SyntaxHighlighter = ./src/base/syntax-highlighter/simple.dhall
       }
     : component
