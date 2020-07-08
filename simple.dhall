@@ -10,5 +10,6 @@ in    { Cadvisor = ./src/base/cadvisor/simple.dhall
       , Postgres = ./src/base/postgres/simple.dhall
       , PreciseCodeIntel = ./src/base/precise-code-intel/simple.dhall
       , Prometheus = ./src/base/prometheus/simple.dhall
+        , QueryRunner  = ./src/base/query-runner/simple.dhall
       }
     : component
