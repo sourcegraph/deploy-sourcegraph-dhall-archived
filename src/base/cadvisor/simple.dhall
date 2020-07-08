@@ -1,4 +1,4 @@
-let schemas = ./src/deps/k8s/schemas.dhall
+let schemas = ../../deps/k8s/schemas.dhall
 
 in  { ClusterRole = schemas.ClusterRole::{
       , metadata = schemas.ObjectMeta::{
