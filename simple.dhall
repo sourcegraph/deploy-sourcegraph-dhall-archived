@@ -15,5 +15,6 @@ in    { Cadvisor = ./src/base/cadvisor/simple.dhall
         , Replacer = ./src/base/replacer/simple.dhall
         , RepoUpdater = ./src/base/repo-updater/simple.dhall
         , Searcher = ./src/base/searcher/simple.dhall
+        , Symbols = ./src/base/symbols/simple.dhall
       }
     : component
