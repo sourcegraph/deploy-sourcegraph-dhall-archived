@@ -6,6 +6,7 @@ let Kubernetes/StatefulSet =
 let component =
       { StatefulSet : Kubernetes/StatefulSet.Type
       , Service : Kubernetes/Service.Type
+      , IndexerService : Kubernetes/Service.Type
       }
 
 in  component

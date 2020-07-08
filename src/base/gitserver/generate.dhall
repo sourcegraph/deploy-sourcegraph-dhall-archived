@@ -133,7 +133,7 @@ let gitserverContainer/generate =
         let image =
               Optional/default
                 Text
-                "index.docker.io/sourcegraph/gitserver:3.16.1@sha256:1e81230b978a60d91ba2e557fe2e2cb30518d9d043763312db08e52c814aeb2c"
+                "index.docker.io/sourcegraph/gitserver:3.17.2@sha256:a2dac3ed8c9bbd7f930ae8d2bb446878f43f326002774fd85647945a90535733"
                 overrides.image
 
         let resources =

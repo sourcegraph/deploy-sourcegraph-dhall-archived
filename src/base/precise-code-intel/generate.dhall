@@ -605,7 +605,7 @@ let BundleManager/Deployment/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/precise-code-intel-bundle-manager:3.16.1@sha256:57cfbb6f7abca375ff0b24031383c737b4723b7fbe6d34d1b85efb24ac13463f"
+                            "index.docker.io/sourcegraph/precise-code-intel-bundle-manager:3.17.2@sha256:7dff0e7e8c7a3451ce12cf5eb5e4073bb9502752926acf33f13eb370dc570cc8"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None
@@ -2335,7 +2335,7 @@ let Worker/Deployment/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/precise-code-intel-worker:3.16.1@sha256:07ca2bb9fbc5546273fe9e2373d0fbe3c4d4b3be6ca02324b5c98e6717785f82"
+                            "index.docker.io/sourcegraph/precise-code-intel-worker:3.17.2@sha256:123ddcab97c273599b569a76bcd2c7dd7c423c1de816fda1c35b781e004b4dde"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None

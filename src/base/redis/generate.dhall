@@ -566,7 +566,7 @@ let Cache/Deployment/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/redis-cache:3.16.1@sha256:7820219195ab3e8fdae5875cd690fed1b2a01fd1063bd94210c0e9d529c38e56"
+                            "index.docker.io/sourcegraph/redis-cache:3.17.2@sha256:7820219195ab3e8fdae5875cd690fed1b2a01fd1063bd94210c0e9d529c38e56"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None
@@ -2573,7 +2573,7 @@ let Store/Deployment/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/redis-store:3.16.1@sha256:e8467a8279832207559bdfbc4a89b68916ecd5b44ab5cf7620c995461c005168"
+                            "index.docker.io/sourcegraph/redis-store:3.17.2@sha256:e8467a8279832207559bdfbc4a89b68916ecd5b44ab5cf7620c995461c005168"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None

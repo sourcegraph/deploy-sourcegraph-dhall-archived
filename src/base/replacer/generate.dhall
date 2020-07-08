@@ -523,7 +523,7 @@ let Deployment/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/replacer:3.16.1@sha256:bda8152c95bc64935b9fe309751b54ce6b99fdb563ff73d59a0720d1a2bdbead"
+                            "index.docker.io/sourcegraph/replacer:3.17.2@sha256:ad4748e62fdc7ee493274706aae516bb51b3bfda81d1af421f2f94543d71a424"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None
@@ -772,7 +772,7 @@ let Deployment/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/jaeger-agent:3.16.1@sha256:2fc0cdd7db449e411a01a6ba175ad0b33f8515c343edd7c19569e6f87c6f7fe2"
+                            "index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None

@@ -7,6 +7,113 @@ let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
 
+let IndexedService/generate =
+      λ(c : Configuration/global.Type) →
+        let service =
+              Kubernetes/Service::{
+              , apiVersion = "v1"
+              , kind = "Service"
+              , metadata =
+                { annotations = Some
+                  [ { mapKey = "description"
+                    , mapValue =
+                        "Headless service that provides a stable network identity for the indexed-search stateful set."
+                    }
+                  , { mapKey = "prometheus.io/port", mapValue = "6072" }
+                  , { mapKey = "sourcegraph.prometheus/scrape"
+                    , mapValue = "true"
+                    }
+                  ]
+                , clusterName = None Text
+                , creationTimestamp = None Text
+                , deletionGracePeriodSeconds = None Natural
+                , deletionTimestamp = None Text
+                , finalizers = None (List Text)
+                , generateName = None Text
+                , generation = None Natural
+                , labels = Some
+                  [ { mapKey = "app", mapValue = "indexed-search-indexer" }
+                  , { mapKey = "deploy", mapValue = "sourcegraph" }
+                  , { mapKey = "sourcegraph-resource-requires"
+                    , mapValue = "no-cluster-admin"
+                    }
+                  ]
+                , managedFields =
+                    None
+                      ( List
+                          { apiVersion : Text
+                          , fieldsType : Optional Text
+                          , fieldsV1 :
+                              Optional (List { mapKey : Text, mapValue : Text })
+                          , manager : Optional Text
+                          , operation : Optional Text
+                          , time : Optional Text
+                          }
+                      )
+                , name = Some "indexed-search-indexer"
+                , namespace = None Text
+                , ownerReferences =
+                    None
+                      ( List
+                          { apiVersion : Text
+                          , blockOwnerDeletion : Optional Bool
+                          , controller : Optional Bool
+                          , kind : Text
+                          , name : Text
+                          , uid : Text
+                          }
+                      )
+                , resourceVersion = None Text
+                , selfLink = None Text
+                , uid = None Text
+                }
+              , spec = Some
+                { clusterIP = Some "None"
+                , externalIPs = None (List Text)
+                , externalName = None Text
+                , externalTrafficPolicy = None Text
+                , healthCheckNodePort = None Natural
+                , ipFamily = None Text
+                , loadBalancerIP = None Text
+                , loadBalancerSourceRanges = None (List Text)
+                , ports = Some
+                  [ { name = None Text
+                    , nodePort = None Natural
+                    , port = 6072
+                    , protocol = None Text
+                    , targetPort = Some
+                        (< Int : Natural | String : Text >.Int 6072)
+                    }
+                  ]
+                , publishNotReadyAddresses = None Bool
+                , selector = Some
+                  [ { mapKey = "app", mapValue = "indexed-search" } ]
+                , sessionAffinity = None Text
+                , sessionAffinityConfig =
+                    None
+                      { clientIP :
+                          Optional { timeoutSeconds : Optional Natural }
+                      }
+                , topologyKeys = None (List Text)
+                , type = Some "ClusterIP"
+                }
+              , status =
+                  None
+                    { loadBalancer :
+                        Optional
+                          { ingress :
+                              Optional
+                                ( List
+                                    { hostname : Optional Text
+                                    , ip : Optional Text
+                                    }
+                                )
+                          }
+                    }
+              }
+
+        in  service
+
 let Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
@@ -17,6 +124,7 @@ let Service/generate =
                 { annotations = Some
                     ( toMap
                         { `sourcegraph.prometheus/scrape` = "true"
+                        , `prometheus.io/port` = "6070"
                         , description =
                             "Headless service that provides a stable network identity for the indexed-search stateful set."
                         }
@@ -459,7 +567,7 @@ let StatefulSet/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/indexed-searcher:3.16.1@sha256:d8b0fa59f7825acc51ef3cfe9d625019555dceb3272d44b52e396cc7748eaa06"
+                            "index.docker.io/sourcegraph/indexed-searcher:3.17.2@sha256:8324943e1b52466dc2052cf82bfd22b18ad045346d2b0ea403b4674f48214602"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None
@@ -703,7 +811,7 @@ let StatefulSet/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/search-indexer:3.16.1@sha256:fa1eaf045fbd2cab1cd2666046718e47d43012efbe07ad68beda0ac778f62875"
+                            "index.docker.io/sourcegraph/search-indexer:3.17.2@sha256:f31ec682b907bde2975acda88ee99ac268ef32a79309a6036ef5f26e8af0dcac"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None
@@ -2009,6 +2117,7 @@ let Generate =
         ( λ(c : Configuration/global.Type) →
             { StatefulSet = StatefulSet/generate c
             , Service = Service/generate c
+            , IndexerService = IndexedService/generate c
             }
         )
       : ∀(c : Configuration/global.Type) → component

@@ -380,7 +380,7 @@ let Deployment/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/prometheus:3.16.1@sha256:ba02429d8c2d20abf05351ba0d61c892d04ac8b1eb7aaf433236ed1568db7fb0"
+                            "index.docker.io/sourcegraph/prometheus:3.17.2@sha256:a725419a532fb17f6955e80f8a2f35efe15287c0a556e4fe7168d5fc6ff730d8"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None

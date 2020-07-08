@@ -89,21 +89,7 @@ let ConfigMap/generate =
               , apiVersion = "v1"
               , binaryData = None (List { mapKey : Text, mapValue : Text })
               , data = Some
-                  ( toMap
-                      { `prometheus.yml` =
-                          ''
-                          apiVersion: 1
-
-                          datasources:
-                            - name: Prometheus
-                              type: prometheus
-                              access: proxy
-                              url: http://prometheus:30090
-                              isDefault: true
-                              editable: false
-                          ''
-                      }
-                  )
+                  (toMap { `datasources.yml` = ./datasources.yaml as Text })
               , kind = "ConfigMap"
               , metadata =
                 { annotations = None (List { mapKey : Text, mapValue : Text })
@@ -598,7 +584,7 @@ let StatefulSet/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/grafana:3.16.1@sha256:eaff3c31ed27a398c07ad7738f46b32b3351a18e4b7db8260559b41d5b45c4b8"
+                            "index.docker.io/sourcegraph/grafana:3.17.2@sha256:f390384e2f57f3aba4eae41e51340a541a5b7a82ee16bdcea3cd9520423f193a"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None

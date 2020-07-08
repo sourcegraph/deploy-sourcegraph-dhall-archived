@@ -601,7 +601,7 @@ let Deployment/generate =
                                   }
                               )
                         , image = Some
-                            "index.docker.io/sourcegraph/jaeger-all-in-one:3.16.1@sha256:065cca3edac4003351e99a4cd2cfbf758c6ca17d455118b46435f2211d9ab4f8"
+                            "index.docker.io/sourcegraph/jaeger-all-in-one:3.17.2@sha256:3d885a0dd4dd7b3abd5aebe4baa2a854230178dacf00de5664b57c895f2015fa"
                         , imagePullPolicy = None Text
                         , lifecycle =
                             None
