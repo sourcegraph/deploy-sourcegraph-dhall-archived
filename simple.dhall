@@ -9,5 +9,6 @@ in    { Cadvisor = ./src/base/cadvisor/simple.dhall
       , Jaeger = ./src/base/jaeger/simple.dhall
       , Postgres = ./src/base/postgres/simple.dhall
       , PreciseCodeIntel = ./src/base/precise-code-intel/simple.dhall
+      , Prometheus = ./src/base/prometheus/simple.dhall
       }
     : component
