@@ -3,4 +3,11 @@
 cd "$(dirname "${BASH_SOURCE[0]}")"/..
 set -euxo pipefail
 
-dhall --explain --file ./package.dhall >/dev/null
+FILES=(
+  ./package.dhall
+  ./generate-plain.dhall # generate isn't exported as a speed optimization
+)
+
+for file in "${FILES[@]}"; do
+  dhall --explain --file "$file" >/dev/null
+done

@@ -1,5 +1,5 @@
-let Base/toList = ./src/base/package.dhall
+let Base/render = ./src/base/render.dhall
 
 let Configuration/global = ./src/configuration/global.dhall
 
-in  { Configuration = Configuration/global, ToList = Base/toList }
+in  { Configuration = Configuration/global, Render = Base/render }

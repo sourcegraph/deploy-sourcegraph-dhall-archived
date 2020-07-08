@@ -1,7 +1,7 @@
 let Sourcegraph = ./package.dhall
 
-let ToList = Sourcegraph.ToList
+let Render = Sourcegraph.Render
 
 let c = Sourcegraph.Configuration::{=}
 
-in  ToList c
+in  Render c
