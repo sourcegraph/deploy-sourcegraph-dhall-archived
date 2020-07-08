@@ -12,6 +12,6 @@ in    { Cadvisor = ./src/base/cadvisor/simple.dhall
       , Prometheus = ./src/base/prometheus/simple.dhall
       , QueryRunner = ./src/base/query-runner/simple.dhall
       , Redis = ./src/base/redis/simple.dhall
-
+        , Replacer = ./src/base/replacer/simple.dhall
       }
     : component

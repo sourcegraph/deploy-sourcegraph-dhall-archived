@@ -8,8 +8,8 @@ custom_dhall="/Users/ggilmore/dev/mess/dhall-haskell/.stack-work/install/x86_64-
 generate_file="./generate-plain.dhall"
 schema_file="./src/deps/k8s/schemas.dhall"
 
-component_name="Redis"
-output_file="./src/base/redis/simple.dhall"
+component_name="Replacer"
+output_file="./src/base/replacer/simple.dhall"
 
 simplfied_file=$(echo "(${generate_file}).${component_name}" | "$custom_dhall" schemas --record "$schema_file")
 
