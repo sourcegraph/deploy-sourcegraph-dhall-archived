@@ -1,61 +1,4 @@
-let Kubernetes/TCPSocketAction =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.TCPSocketAction.dhall
-
-let Kubernetes/PersistentVolumeClaim =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaim.dhall
-
-let Kubernetes/PersistentVolumeClaimSpec =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaimSpec.dhall
-
-let Kubernetes/Volume = ../../deps/k8s/schemas/io.k8s.api.core.v1.Volume.dhall
-
-let Kubernetes/PersistentVolumeClaimVolumeSource =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaimVolumeSource.dhall
-
-let Kubernetes/Container =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.Container.dhall
-
-let Kubernetes/ContainerPort =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ContainerPort.dhall
-
-let Kubernetes/Deployment =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.Deployment.dhall
-
-let Kubernetes/DeploymentSpec =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DeploymentSpec.dhall
-
-let Kubernetes/DeploymentStrategy =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DeploymentStrategy.dhall
-
-let Kubernetes/LabelSelector =
-      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector.dhall
-
-let Kubernetes/ObjectMeta =
-      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.dhall
-
-let Kubernetes/PodSecurityContext =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSecurityContext.dhall
-
-let Kubernetes/PodSpec = ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSpec.dhall
-
-let Kubernetes/PodTemplateSpec =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodTemplateSpec.dhall
-
-let Kubernetes/Probe = ../../deps/k8s/schemas/io.k8s.api.core.v1.Probe.dhall
-
-let Kubernetes/ResourceRequirements =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
-
-let Kubernetes/Service = ../../deps/k8s/schemas/io.k8s.api.core.v1.Service.dhall
-
-let Kubernetes/ServicePort =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServicePort.dhall
-
-let Kubernetes/ServiceSpec =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServiceSpec.dhall
-
-let Kubernetes/VolumeMount =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.VolumeMount.dhall
+let Kubernetes = ../../deps/k8s/schemas.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
@@ -64,8 +7,8 @@ let component = ./component.dhall
 let Cache/PersistentVolumeClaim/generate =
       λ(c : Configuration/global.Type) →
         let persistentVolumeClaim =
-              Kubernetes/PersistentVolumeClaim::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.PersistentVolumeClaim::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "deploy", mapValue = "sourcegraph" }
                   , { mapKey = "sourcegraph-resource-requires"
@@ -74,9 +17,9 @@ let Cache/PersistentVolumeClaim/generate =
                   ]
                 , name = Some "redis-cache"
                 }
-              , spec = Some Kubernetes/PersistentVolumeClaimSpec::{
+              , spec = Some Kubernetes.PersistentVolumeClaimSpec::{
                 , accessModes = Some [ "ReadWriteOnce" ]
-                , resources = Some Kubernetes/ResourceRequirements::{
+                , resources = Some Kubernetes.ResourceRequirements::{
                   , requests = Some
                     [ { mapKey = "storage", mapValue = "100Gi" } ]
                   }
@@ -89,8 +32,8 @@ let Cache/PersistentVolumeClaim/generate =
 let Cache/Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
-              Kubernetes/Service::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.Service::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , annotations = Some
                   [ { mapKey = "prometheus.io/port", mapValue = "9121" }
                   , { mapKey = "sourcegraph.prometheus/scrape"
@@ -106,9 +49,9 @@ let Cache/Service/generate =
                   ]
                 , name = Some "redis-cache"
                 }
-              , spec = Some Kubernetes/ServiceSpec::{
+              , spec = Some Kubernetes.ServiceSpec::{
                 , ports = Some
-                  [ Kubernetes/ServicePort::{
+                  [ Kubernetes.ServicePort::{
                     , name = Some "redis"
                     , port = 6379
                     , targetPort = Some
@@ -126,8 +69,8 @@ let Cache/Service/generate =
 let Cache/Deployment/generate =
       λ(c : Configuration/global.Type) →
         let deployment =
-              Kubernetes/Deployment::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.Deployment::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , annotations = Some
                   [ { mapKey = "description"
                     , mapValue = "Redis for storing short-lived caches."
@@ -141,51 +84,51 @@ let Cache/Deployment/generate =
                   ]
                 , name = Some "redis-cache"
                 }
-              , spec = Some Kubernetes/DeploymentSpec::{
+              , spec = Some Kubernetes.DeploymentSpec::{
                 , minReadySeconds = Some 10
                 , replicas = Some 1
                 , revisionHistoryLimit = Some 10
-                , selector = Kubernetes/LabelSelector::{
+                , selector = Kubernetes.LabelSelector::{
                   , matchLabels = Some
                     [ { mapKey = "app", mapValue = "redis-cache" } ]
                   }
-                , strategy = Some Kubernetes/DeploymentStrategy::{
+                , strategy = Some Kubernetes.DeploymentStrategy::{
                   , type = Some "Recreate"
                   }
-                , template = Kubernetes/PodTemplateSpec::{
-                  , metadata = Kubernetes/ObjectMeta::{
+                , template = Kubernetes.PodTemplateSpec::{
+                  , metadata = Kubernetes.ObjectMeta::{
                     , labels = Some
                       [ { mapKey = "app", mapValue = "redis-cache" }
                       , { mapKey = "deploy", mapValue = "sourcegraph" }
                       ]
                     }
-                  , spec = Some Kubernetes/PodSpec::{
+                  , spec = Some Kubernetes.PodSpec::{
                     , containers =
-                      [ Kubernetes/Container::{
+                      [ Kubernetes.Container::{
                         , image = Some
                             "index.docker.io/sourcegraph/redis-cache:3.17.2@sha256:7820219195ab3e8fdae5875cd690fed1b2a01fd1063bd94210c0e9d529c38e56"
-                        , livenessProbe = Some Kubernetes/Probe::{
+                        , livenessProbe = Some Kubernetes.Probe::{
                           , initialDelaySeconds = Some 30
-                          , tcpSocket = Some Kubernetes/TCPSocketAction::{
+                          , tcpSocket = Some Kubernetes.TCPSocketAction::{
                             , port =
                                 < Int : Natural | String : Text >.String "redis"
                             }
                           }
                         , name = "redis-cache"
                         , ports = Some
-                          [ Kubernetes/ContainerPort::{
+                          [ Kubernetes.ContainerPort::{
                             , containerPort = 6379
                             , name = Some "redis"
                             }
                           ]
-                        , readinessProbe = Some Kubernetes/Probe::{
+                        , readinessProbe = Some Kubernetes.Probe::{
                           , initialDelaySeconds = Some 5
-                          , tcpSocket = Some Kubernetes/TCPSocketAction::{
+                          , tcpSocket = Some Kubernetes.TCPSocketAction::{
                             , port =
                                 < Int : Natural | String : Text >.String "redis"
                             }
                           }
-                        , resources = Some Kubernetes/ResourceRequirements::{
+                        , resources = Some Kubernetes.ResourceRequirements::{
                           , limits = Some
                             [ { mapKey = "cpu", mapValue = "1" }
                             , { mapKey = "memory", mapValue = "6Gi" }
@@ -198,23 +141,23 @@ let Cache/Deployment/generate =
                         , terminationMessagePolicy = Some
                             "FallbackToLogsOnError"
                         , volumeMounts = Some
-                          [ Kubernetes/VolumeMount::{
+                          [ Kubernetes.VolumeMount::{
                             , mountPath = "/redis-data"
                             , name = "redis-data"
                             }
                           ]
                         }
-                      , Kubernetes/Container::{
+                      , Kubernetes.Container::{
                         , image = Some
                             "index.docker.io/sourcegraph/redis_exporter:18-02-07_bb60087_v0.15.0@sha256:282d59b2692cca68da128a4e28d368ced3d17945cd1d273d3ee7ba719d77b753"
                         , name = "redis-exporter"
                         , ports = Some
-                          [ Kubernetes/ContainerPort::{
+                          [ Kubernetes.ContainerPort::{
                             , containerPort = 9121
                             , name = Some "redisexp"
                             }
                           ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
+                        , resources = Some Kubernetes.ResourceRequirements::{
                           , limits = Some
                             [ { mapKey = "cpu", mapValue = "10m" }
                             , { mapKey = "memory", mapValue = "100Mi" }
@@ -228,13 +171,13 @@ let Cache/Deployment/generate =
                             "FallbackToLogsOnError"
                         }
                       ]
-                    , securityContext = Some Kubernetes/PodSecurityContext::{
+                    , securityContext = Some Kubernetes.PodSecurityContext::{
                       , runAsUser = Some 0
                       }
                     , volumes = Some
-                      [ Kubernetes/Volume::{
+                      [ Kubernetes.Volume::{
                         , name = "redis-data"
-                        , persistentVolumeClaim = Some Kubernetes/PersistentVolumeClaimVolumeSource::{
+                        , persistentVolumeClaim = Some Kubernetes.PersistentVolumeClaimVolumeSource::{
                           , claimName = "redis-cache"
                           }
                         }
@@ -249,8 +192,8 @@ let Cache/Deployment/generate =
 let Store/PersistentVolumeClaim/generate =
       λ(c : Configuration/global.Type) →
         let persistentVolumeClaim =
-              Kubernetes/PersistentVolumeClaim::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.PersistentVolumeClaim::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "deploy", mapValue = "sourcegraph" }
                   , { mapKey = "sourcegraph-resource-requires"
@@ -259,9 +202,9 @@ let Store/PersistentVolumeClaim/generate =
                   ]
                 , name = Some "redis-store"
                 }
-              , spec = Some Kubernetes/PersistentVolumeClaimSpec::{
+              , spec = Some Kubernetes.PersistentVolumeClaimSpec::{
                 , accessModes = Some [ "ReadWriteOnce" ]
-                , resources = Some Kubernetes/ResourceRequirements::{
+                , resources = Some Kubernetes.ResourceRequirements::{
                   , requests = Some
                     [ { mapKey = "storage", mapValue = "100Gi" } ]
                   }
@@ -274,8 +217,8 @@ let Store/PersistentVolumeClaim/generate =
 let Store/Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
-              Kubernetes/Service::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.Service::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , annotations = Some
                   [ { mapKey = "prometheus.io/port", mapValue = "9121" }
                   , { mapKey = "sourcegraph.prometheus/scrape"
@@ -291,9 +234,9 @@ let Store/Service/generate =
                   ]
                 , name = Some "redis-store"
                 }
-              , spec = Some Kubernetes/ServiceSpec::{
+              , spec = Some Kubernetes.ServiceSpec::{
                 , ports = Some
-                  [ Kubernetes/ServicePort::{
+                  [ Kubernetes.ServicePort::{
                     , name = Some "redis"
                     , port = 6379
                     , targetPort = Some
@@ -311,8 +254,8 @@ let Store/Service/generate =
 let Store/Deployment/generate =
       λ(c : Configuration/global.Type) →
         let deployment =
-              Kubernetes/Deployment::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.Deployment::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , annotations = Some
                   [ { mapKey = "description"
                     , mapValue =
@@ -327,51 +270,51 @@ let Store/Deployment/generate =
                   ]
                 , name = Some "redis-store"
                 }
-              , spec = Some Kubernetes/DeploymentSpec::{
+              , spec = Some Kubernetes.DeploymentSpec::{
                 , minReadySeconds = Some 10
                 , replicas = Some 1
                 , revisionHistoryLimit = Some 10
-                , selector = Kubernetes/LabelSelector::{
+                , selector = Kubernetes.LabelSelector::{
                   , matchLabels = Some
                     [ { mapKey = "app", mapValue = "redis-store" } ]
                   }
-                , strategy = Some Kubernetes/DeploymentStrategy::{
+                , strategy = Some Kubernetes.DeploymentStrategy::{
                   , type = Some "Recreate"
                   }
-                , template = Kubernetes/PodTemplateSpec::{
-                  , metadata = Kubernetes/ObjectMeta::{
+                , template = Kubernetes.PodTemplateSpec::{
+                  , metadata = Kubernetes.ObjectMeta::{
                     , labels = Some
                       [ { mapKey = "app", mapValue = "redis-store" }
                       , { mapKey = "deploy", mapValue = "sourcegraph" }
                       ]
                     }
-                  , spec = Some Kubernetes/PodSpec::{
+                  , spec = Some Kubernetes.PodSpec::{
                     , containers =
-                      [ Kubernetes/Container::{
+                      [ Kubernetes.Container::{
                         , image = Some
                             "index.docker.io/sourcegraph/redis-store:3.17.2@sha256:e8467a8279832207559bdfbc4a89b68916ecd5b44ab5cf7620c995461c005168"
-                        , livenessProbe = Some Kubernetes/Probe::{
+                        , livenessProbe = Some Kubernetes.Probe::{
                           , initialDelaySeconds = Some 30
-                          , tcpSocket = Some Kubernetes/TCPSocketAction::{
+                          , tcpSocket = Some Kubernetes.TCPSocketAction::{
                             , port =
                                 < Int : Natural | String : Text >.String "redis"
                             }
                           }
                         , name = "redis-store"
                         , ports = Some
-                          [ Kubernetes/ContainerPort::{
+                          [ Kubernetes.ContainerPort::{
                             , containerPort = 6379
                             , name = Some "redis"
                             }
                           ]
-                        , readinessProbe = Some Kubernetes/Probe::{
+                        , readinessProbe = Some Kubernetes.Probe::{
                           , initialDelaySeconds = Some 5
-                          , tcpSocket = Some Kubernetes/TCPSocketAction::{
+                          , tcpSocket = Some Kubernetes.TCPSocketAction::{
                             , port =
                                 < Int : Natural | String : Text >.String "redis"
                             }
                           }
-                        , resources = Some Kubernetes/ResourceRequirements::{
+                        , resources = Some Kubernetes.ResourceRequirements::{
                           , limits = Some
                             [ { mapKey = "cpu", mapValue = "1" }
                             , { mapKey = "memory", mapValue = "6Gi" }
@@ -384,23 +327,23 @@ let Store/Deployment/generate =
                         , terminationMessagePolicy = Some
                             "FallbackToLogsOnError"
                         , volumeMounts = Some
-                          [ Kubernetes/VolumeMount::{
+                          [ Kubernetes.VolumeMount::{
                             , mountPath = "/redis-data"
                             , name = "redis-data"
                             }
                           ]
                         }
-                      , Kubernetes/Container::{
+                      , Kubernetes.Container::{
                         , image = Some
                             "index.docker.io/sourcegraph/redis_exporter:18-02-07_bb60087_v0.15.0@sha256:282d59b2692cca68da128a4e28d368ced3d17945cd1d273d3ee7ba719d77b753"
                         , name = "redis-exporter"
                         , ports = Some
-                          [ Kubernetes/ContainerPort::{
+                          [ Kubernetes.ContainerPort::{
                             , containerPort = 9121
                             , name = Some "redisexp"
                             }
                           ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
+                        , resources = Some Kubernetes.ResourceRequirements::{
                           , limits = Some
                             [ { mapKey = "cpu", mapValue = "10m" }
                             , { mapKey = "memory", mapValue = "100Mi" }
@@ -414,13 +357,13 @@ let Store/Deployment/generate =
                             "FallbackToLogsOnError"
                         }
                       ]
-                    , securityContext = Some Kubernetes/PodSecurityContext::{
+                    , securityContext = Some Kubernetes.PodSecurityContext::{
                       , runAsUser = Some 0
                       }
                     , volumes = Some
-                      [ Kubernetes/Volume::{
+                      [ Kubernetes.Volume::{
                         , name = "redis-data"
-                        , persistentVolumeClaim = Some Kubernetes/PersistentVolumeClaimVolumeSource::{
+                        , persistentVolumeClaim = Some Kubernetes.PersistentVolumeClaimVolumeSource::{
                           , claimName = "redis-store"
                           }
                         }

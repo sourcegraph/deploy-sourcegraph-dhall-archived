@@ -1,72 +1,4 @@
-let Kubernetes/Deployment =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.Deployment.dhall
-
-let Kubernetes/DeploymentSpec =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DeploymentSpec.dhall
-
-let Kubernetes/DeploymentStrategy =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DeploymentStrategy.dhall
-
-let Kubernetes/EnvVar = ../../deps/k8s/schemas/io.k8s.api.core.v1.EnvVar.dhall
-
-let Kubernetes/EnvVarSource =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.EnvVarSource.dhall
-
-let Kubernetes/HTTPGetAction =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.HTTPGetAction.dhall
-
-let Kubernetes/Container =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.Container.dhall
-
-let Kubernetes/ContainerPort =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ContainerPort.dhall
-
-let Kubernetes/LabelSelector =
-      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector.dhall
-
-let Kubernetes/ObjectMeta =
-      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.dhall
-
-let Kubernetes/PersistentVolumeClaim =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaim.dhall
-
-let Kubernetes/PersistentVolumeClaimSpec =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaimSpec.dhall
-
-let Kubernetes/PodSecurityContext =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSecurityContext.dhall
-
-let Kubernetes/PodSpec = ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSpec.dhall
-
-let Kubernetes/PodTemplateSpec =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodTemplateSpec.dhall
-
-let Kubernetes/Probe = ../../deps/k8s/schemas/io.k8s.api.core.v1.Probe.dhall
-
-let Kubernetes/ResourceRequirements =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
-
-let Kubernetes/Service = ../../deps/k8s/schemas/io.k8s.api.core.v1.Service.dhall
-
-let Kubernetes/ServicePort =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServicePort.dhall
-
-let Kubernetes/ServiceSpec =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServiceSpec.dhall
-
-let Kubernetes/Volume = ../../deps/k8s/schemas/io.k8s.api.core.v1.Volume.dhall
-
-let Kubernetes/VolumeMount =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.VolumeMount.dhall
-
-let Kubernetes/ObjectFieldSelector =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ObjectFieldSelector.dhall
-
-let Kubernetes/PersistentVolumeClaimVolumeSource =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaimVolumeSource.dhall
-
-let Kubernetes/RollingUpdateDeployment =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.RollingUpdateDeployment.dhall
+let Kubernetes = ../../deps/k8s/schemas.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
@@ -75,8 +7,8 @@ let component = ./component.dhall
 let BundleManager/PersistentVolumeClaim/generate =
       λ(c : Configuration/global.Type) →
         let persistentVolumeClaim =
-              Kubernetes/PersistentVolumeClaim::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.PersistentVolumeClaim::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "deploy", mapValue = "sourcegraph" }
                   , { mapKey = "sourcegraph-resource-requires"
@@ -85,9 +17,9 @@ let BundleManager/PersistentVolumeClaim/generate =
                   ]
                 , name = Some "bundle-manager"
                 }
-              , spec = Some Kubernetes/PersistentVolumeClaimSpec::{
+              , spec = Some Kubernetes.PersistentVolumeClaimSpec::{
                 , accessModes = Some [ "ReadWriteOnce" ]
-                , resources = Some Kubernetes/ResourceRequirements::{
+                , resources = Some Kubernetes.ResourceRequirements::{
                   , requests = Some
                     [ { mapKey = "storage", mapValue = "200Gi" } ]
                   }
@@ -100,8 +32,8 @@ let BundleManager/PersistentVolumeClaim/generate =
 let BundleManager/Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
-              Kubernetes/Service::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.Service::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , annotations = Some
                   [ { mapKey = "prometheus.io/port", mapValue = "6060" }
                   , { mapKey = "sourcegraph.prometheus/scrape"
@@ -119,15 +51,15 @@ let BundleManager/Service/generate =
                   ]
                 , name = Some "precise-code-intel-bundle-manager"
                 }
-              , spec = Some Kubernetes/ServiceSpec::{
+              , spec = Some Kubernetes.ServiceSpec::{
                 , ports = Some
-                  [ Kubernetes/ServicePort::{
+                  [ Kubernetes.ServicePort::{
                     , name = Some "http"
                     , port = 3187
                     , targetPort = Some
                         (< Int : Natural | String : Text >.String "http")
                     }
-                  , Kubernetes/ServicePort::{
+                  , Kubernetes.ServicePort::{
                     , name = Some "debug"
                     , port = 6060
                     , targetPort = Some
@@ -148,8 +80,8 @@ let BundleManager/Service/generate =
 let BundleManager/Deployment/generate =
       λ(c : Configuration/global.Type) →
         let deployment =
-              Kubernetes/Deployment::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.Deployment::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , annotations = Some
                   [ { mapKey = "description"
                     , mapValue =
@@ -164,22 +96,22 @@ let BundleManager/Deployment/generate =
                   ]
                 , name = Some "precise-code-intel-bundle-manager"
                 }
-              , spec = Some Kubernetes/DeploymentSpec::{
+              , spec = Some Kubernetes.DeploymentSpec::{
                 , minReadySeconds = Some 10
                 , replicas = Some 1
                 , revisionHistoryLimit = Some 10
-                , selector = Kubernetes/LabelSelector::{
+                , selector = Kubernetes.LabelSelector::{
                   , matchLabels = Some
                     [ { mapKey = "app"
                       , mapValue = "precise-code-intel-bundle-manager"
                       }
                     ]
                   }
-                , strategy = Some Kubernetes/DeploymentStrategy::{
+                , strategy = Some Kubernetes.DeploymentStrategy::{
                   , type = Some "Recreate"
                   }
-                , template = Kubernetes/PodTemplateSpec::{
-                  , metadata = Kubernetes/ObjectMeta::{
+                , template = Kubernetes.PodTemplateSpec::{
+                  , metadata = Kubernetes.ObjectMeta::{
                     , labels = Some
                       [ { mapKey = "app"
                         , mapValue = "precise-code-intel-bundle-manager"
@@ -187,18 +119,18 @@ let BundleManager/Deployment/generate =
                       , { mapKey = "deploy", mapValue = "sourcegraph" }
                       ]
                     }
-                  , spec = Some Kubernetes/PodSpec::{
+                  , spec = Some Kubernetes.PodSpec::{
                     , containers =
-                      [ Kubernetes/Container::{
+                      [ Kubernetes.Container::{
                         , env = Some
-                          [ Kubernetes/EnvVar::{
+                          [ Kubernetes.EnvVar::{
                             , name = "PRECISE_CODE_INTEL_BUNDLE_DIR"
                             , value = Some "/lsif-storage"
                             }
-                          , Kubernetes/EnvVar::{
+                          , Kubernetes.EnvVar::{
                             , name = "POD_NAME"
-                            , valueFrom = Some Kubernetes/EnvVarSource::{
-                              , fieldRef = Some Kubernetes/ObjectFieldSelector::{
+                            , valueFrom = Some Kubernetes.EnvVarSource::{
+                              , fieldRef = Some Kubernetes.ObjectFieldSelector::{
                                 , fieldPath = "metadata.name"
                                 }
                               }
@@ -206,8 +138,8 @@ let BundleManager/Deployment/generate =
                           ]
                         , image = Some
                             "index.docker.io/sourcegraph/precise-code-intel-bundle-manager:3.17.2@sha256:7dff0e7e8c7a3451ce12cf5eb5e4073bb9502752926acf33f13eb370dc570cc8"
-                        , livenessProbe = Some Kubernetes/Probe::{
-                          , httpGet = Some Kubernetes/HTTPGetAction::{
+                        , livenessProbe = Some Kubernetes.Probe::{
+                          , httpGet = Some Kubernetes.HTTPGetAction::{
                             , path = Some "/healthz"
                             , port =
                                 < Int : Natural | String : Text >.String "http"
@@ -218,17 +150,17 @@ let BundleManager/Deployment/generate =
                           }
                         , name = "precise-code-intel-bundle-manager"
                         , ports = Some
-                          [ Kubernetes/ContainerPort::{
+                          [ Kubernetes.ContainerPort::{
                             , containerPort = 3187
                             , name = Some "http"
                             }
-                          , Kubernetes/ContainerPort::{
+                          , Kubernetes.ContainerPort::{
                             , containerPort = 6060
                             , name = Some "debug"
                             }
                           ]
-                        , readinessProbe = Some Kubernetes/Probe::{
-                          , httpGet = Some Kubernetes/HTTPGetAction::{
+                        , readinessProbe = Some Kubernetes.Probe::{
+                          , httpGet = Some Kubernetes.HTTPGetAction::{
                             , path = Some "/healthz"
                             , port =
                                 < Int : Natural | String : Text >.String "http"
@@ -237,7 +169,7 @@ let BundleManager/Deployment/generate =
                           , periodSeconds = Some 5
                           , timeoutSeconds = Some 5
                           }
-                        , resources = Some Kubernetes/ResourceRequirements::{
+                        , resources = Some Kubernetes.ResourceRequirements::{
                           , limits = Some
                             [ { mapKey = "cpu", mapValue = "2" }
                             , { mapKey = "memory", mapValue = "2G" }
@@ -250,20 +182,20 @@ let BundleManager/Deployment/generate =
                         , terminationMessagePolicy = Some
                             "FallbackToLogsOnError"
                         , volumeMounts = Some
-                          [ Kubernetes/VolumeMount::{
+                          [ Kubernetes.VolumeMount::{
                             , mountPath = "/lsif-storage"
                             , name = "bundle-manager"
                             }
                           ]
                         }
                       ]
-                    , securityContext = Some Kubernetes/PodSecurityContext::{
+                    , securityContext = Some Kubernetes.PodSecurityContext::{
                       , runAsUser = Some 0
                       }
                     , volumes = Some
-                      [ Kubernetes/Volume::{
+                      [ Kubernetes.Volume::{
                         , name = "bundle-manager"
-                        , persistentVolumeClaim = Some Kubernetes/PersistentVolumeClaimVolumeSource::{
+                        , persistentVolumeClaim = Some Kubernetes.PersistentVolumeClaimVolumeSource::{
                           , claimName = "bundle-manager"
                           }
                         }
@@ -278,8 +210,8 @@ let BundleManager/Deployment/generate =
 let Worker/Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
-              Kubernetes/Service::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.Service::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , annotations = Some
                   [ { mapKey = "prometheus.io/port", mapValue = "6060" }
                   , { mapKey = "sourcegraph.prometheus/scrape"
@@ -295,15 +227,15 @@ let Worker/Service/generate =
                   ]
                 , name = Some "precise-code-intel-worker"
                 }
-              , spec = Some Kubernetes/ServiceSpec::{
+              , spec = Some Kubernetes.ServiceSpec::{
                 , ports = Some
-                  [ Kubernetes/ServicePort::{
+                  [ Kubernetes.ServicePort::{
                     , name = Some "http"
                     , port = 3188
                     , targetPort = Some
                         (< Int : Natural | String : Text >.String "http")
                     }
-                  , Kubernetes/ServicePort::{
+                  , Kubernetes.ServicePort::{
                     , name = Some "debug"
                     , port = 6060
                     , targetPort = Some
@@ -321,8 +253,8 @@ let Worker/Service/generate =
 let Worker/Deployment/generate =
       λ(c : Configuration/global.Type) →
         let deployment =
-              Kubernetes/Deployment::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.Deployment::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , annotations = Some
                   [ { mapKey = "description"
                     , mapValue =
@@ -337,25 +269,25 @@ let Worker/Deployment/generate =
                   ]
                 , name = Some "precise-code-intel-worker"
                 }
-              , spec = Some Kubernetes/DeploymentSpec::{
+              , spec = Some Kubernetes.DeploymentSpec::{
                 , minReadySeconds = Some 10
                 , replicas = Some 1
                 , revisionHistoryLimit = Some 10
-                , selector = Kubernetes/LabelSelector::{
+                , selector = Kubernetes.LabelSelector::{
                   , matchLabels = Some
                     [ { mapKey = "app", mapValue = "precise-code-intel-worker" }
                     ]
                   }
-                , strategy = Some Kubernetes/DeploymentStrategy::{
-                  , rollingUpdate = Some Kubernetes/RollingUpdateDeployment::{
+                , strategy = Some Kubernetes.DeploymentStrategy::{
+                  , rollingUpdate = Some Kubernetes.RollingUpdateDeployment::{
                     , maxSurge = Some (< Int : Natural | String : Text >.Int 1)
                     , maxUnavailable = Some
                         (< Int : Natural | String : Text >.Int 1)
                     }
                   , type = Some "RollingUpdate"
                   }
-                , template = Kubernetes/PodTemplateSpec::{
-                  , metadata = Kubernetes/ObjectMeta::{
+                , template = Kubernetes.PodTemplateSpec::{
+                  , metadata = Kubernetes.ObjectMeta::{
                     , labels = Some
                       [ { mapKey = "app"
                         , mapValue = "precise-code-intel-worker"
@@ -363,23 +295,23 @@ let Worker/Deployment/generate =
                       , { mapKey = "deploy", mapValue = "sourcegraph" }
                       ]
                     }
-                  , spec = Some Kubernetes/PodSpec::{
+                  , spec = Some Kubernetes.PodSpec::{
                     , containers =
-                      [ Kubernetes/Container::{
+                      [ Kubernetes.Container::{
                         , env = Some
-                          [ Kubernetes/EnvVar::{
+                          [ Kubernetes.EnvVar::{
                             , name = "NUM_WORKERS"
                             , value = Some "4"
                             }
-                          , Kubernetes/EnvVar::{
+                          , Kubernetes.EnvVar::{
                             , name = "PRECISE_CODE_INTEL_BUNDLE_MANAGER_URL"
                             , value = Some
                                 "http://precise-code-intel-bundle-manager:3187"
                             }
-                          , Kubernetes/EnvVar::{
+                          , Kubernetes.EnvVar::{
                             , name = "POD_NAME"
-                            , valueFrom = Some Kubernetes/EnvVarSource::{
-                              , fieldRef = Some Kubernetes/ObjectFieldSelector::{
+                            , valueFrom = Some Kubernetes.EnvVarSource::{
+                              , fieldRef = Some Kubernetes.ObjectFieldSelector::{
                                 , fieldPath = "metadata.name"
                                 }
                               }
@@ -387,8 +319,8 @@ let Worker/Deployment/generate =
                           ]
                         , image = Some
                             "index.docker.io/sourcegraph/precise-code-intel-worker:3.17.2@sha256:123ddcab97c273599b569a76bcd2c7dd7c423c1de816fda1c35b781e004b4dde"
-                        , livenessProbe = Some Kubernetes/Probe::{
-                          , httpGet = Some Kubernetes/HTTPGetAction::{
+                        , livenessProbe = Some Kubernetes.Probe::{
+                          , httpGet = Some Kubernetes.HTTPGetAction::{
                             , path = Some "/healthz"
                             , port =
                                 < Int : Natural | String : Text >.String "http"
@@ -399,17 +331,17 @@ let Worker/Deployment/generate =
                           }
                         , name = "precise-code-intel-worker"
                         , ports = Some
-                          [ Kubernetes/ContainerPort::{
+                          [ Kubernetes.ContainerPort::{
                             , containerPort = 3188
                             , name = Some "http"
                             }
-                          , Kubernetes/ContainerPort::{
+                          , Kubernetes.ContainerPort::{
                             , containerPort = 6060
                             , name = Some "debug"
                             }
                           ]
-                        , readinessProbe = Some Kubernetes/Probe::{
-                          , httpGet = Some Kubernetes/HTTPGetAction::{
+                        , readinessProbe = Some Kubernetes.Probe::{
+                          , httpGet = Some Kubernetes.HTTPGetAction::{
                             , path = Some "/healthz"
                             , port =
                                 < Int : Natural | String : Text >.String "http"
@@ -418,7 +350,7 @@ let Worker/Deployment/generate =
                           , periodSeconds = Some 5
                           , timeoutSeconds = Some 5
                           }
-                        , resources = Some Kubernetes/ResourceRequirements::{
+                        , resources = Some Kubernetes.ResourceRequirements::{
                           , limits = Some
                             [ { mapKey = "cpu", mapValue = "2" }
                             , { mapKey = "memory", mapValue = "4G" }
@@ -432,7 +364,7 @@ let Worker/Deployment/generate =
                             "FallbackToLogsOnError"
                         }
                       ]
-                    , securityContext = Some Kubernetes/PodSecurityContext::{
+                    , securityContext = Some Kubernetes.PodSecurityContext::{
                       , runAsUser = Some 0
                       }
                     }

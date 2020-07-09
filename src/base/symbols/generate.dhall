@@ -1,66 +1,4 @@
-let Kubernetes/HTTPGetAction =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.HTTPGetAction.dhall
-
-let Kubernetes/EmptyDirVolumeSource =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.EmptyDirVolumeSource.dhall
-
-let Kubernetes/Volume = ../../deps/k8s/schemas/io.k8s.api.core.v1.Volume.dhall
-
-let Kubernetes/Probe = ../../deps/k8s/schemas/io.k8s.api.core.v1.Probe.dhall
-
-let Kubernetes/VolumeMount =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.VolumeMount.dhall
-
-let Kubernetes/RollingUpdateDeployment =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.RollingUpdateDeployment.dhall
-
-let Kubernetes/ObjectFieldSelector =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ObjectFieldSelector.dhall
-
-let Kubernetes/Container =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.Container.dhall
-
-let Kubernetes/ContainerPort =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ContainerPort.dhall
-
-let Kubernetes/Deployment =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.Deployment.dhall
-
-let Kubernetes/DeploymentSpec =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DeploymentSpec.dhall
-
-let Kubernetes/DeploymentStrategy =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DeploymentStrategy.dhall
-
-let Kubernetes/EnvVar = ../../deps/k8s/schemas/io.k8s.api.core.v1.EnvVar.dhall
-
-let Kubernetes/EnvVarSource =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.EnvVarSource.dhall
-
-let Kubernetes/LabelSelector =
-      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector.dhall
-
-let Kubernetes/ObjectMeta =
-      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.dhall
-
-let Kubernetes/PodSecurityContext =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSecurityContext.dhall
-
-let Kubernetes/PodSpec = ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSpec.dhall
-
-let Kubernetes/PodTemplateSpec =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodTemplateSpec.dhall
-
-let Kubernetes/ResourceRequirements =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
-
-let Kubernetes/Service = ../../deps/k8s/schemas/io.k8s.api.core.v1.Service.dhall
-
-let Kubernetes/ServicePort =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServicePort.dhall
-
-let Kubernetes/ServiceSpec =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServiceSpec.dhall
+let Kubernetes = ../../deps/k8s/schemas.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
@@ -69,8 +7,8 @@ let component = ./component.dhall
 let Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
-              Kubernetes/Service::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.Service::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , annotations = Some
                   [ { mapKey = "prometheus.io/port", mapValue = "6060" }
                   , { mapKey = "sourcegraph.prometheus/scrape"
@@ -86,15 +24,15 @@ let Service/generate =
                   ]
                 , name = Some "symbols"
                 }
-              , spec = Some Kubernetes/ServiceSpec::{
+              , spec = Some Kubernetes.ServiceSpec::{
                 , ports = Some
-                  [ Kubernetes/ServicePort::{
+                  [ Kubernetes.ServicePort::{
                     , name = Some "http"
                     , port = 3184
                     , targetPort = Some
                         (< Int : Natural | String : Text >.String "http")
                     }
-                  , Kubernetes/ServicePort::{
+                  , Kubernetes.ServicePort::{
                     , name = Some "debug"
                     , port = 6060
                     , targetPort = Some
@@ -111,8 +49,8 @@ let Service/generate =
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
         let deployment =
-              Kubernetes/Deployment::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.Deployment::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , annotations = Some
                   [ { mapKey = "description"
                     , mapValue = "Backend for symbols operations."
@@ -126,54 +64,54 @@ let Deployment/generate =
                   ]
                 , name = Some "symbols"
                 }
-              , spec = Some Kubernetes/DeploymentSpec::{
+              , spec = Some Kubernetes.DeploymentSpec::{
                 , minReadySeconds = Some 10
                 , replicas = Some 1
                 , revisionHistoryLimit = Some 10
-                , selector = Kubernetes/LabelSelector::{
+                , selector = Kubernetes.LabelSelector::{
                   , matchLabels = Some
                     [ { mapKey = "app", mapValue = "symbols" } ]
                   }
-                , strategy = Some Kubernetes/DeploymentStrategy::{
-                  , rollingUpdate = Some Kubernetes/RollingUpdateDeployment::{
+                , strategy = Some Kubernetes.DeploymentStrategy::{
+                  , rollingUpdate = Some Kubernetes.RollingUpdateDeployment::{
                     , maxSurge = Some (< Int : Natural | String : Text >.Int 1)
                     , maxUnavailable = Some
                         (< Int : Natural | String : Text >.Int 1)
                     }
                   , type = Some "RollingUpdate"
                   }
-                , template = Kubernetes/PodTemplateSpec::{
-                  , metadata = Kubernetes/ObjectMeta::{
+                , template = Kubernetes.PodTemplateSpec::{
+                  , metadata = Kubernetes.ObjectMeta::{
                     , labels = Some
                       [ { mapKey = "app", mapValue = "symbols" }
                       , { mapKey = "deploy", mapValue = "sourcegraph" }
                       ]
                     }
-                  , spec = Some Kubernetes/PodSpec::{
+                  , spec = Some Kubernetes.PodSpec::{
                     , containers =
-                      [ Kubernetes/Container::{
+                      [ Kubernetes.Container::{
                         , env = Some
-                          [ Kubernetes/EnvVar::{
+                          [ Kubernetes.EnvVar::{
                             , name = "SYMBOLS_CACHE_SIZE_MB"
                             , value = Some "100000"
                             }
-                          , Kubernetes/EnvVar::{
+                          , Kubernetes.EnvVar::{
                             , name = "POD_NAME"
-                            , valueFrom = Some Kubernetes/EnvVarSource::{
-                              , fieldRef = Some Kubernetes/ObjectFieldSelector::{
+                            , valueFrom = Some Kubernetes.EnvVarSource::{
+                              , fieldRef = Some Kubernetes.ObjectFieldSelector::{
                                 , fieldPath = "metadata.name"
                                 }
                               }
                             }
-                          , Kubernetes/EnvVar::{
+                          , Kubernetes.EnvVar::{
                             , name = "CACHE_DIR"
                             , value = Some "/mnt/cache/\$(POD_NAME)"
                             }
                           ]
                         , image = Some
                             "index.docker.io/sourcegraph/symbols:3.17.2@sha256:224e167586f927c60faf345027452aa035eeb2d65dd6821607833d2669030e4f"
-                        , livenessProbe = Some Kubernetes/Probe::{
-                          , httpGet = Some Kubernetes/HTTPGetAction::{
+                        , livenessProbe = Some Kubernetes.Probe::{
+                          , httpGet = Some Kubernetes.HTTPGetAction::{
                             , path = Some "/healthz"
                             , port =
                                 < Int : Natural | String : Text >.String "http"
@@ -184,17 +122,17 @@ let Deployment/generate =
                           }
                         , name = "symbols"
                         , ports = Some
-                          [ Kubernetes/ContainerPort::{
+                          [ Kubernetes.ContainerPort::{
                             , containerPort = 3184
                             , name = Some "http"
                             }
-                          , Kubernetes/ContainerPort::{
+                          , Kubernetes.ContainerPort::{
                             , containerPort = 6060
                             , name = Some "debug"
                             }
                           ]
-                        , readinessProbe = Some Kubernetes/Probe::{
-                          , httpGet = Some Kubernetes/HTTPGetAction::{
+                        , readinessProbe = Some Kubernetes.Probe::{
+                          , httpGet = Some Kubernetes.HTTPGetAction::{
                             , path = Some "/healthz"
                             , port =
                                 < Int : Natural | String : Text >.String "http"
@@ -203,7 +141,7 @@ let Deployment/generate =
                           , periodSeconds = Some 5
                           , timeoutSeconds = Some 5
                           }
-                        , resources = Some Kubernetes/ResourceRequirements::{
+                        , resources = Some Kubernetes.ResourceRequirements::{
                           , limits = Some
                             [ { mapKey = "cpu", mapValue = "2" }
                             , { mapKey = "memory", mapValue = "2G" }
@@ -216,22 +154,22 @@ let Deployment/generate =
                         , terminationMessagePolicy = Some
                             "FallbackToLogsOnError"
                         , volumeMounts = Some
-                          [ Kubernetes/VolumeMount::{
+                          [ Kubernetes.VolumeMount::{
                             , mountPath = "/mnt/cache"
                             , name = "cache-ssd"
                             }
                           ]
                         }
-                      , Kubernetes/Container::{
+                      , Kubernetes.Container::{
                         , args = Some
                           [ "--reporter.grpc.host-port=jaeger-collector:14250"
                           , "--reporter.type=grpc"
                           ]
                         , env = Some
-                          [ Kubernetes/EnvVar::{
+                          [ Kubernetes.EnvVar::{
                             , name = "POD_NAME"
-                            , valueFrom = Some Kubernetes/EnvVarSource::{
-                              , fieldRef = Some Kubernetes/ObjectFieldSelector::{
+                            , valueFrom = Some Kubernetes.EnvVarSource::{
+                              , fieldRef = Some Kubernetes.ObjectFieldSelector::{
                                 , apiVersion = Some "v1"
                                 , fieldPath = "metadata.name"
                                 }
@@ -242,24 +180,24 @@ let Deployment/generate =
                             "index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c"
                         , name = "jaeger-agent"
                         , ports = Some
-                          [ Kubernetes/ContainerPort::{
+                          [ Kubernetes.ContainerPort::{
                             , containerPort = 5775
                             , protocol = Some "UDP"
                             }
-                          , Kubernetes/ContainerPort::{
+                          , Kubernetes.ContainerPort::{
                             , containerPort = 5778
                             , protocol = Some "TCP"
                             }
-                          , Kubernetes/ContainerPort::{
+                          , Kubernetes.ContainerPort::{
                             , containerPort = 6831
                             , protocol = Some "UDP"
                             }
-                          , Kubernetes/ContainerPort::{
+                          , Kubernetes.ContainerPort::{
                             , containerPort = 6832
                             , protocol = Some "UDP"
                             }
                           ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
+                        , resources = Some Kubernetes.ResourceRequirements::{
                           , limits = Some
                             [ { mapKey = "cpu", mapValue = "1" }
                             , { mapKey = "memory", mapValue = "500M" }
@@ -271,12 +209,12 @@ let Deployment/generate =
                           }
                         }
                       ]
-                    , securityContext = Some Kubernetes/PodSecurityContext::{
+                    , securityContext = Some Kubernetes.PodSecurityContext::{
                       , runAsUser = Some 0
                       }
                     , volumes = Some
-                      [ Kubernetes/Volume::{
-                        , emptyDir = Some Kubernetes/EmptyDirVolumeSource::{=}
+                      [ Kubernetes.Volume::{
+                        , emptyDir = Some Kubernetes.EmptyDirVolumeSource::{=}
                         , name = "cache-ssd"
                         }
                       ]

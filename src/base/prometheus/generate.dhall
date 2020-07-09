@@ -1,86 +1,4 @@
-let Kubernetes/HTTPGetAction =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.HTTPGetAction.dhall
-
-let Kubernetes/PolicyRule =
-      ../../deps/k8s/schemas/io.k8s.api.rbac.v1.PolicyRule.dhall
-
-let Kubernetes/RoleRef = ../../deps/k8s/schemas/io.k8s.api.rbac.v1.RoleRef.dhall
-
-let Kubernetes/ServiceAccount =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServiceAccount.dhall
-
-let Kubernetes/Subject = ../../deps/k8s/schemas/io.k8s.api.rbac.v1.Subject.dhall
-
-let Kubernetes/ClusterRole =
-      ../../deps/k8s/schemas/io.k8s.api.rbac.v1.ClusterRole.dhall
-
-let Kubernetes/ClusterRoleBinding =
-      ../../deps/k8s/schemas/io.k8s.api.rbac.v1.ClusterRoleBinding.dhall
-
-let Kubernetes/ConfigMap =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ConfigMap.dhall
-
-let Kubernetes/ConfigMapVolumeSource =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ConfigMapVolumeSource.dhall
-
-let Kubernetes/Container =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.Container.dhall
-
-let Kubernetes/ContainerPort =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ContainerPort.dhall
-
-let Kubernetes/Deployment =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.Deployment.dhall
-
-let Kubernetes/DeploymentSpec =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DeploymentSpec.dhall
-
-let Kubernetes/DeploymentStrategy =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DeploymentStrategy.dhall
-
-let Kubernetes/LabelSelector =
-      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector.dhall
-
-let Kubernetes/ObjectMeta =
-      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.dhall
-
-let Kubernetes/PersistentVolumeClaim =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaim.dhall
-
-let Kubernetes/PersistentVolumeClaimSpec =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaimSpec.dhall
-
-let Kubernetes/PodSecurityContext =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSecurityContext.dhall
-
-let Kubernetes/PodSpec = ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSpec.dhall
-
-let Kubernetes/PodTemplateSpec =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodTemplateSpec.dhall
-
-let Kubernetes/Probe = ../../deps/k8s/schemas/io.k8s.api.core.v1.Probe.dhall
-
-let Kubernetes/ResourceRequirements =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
-
-let Kubernetes/ServicePort =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServicePort.dhall
-
-let Kubernetes/ServiceSpec =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServiceSpec.dhall
-
-let Kubernetes/Volume = ../../deps/k8s/schemas/io.k8s.api.core.v1.Volume.dhall
-
-let Kubernetes/VolumeMount =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.VolumeMount.dhall
-
-let Kubernetes/PersistentVolumeClaimVolumeSource =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaimVolumeSource.dhall
-
-let Kubernetes/LocalObjectReference =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.LocalObjectReference.dhall
-
-let Kubernetes/Service = ../../deps/k8s/schemas/io.k8s.api.core.v1.Service.dhall
+let Kubernetes = ../../deps/k8s/schemas.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
@@ -89,8 +7,8 @@ let component = ./component.dhall
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
         let deployment =
-              Kubernetes/Deployment::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.Deployment::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , annotations = Some
                   [ { mapKey = "description"
                     , mapValue =
@@ -105,31 +23,31 @@ let Deployment/generate =
                   ]
                 , name = Some "prometheus"
                 }
-              , spec = Some Kubernetes/DeploymentSpec::{
+              , spec = Some Kubernetes.DeploymentSpec::{
                 , minReadySeconds = Some 10
                 , replicas = Some 1
                 , revisionHistoryLimit = Some 10
-                , selector = Kubernetes/LabelSelector::{
+                , selector = Kubernetes.LabelSelector::{
                   , matchLabels = Some
                     [ { mapKey = "app", mapValue = "prometheus" } ]
                   }
-                , strategy = Some Kubernetes/DeploymentStrategy::{
+                , strategy = Some Kubernetes.DeploymentStrategy::{
                   , type = Some "Recreate"
                   }
-                , template = Kubernetes/PodTemplateSpec::{
-                  , metadata = Kubernetes/ObjectMeta::{
+                , template = Kubernetes.PodTemplateSpec::{
+                  , metadata = Kubernetes.ObjectMeta::{
                     , labels = Some
                       [ { mapKey = "app", mapValue = "prometheus" }
                       , { mapKey = "deploy", mapValue = "sourcegraph" }
                       ]
                     }
-                  , spec = Some Kubernetes/PodSpec::{
+                  , spec = Some Kubernetes.PodSpec::{
                     , containers =
-                      [ Kubernetes/Container::{
+                      [ Kubernetes.Container::{
                         , image = Some
                             "index.docker.io/sourcegraph/prometheus:3.17.2@sha256:a725419a532fb17f6955e80f8a2f35efe15287c0a556e4fe7168d5fc6ff730d8"
-                        , livenessProbe = Some Kubernetes/Probe::{
-                          , httpGet = Some Kubernetes/HTTPGetAction::{
+                        , livenessProbe = Some Kubernetes.Probe::{
+                          , httpGet = Some Kubernetes.HTTPGetAction::{
                             , path = Some "/-/healthy"
                             , port = < Int : Natural | String : Text >.Int 9090
                             }
@@ -138,20 +56,20 @@ let Deployment/generate =
                           }
                         , name = "prometheus"
                         , ports = Some
-                          [ Kubernetes/ContainerPort::{
+                          [ Kubernetes.ContainerPort::{
                             , containerPort = 9090
                             , name = Some "http"
                             }
                           ]
-                        , readinessProbe = Some Kubernetes/Probe::{
-                          , httpGet = Some Kubernetes/HTTPGetAction::{
+                        , readinessProbe = Some Kubernetes.Probe::{
+                          , httpGet = Some Kubernetes.HTTPGetAction::{
                             , path = Some "/-/ready"
                             , port = < Int : Natural | String : Text >.Int 9090
                             }
                           , initialDelaySeconds = Some 30
                           , timeoutSeconds = Some 30
                           }
-                        , resources = Some Kubernetes/ResourceRequirements::{
+                        , resources = Some Kubernetes.ResourceRequirements::{
                           , limits = Some
                             [ { mapKey = "cpu", mapValue = "2" }
                             , { mapKey = "memory", mapValue = "3G" }
@@ -164,30 +82,30 @@ let Deployment/generate =
                         , terminationMessagePolicy = Some
                             "FallbackToLogsOnError"
                         , volumeMounts = Some
-                          [ Kubernetes/VolumeMount::{
+                          [ Kubernetes.VolumeMount::{
                             , mountPath = "/prometheus"
                             , name = "data"
                             }
-                          , Kubernetes/VolumeMount::{
+                          , Kubernetes.VolumeMount::{
                             , mountPath = "/sg_prometheus_add_ons"
                             , name = "config"
                             }
                           ]
                         }
                       ]
-                    , securityContext = Some Kubernetes/PodSecurityContext::{
+                    , securityContext = Some Kubernetes.PodSecurityContext::{
                       , runAsUser = Some 0
                       }
                     , serviceAccountName = Some "prometheus"
                     , volumes = Some
-                      [ Kubernetes/Volume::{
+                      [ Kubernetes.Volume::{
                         , name = "data"
-                        , persistentVolumeClaim = Some Kubernetes/PersistentVolumeClaimVolumeSource::{
+                        , persistentVolumeClaim = Some Kubernetes.PersistentVolumeClaimVolumeSource::{
                           , claimName = "prometheus"
                           }
                         }
-                      , Kubernetes/Volume::{
-                        , configMap = Some Kubernetes/ConfigMapVolumeSource::{
+                      , Kubernetes.Volume::{
+                        , configMap = Some Kubernetes.ConfigMapVolumeSource::{
                           , defaultMode = Some 777
                           , name = Some "prometheus"
                           }
@@ -204,8 +122,8 @@ let Deployment/generate =
 let Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
-              Kubernetes/Service::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.Service::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "app", mapValue = "prometheus" }
                   , { mapKey = "deploy", mapValue = "sourcegraph" }
@@ -215,9 +133,9 @@ let Service/generate =
                   ]
                 , name = Some "prometheus"
                 }
-              , spec = Some Kubernetes/ServiceSpec::{
+              , spec = Some Kubernetes.ServiceSpec::{
                 , ports = Some
-                  [ Kubernetes/ServicePort::{
+                  [ Kubernetes.ServicePort::{
                     , name = Some "http"
                     , port = 30090
                     , targetPort = Some
@@ -235,13 +153,13 @@ let Service/generate =
 let ServiceAccount/generate =
       λ(c : Configuration/global.Type) →
         let serviceAccount =
-              Kubernetes/ServiceAccount::{
+              Kubernetes.ServiceAccount::{
               , imagePullSecrets = Some
-                [ Kubernetes/LocalObjectReference::{
+                [ Kubernetes.LocalObjectReference::{
                   , name = Some "docker-registry"
                   }
                 ]
-              , metadata = Kubernetes/ObjectMeta::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "category", mapValue = "rbac" }
                   , { mapKey = "deploy", mapValue = "sourcegraph" }
@@ -258,8 +176,8 @@ let ServiceAccount/generate =
 let PersistentVolumeClaim/generate =
       λ(c : Configuration/global.Type) →
         let persistentVolumeClaim =
-              Kubernetes/PersistentVolumeClaim::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.PersistentVolumeClaim::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "deploy", mapValue = "sourcegraph" }
                   , { mapKey = "sourcegraph-resource-requires"
@@ -268,9 +186,9 @@ let PersistentVolumeClaim/generate =
                   ]
                 , name = Some "prometheus"
                 }
-              , spec = Some Kubernetes/PersistentVolumeClaimSpec::{
+              , spec = Some Kubernetes.PersistentVolumeClaimSpec::{
                 , accessModes = Some [ "ReadWriteOnce" ]
-                , resources = Some Kubernetes/ResourceRequirements::{
+                , resources = Some Kubernetes.ResourceRequirements::{
                   , requests = Some
                     [ { mapKey = "storage", mapValue = "200Gi" } ]
                   }
@@ -283,8 +201,8 @@ let PersistentVolumeClaim/generate =
 let ClusterRole/generate =
       λ(c : Configuration/global.Type) →
         let clusterRole =
-              Kubernetes/ClusterRole::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.ClusterRole::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "category", mapValue = "rbac" }
                   , { mapKey = "deploy", mapValue = "sourcegraph" }
@@ -295,7 +213,7 @@ let ClusterRole/generate =
                 , name = Some "prometheus"
                 }
               , rules = Some
-                [ Kubernetes/PolicyRule::{
+                [ Kubernetes.PolicyRule::{
                   , apiGroups = Some [ "" ]
                   , resources = Some
                     [ "endpoints"
@@ -308,12 +226,12 @@ let ClusterRole/generate =
                     ]
                   , verbs = [ "get", "list", "watch" ]
                   }
-                , Kubernetes/PolicyRule::{
+                , Kubernetes.PolicyRule::{
                   , apiGroups = Some [ "" ]
                   , resources = Some [ "configmaps" ]
                   , verbs = [ "get" ]
                   }
-                , Kubernetes/PolicyRule::{
+                , Kubernetes.PolicyRule::{
                   , nonResourceURLs = Some [ "/metrics" ]
                   , verbs = [ "get" ]
                   }
@@ -325,8 +243,8 @@ let ClusterRole/generate =
 let ClusterRoleBinding/generate =
       λ(c : Configuration/global.Type) →
         let clusterRoleBinding =
-              Kubernetes/ClusterRoleBinding::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.ClusterRoleBinding::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "category", mapValue = "rbac" }
                   , { mapKey = "deploy", mapValue = "sourcegraph" }
@@ -336,13 +254,13 @@ let ClusterRoleBinding/generate =
                   ]
                 , name = Some "prometheus"
                 }
-              , roleRef = Kubernetes/RoleRef::{
+              , roleRef = Kubernetes.RoleRef::{
                 , apiGroup = ""
                 , kind = "ClusterRole"
                 , name = "prometheus"
                 }
               , subjects = Some
-                [ Kubernetes/Subject::{
+                [ Kubernetes.Subject::{
                   , kind = "ServiceAccount"
                   , name = "prometheus"
                   , namespace = Some "default"
@@ -355,7 +273,7 @@ let ClusterRoleBinding/generate =
 let ConfigMap/generate =
       λ(c : Configuration/global.Type) →
         let configMap =
-              Kubernetes/ConfigMap::{
+              Kubernetes.ConfigMap::{
               , data = Some
                 [ { mapKey = "alert_rules.yml"
                   , mapValue =
@@ -714,7 +632,7 @@ let ConfigMap/generate =
                       ''
                   }
                 ]
-              , metadata = Kubernetes/ObjectMeta::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "deploy", mapValue = "sourcegraph" }
                   , { mapKey = "sourcegraph-resource-requires"

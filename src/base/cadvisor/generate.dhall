@@ -1,70 +1,4 @@
-let Kubernetes/DaemonSet =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DaemonSet.dhall
-
-let Kubernetes/DaemonSetSpec =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.DaemonSetSpec.dhall
-
-let Kubernetes/PodSecurityPolicy =
-      ../../deps/k8s/schemas/io.k8s.api.policy.v1beta1.PodSecurityPolicy.dhall
-
-let Kubernetes/ClusterRole =
-      ../../deps/k8s/schemas/io.k8s.api.rbac.v1.ClusterRole.dhall
-
-let Kubernetes/ClusterRoleBinding =
-      ../../deps/k8s/schemas/io.k8s.api.rbac.v1.ClusterRoleBinding.dhall
-
-let Kubernetes/Container =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.Container.dhall
-
-let Kubernetes/ContainerPort =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ContainerPort.dhall
-
-let Kubernetes/LabelSelector =
-      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector.dhall
-
-let Kubernetes/ObjectMeta =
-      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.dhall
-
-let Kubernetes/PodSpec = ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSpec.dhall
-
-let Kubernetes/PodTemplateSpec =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodTemplateSpec.dhall
-
-let Kubernetes/PolicyRule =
-      ../../deps/k8s/schemas/io.k8s.api.rbac.v1.PolicyRule.dhall
-
-let Kubernetes/ResourceRequirements =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
-
-let Kubernetes/RoleRef = ../../deps/k8s/schemas/io.k8s.api.rbac.v1.RoleRef.dhall
-
-let Kubernetes/ServiceAccount =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServiceAccount.dhall
-
-let Kubernetes/Subject = ../../deps/k8s/schemas/io.k8s.api.rbac.v1.Subject.dhall
-
-let Kubernetes/Volume = ../../deps/k8s/schemas/io.k8s.api.core.v1.Volume.dhall
-
-let Kubernetes/VolumeMount =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.VolumeMount.dhall
-
-let Kubernetes/HostPathVolumeSource =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.HostPathVolumeSource.dhall
-
-let Kubernetes/PodSecurityPolicySpec =
-      ../../deps/k8s/schemas/io.k8s.api.extensions.v1beta1.PodSecurityPolicySpec.dhall
-
-let Kubernetes/AllowedHostPath =
-      ../../deps/k8s/schemas/io.k8s.api.policy.v1beta1.AllowedHostPath.dhall
-
-let Kubernetes/FSGroupStrategyOptions =
-      ../../deps/k8s/schemas/io.k8s.api.policy.v1beta1.FSGroupStrategyOptions.dhall
-
-let Kubernetes/RunAsGroupStrategyOptions =
-      ../../deps/k8s/schemas/io.k8s.api.extensions.v1beta1.RunAsGroupStrategyOptions.dhall
-
-let Kubernetes/SELinuxStrategyOptions =
-      ../../deps/k8s/schemas/io.k8s.api.policy.v1beta1.SELinuxStrategyOptions.dhall
+let Kubernetes = ../../deps/k8s/schemas.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
@@ -73,8 +7,8 @@ let Component = ./component.dhall
 let DaemonSet/generate =
       λ(c : Configuration/global.Type) →
         let daemonSet =
-              Kubernetes/DaemonSet::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.DaemonSet::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , annotations = Some
                   [ { mapKey = "description"
                     , mapValue =
@@ -92,13 +26,13 @@ let DaemonSet/generate =
                   ]
                 , name = Some "cadvisor"
                 }
-              , spec = Some Kubernetes/DaemonSetSpec::{
-                , selector = Kubernetes/LabelSelector::{
+              , spec = Some Kubernetes.DaemonSetSpec::{
+                , selector = Kubernetes.LabelSelector::{
                   , matchLabels = Some
                     [ { mapKey = "app", mapValue = "cadvisor" } ]
                   }
-                , template = Kubernetes/PodTemplateSpec::{
-                  , metadata = Kubernetes/ObjectMeta::{
+                , template = Kubernetes.PodTemplateSpec::{
+                  , metadata = Kubernetes.ObjectMeta::{
                     , annotations = Some
                       [ { mapKey = "description"
                         , mapValue = "Collects and exports container metrics."
@@ -113,10 +47,10 @@ let DaemonSet/generate =
                       , { mapKey = "deploy", mapValue = "sourcegraph" }
                       ]
                     }
-                  , spec = Some Kubernetes/PodSpec::{
+                  , spec = Some Kubernetes.PodSpec::{
                     , automountServiceAccountToken = Some False
                     , containers =
-                      [ Kubernetes/Container::{
+                      [ Kubernetes.Container::{
                         , args = Some
                           [ "--store_container_labels=false"
                           , "--whitelisted_container_labels=io.kubernetes.container.name,io.kubernetes.pod.name,io.kubernetes.pod.namespace,io.kubernetes.pod.uid"
@@ -125,13 +59,13 @@ let DaemonSet/generate =
                             "index.docker.io/sourcegraph/cadvisor:3.17.2@sha256:9fb42b067d1f9cc84558f61b6ec42f8cfe7ad874625c7673efa9b1f047fa3ced"
                         , name = "cadvisor"
                         , ports = Some
-                          [ Kubernetes/ContainerPort::{
+                          [ Kubernetes.ContainerPort::{
                             , containerPort = 48080
                             , name = Some "http"
                             , protocol = Some "TCP"
                             }
                           ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
+                        , resources = Some Kubernetes.ResourceRequirements::{
                           , limits = Some
                             [ { mapKey = "cpu", mapValue = "300m" }
                             , { mapKey = "memory", mapValue = "2000Mi" }
@@ -142,27 +76,27 @@ let DaemonSet/generate =
                             ]
                           }
                         , volumeMounts = Some
-                          [ Kubernetes/VolumeMount::{
+                          [ Kubernetes.VolumeMount::{
                             , mountPath = "/rootfs"
                             , name = "rootfs"
                             , readOnly = Some True
                             }
-                          , Kubernetes/VolumeMount::{
+                          , Kubernetes.VolumeMount::{
                             , mountPath = "/var/run"
                             , name = "var-run"
                             , readOnly = Some True
                             }
-                          , Kubernetes/VolumeMount::{
+                          , Kubernetes.VolumeMount::{
                             , mountPath = "/sys"
                             , name = "sys"
                             , readOnly = Some True
                             }
-                          , Kubernetes/VolumeMount::{
+                          , Kubernetes.VolumeMount::{
                             , mountPath = "/var/lib/docker"
                             , name = "docker"
                             , readOnly = Some True
                             }
-                          , Kubernetes/VolumeMount::{
+                          , Kubernetes.VolumeMount::{
                             , mountPath = "/dev/disk"
                             , name = "disk"
                             , readOnly = Some True
@@ -173,32 +107,32 @@ let DaemonSet/generate =
                     , serviceAccountName = Some "cadvisor"
                     , terminationGracePeriodSeconds = Some 30
                     , volumes = Some
-                      [ Kubernetes/Volume::{
-                        , hostPath = Some Kubernetes/HostPathVolumeSource::{
+                      [ Kubernetes.Volume::{
+                        , hostPath = Some Kubernetes.HostPathVolumeSource::{
                           , path = "/"
                           }
                         , name = "rootfs"
                         }
-                      , Kubernetes/Volume::{
-                        , hostPath = Some Kubernetes/HostPathVolumeSource::{
+                      , Kubernetes.Volume::{
+                        , hostPath = Some Kubernetes.HostPathVolumeSource::{
                           , path = "/var/run"
                           }
                         , name = "var-run"
                         }
-                      , Kubernetes/Volume::{
-                        , hostPath = Some Kubernetes/HostPathVolumeSource::{
+                      , Kubernetes.Volume::{
+                        , hostPath = Some Kubernetes.HostPathVolumeSource::{
                           , path = "/sys"
                           }
                         , name = "sys"
                         }
-                      , Kubernetes/Volume::{
-                        , hostPath = Some Kubernetes/HostPathVolumeSource::{
+                      , Kubernetes.Volume::{
+                        , hostPath = Some Kubernetes.HostPathVolumeSource::{
                           , path = "/var/lib/docker"
                           }
                         , name = "docker"
                         }
-                      , Kubernetes/Volume::{
-                        , hostPath = Some Kubernetes/HostPathVolumeSource::{
+                      , Kubernetes.Volume::{
+                        , hostPath = Some Kubernetes.HostPathVolumeSource::{
                           , path = "/dev/disk"
                           }
                         , name = "disk"
@@ -214,8 +148,8 @@ let DaemonSet/generate =
 let ClusterRole/generate =
       λ(c : Configuration/global.Type) →
         let clusterRole =
-              Kubernetes/ClusterRole::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.ClusterRole::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "app", mapValue = "cadvisor" }
                   , { mapKey = "category", mapValue = "rbac" }
@@ -227,7 +161,7 @@ let ClusterRole/generate =
                 , name = Some "cadvisor"
                 }
               , rules = Some
-                [ Kubernetes/PolicyRule::{
+                [ Kubernetes.PolicyRule::{
                   , apiGroups = Some [ "policy" ]
                   , resourceNames = Some [ "cadvisor" ]
                   , resources = Some [ "podsecuritypolicies" ]
@@ -241,8 +175,8 @@ let ClusterRole/generate =
 let ClusterRoleBinding/generate =
       λ(c : Configuration/global.Type) →
         let clusterRoleBinding =
-              Kubernetes/ClusterRoleBinding::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.ClusterRoleBinding::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "app", mapValue = "cadvisor" }
                   , { mapKey = "category", mapValue = "rbac" }
@@ -253,13 +187,13 @@ let ClusterRoleBinding/generate =
                   ]
                 , name = Some "cadvisor"
                 }
-              , roleRef = Kubernetes/RoleRef::{
+              , roleRef = Kubernetes.RoleRef::{
                 , apiGroup = "rbac.authorization.k8s.io"
                 , kind = "ClusterRole"
                 , name = "cadvisor"
                 }
               , subjects = Some
-                [ Kubernetes/Subject::{
+                [ Kubernetes.Subject::{
                   , kind = "ServiceAccount"
                   , name = "cadvisor"
                   , namespace = Some "default"
@@ -272,8 +206,8 @@ let ClusterRoleBinding/generate =
 let ServiceAccount/generate =
       λ(c : Configuration/global.Type) →
         let serviceAccount =
-              Kubernetes/ServiceAccount::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.ServiceAccount::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "app", mapValue = "cadvisor" }
                   , { mapKey = "category", mapValue = "rbac" }
@@ -291,8 +225,8 @@ let ServiceAccount/generate =
 let PodSecurityPolicy/generate =
       λ(c : Configuration/global.Type) →
         let podSecurityPolicy =
-              Kubernetes/PodSecurityPolicy::{
-              , metadata = Kubernetes/ObjectMeta::{
+              Kubernetes.PodSecurityPolicy::{
+              , metadata = Kubernetes.ObjectMeta::{
                 , labels = Some
                   [ { mapKey = "app", mapValue = "cadvisor" }
                   , { mapKey = "deploy", mapValue = "sourcegraph" }
@@ -302,28 +236,28 @@ let PodSecurityPolicy/generate =
                   ]
                 , name = Some "cadvisor"
                 }
-              , spec = Some Kubernetes/PodSecurityPolicySpec::{
+              , spec = Some Kubernetes.PodSecurityPolicySpec::{
                 , allowedHostPaths = Some
-                  [ Kubernetes/AllowedHostPath::{ pathPrefix = Some "/" }
-                  , Kubernetes/AllowedHostPath::{ pathPrefix = Some "/var/run" }
-                  , Kubernetes/AllowedHostPath::{ pathPrefix = Some "/sys" }
-                  , Kubernetes/AllowedHostPath::{
+                  [ Kubernetes.AllowedHostPath::{ pathPrefix = Some "/" }
+                  , Kubernetes.AllowedHostPath::{ pathPrefix = Some "/var/run" }
+                  , Kubernetes.AllowedHostPath::{ pathPrefix = Some "/sys" }
+                  , Kubernetes.AllowedHostPath::{
                     , pathPrefix = Some "/var/lib/docker"
                     }
-                  , Kubernetes/AllowedHostPath::{
+                  , Kubernetes.AllowedHostPath::{
                     , pathPrefix = Some "/dev/disk"
                     }
                   ]
-                , fsGroup = Kubernetes/FSGroupStrategyOptions::{
+                , fsGroup = Kubernetes.FSGroupStrategyOptions::{
                   , rule = Some "RunAsAny"
                   }
-                , runAsUser = Kubernetes/RunAsGroupStrategyOptions::{
+                , runAsUser = Kubernetes.RunAsGroupStrategyOptions::{
                   , rule = "RunAsAny"
                   }
-                , seLinux = Kubernetes/SELinuxStrategyOptions::{
+                , seLinux = Kubernetes.SELinuxStrategyOptions::{
                   , rule = "RunAsAny"
                   }
-                , supplementalGroups = Kubernetes/FSGroupStrategyOptions::{
+                , supplementalGroups = Kubernetes.FSGroupStrategyOptions::{
                   , rule = Some "RunAsAny"
                   }
                 , volumes = Some [ "*" ]
