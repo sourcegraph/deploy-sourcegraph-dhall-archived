@@ -1,13 +1,65 @@
-let Kubernetes/Service = ../../deps/k8s/schemas/io.k8s.api.core.v1.Service.dhall
-
-let Kubernetes/StatefulSet =
-      ../../deps/k8s/schemas/io.k8s.api.apps.v1.StatefulSet.dhall
-
 let Kubernetes/ConfigMap =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.ConfigMap.dhall
 
 let Kubernetes/ServiceAccount =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.ServiceAccount.dhall
+
+let Kubernetes/LocalObjectReference =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.LocalObjectReference.dhall
+
+let Kubernetes/Container =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.Container.dhall
+
+let Kubernetes/ContainerPort =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ContainerPort.dhall
+
+let Kubernetes/LabelSelector =
+      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector.dhall
+
+let Kubernetes/ObjectMeta =
+      ../../deps/k8s/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.dhall
+
+let Kubernetes/PersistentVolumeClaim =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaim.dhall
+
+let Kubernetes/PersistentVolumeClaimSpec =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PersistentVolumeClaimSpec.dhall
+
+let Kubernetes/PodSecurityContext =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSecurityContext.dhall
+
+let Kubernetes/PodSpec = ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSpec.dhall
+
+let Kubernetes/PodTemplateSpec =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.PodTemplateSpec.dhall
+
+let Kubernetes/ResourceRequirements =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
+
+let Kubernetes/Service = ../../deps/k8s/schemas/io.k8s.api.core.v1.Service.dhall
+
+let Kubernetes/ServicePort =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServicePort.dhall
+
+let Kubernetes/ServiceSpec =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ServiceSpec.dhall
+
+let Kubernetes/StatefulSet =
+      ../../deps/k8s/schemas/io.k8s.api.apps.v1.StatefulSet.dhall
+
+let Kubernetes/StatefulSetSpec =
+      ../../deps/k8s/schemas/io.k8s.api.apps.v1.StatefulSetSpec.dhall
+
+let Kubernetes/Volume = ../../deps/k8s/schemas/io.k8s.api.core.v1.Volume.dhall
+
+let Kubernetes/VolumeMount =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.VolumeMount.dhall
+
+let Kubernetes/ConfigMapVolumeSource =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.ConfigMapVolumeSource.dhall
+
+let Kubernetes/StatefulSetUpdateStrategy =
+      ../../deps/k8s/schemas/io.k8s.api.apps.v1.StatefulSetUpdateStrategy.dhall
 
 let Configuration/global = ../../configuration/global.dhall
 
@@ -17,67 +69,21 @@ let ServiceAccount/generate =
       λ(c : Configuration/global.Type) →
         let serviceAccount =
               Kubernetes/ServiceAccount::{
-              , apiVersion = "v1"
-              , automountServiceAccountToken = None Bool
-              , imagePullSecrets = Some [ { name = Some "docker-registry" } ]
-              , kind = "ServiceAccount"
-              , metadata =
-                { annotations = None (List { mapKey : Text, mapValue : Text })
-                , clusterName = None Text
-                , creationTimestamp = None Text
-                , deletionGracePeriodSeconds = None Natural
-                , deletionTimestamp = None Text
-                , finalizers = None (List Text)
-                , generateName = None Text
-                , generation = None Natural
+              , imagePullSecrets = Some
+                [ Kubernetes/LocalObjectReference::{
+                  , name = Some "docker-registry"
+                  }
+                ]
+              , metadata = Kubernetes/ObjectMeta::{
                 , labels = Some
-                    ( toMap
-                        { sourcegraph-resource-requires = "no-cluster-admin"
-                        , category = "rbac"
-                        , deploy = "sourcegraph"
-                        }
-                    )
-                , managedFields =
-                    None
-                      ( List
-                          { apiVersion : Text
-                          , fieldsType : Optional Text
-                          , fieldsV1 :
-                              Optional (List { mapKey : Text, mapValue : Text })
-                          , manager : Optional Text
-                          , operation : Optional Text
-                          , time : Optional Text
-                          }
-                      )
+                  [ { mapKey = "category", mapValue = "rbac" }
+                  , { mapKey = "deploy", mapValue = "sourcegraph" }
+                  , { mapKey = "sourcegraph-resource-requires"
+                    , mapValue = "no-cluster-admin"
+                    }
+                  ]
                 , name = Some "grafana"
-                , namespace = None Text
-                , ownerReferences =
-                    None
-                      ( List
-                          { apiVersion : Text
-                          , blockOwnerDeletion : Optional Bool
-                          , controller : Optional Bool
-                          , kind : Text
-                          , name : Text
-                          , uid : Text
-                          }
-                      )
-                , resourceVersion = None Text
-                , selfLink = None Text
-                , uid = None Text
                 }
-              , secrets =
-                  None
-                    ( List
-                        { apiVersion : Text
-                        , fieldPath : Optional Text
-                        , kind : Text
-                        , name : Optional Text
-                        , namespace : Optional Text
-                        , resourceVersion : Optional Text
-                        , uid : Optional Text
-                        }
-                    )
               }
 
         in  serviceAccount
@@ -86,54 +92,16 @@ let ConfigMap/generate =
       λ(c : Configuration/global.Type) →
         let configMap =
               Kubernetes/ConfigMap::{
-              , apiVersion = "v1"
-              , binaryData = None (List { mapKey : Text, mapValue : Text })
               , data = Some
                   (toMap { `datasources.yml` = ./datasources.yaml as Text })
-              , kind = "ConfigMap"
-              , metadata =
-                { annotations = None (List { mapKey : Text, mapValue : Text })
-                , clusterName = None Text
-                , creationTimestamp = None Text
-                , deletionGracePeriodSeconds = None Natural
-                , deletionTimestamp = None Text
-                , finalizers = None (List Text)
-                , generateName = None Text
-                , generation = None Natural
+              , metadata = Kubernetes/ObjectMeta::{
                 , labels = Some
-                    ( toMap
-                        { sourcegraph-resource-requires = "no-cluster-admin"
-                        , deploy = "sourcegraph"
-                        }
-                    )
-                , managedFields =
-                    None
-                      ( List
-                          { apiVersion : Text
-                          , fieldsType : Optional Text
-                          , fieldsV1 :
-                              Optional (List { mapKey : Text, mapValue : Text })
-                          , manager : Optional Text
-                          , operation : Optional Text
-                          , time : Optional Text
-                          }
-                      )
+                  [ { mapKey = "deploy", mapValue = "sourcegraph" }
+                  , { mapKey = "sourcegraph-resource-requires"
+                    , mapValue = "no-cluster-admin"
+                    }
+                  ]
                 , name = Some "grafana"
-                , namespace = None Text
-                , ownerReferences =
-                    None
-                      ( List
-                          { apiVersion : Text
-                          , blockOwnerDeletion : Optional Bool
-                          , controller : Optional Bool
-                          , kind : Text
-                          , name : Text
-                          , uid : Text
-                          }
-                      )
-                , resourceVersion = None Text
-                , selfLink = None Text
-                , uid = None Text
                 }
               }
 
@@ -143,95 +111,28 @@ let Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
               Kubernetes/Service::{
-              , apiVersion = "v1"
-              , kind = "Service"
-              , metadata =
-                { annotations = None (List { mapKey : Text, mapValue : Text })
-                , clusterName = None Text
-                , creationTimestamp = None Text
-                , deletionGracePeriodSeconds = None Natural
-                , deletionTimestamp = None Text
-                , finalizers = None (List Text)
-                , generateName = None Text
-                , generation = None Natural
+              , metadata = Kubernetes/ObjectMeta::{
                 , labels = Some
-                    ( toMap
-                        { sourcegraph-resource-requires = "no-cluster-admin"
-                        , app = "grafana"
-                        , deploy = "sourcegraph"
-                        }
-                    )
-                , managedFields =
-                    None
-                      ( List
-                          { apiVersion : Text
-                          , fieldsType : Optional Text
-                          , fieldsV1 :
-                              Optional (List { mapKey : Text, mapValue : Text })
-                          , manager : Optional Text
-                          , operation : Optional Text
-                          , time : Optional Text
-                          }
-                      )
+                  [ { mapKey = "app", mapValue = "grafana" }
+                  , { mapKey = "deploy", mapValue = "sourcegraph" }
+                  , { mapKey = "sourcegraph-resource-requires"
+                    , mapValue = "no-cluster-admin"
+                    }
+                  ]
                 , name = Some "grafana"
-                , namespace = None Text
-                , ownerReferences =
-                    None
-                      ( List
-                          { apiVersion : Text
-                          , blockOwnerDeletion : Optional Bool
-                          , controller : Optional Bool
-                          , kind : Text
-                          , name : Text
-                          , uid : Text
-                          }
-                      )
-                , resourceVersion = None Text
-                , selfLink = None Text
-                , uid = None Text
                 }
-              , spec = Some
-                { clusterIP = None Text
-                , externalIPs = None (List Text)
-                , externalName = None Text
-                , externalTrafficPolicy = None Text
-                , healthCheckNodePort = None Natural
-                , ipFamily = None Text
-                , loadBalancerIP = None Text
-                , loadBalancerSourceRanges = None (List Text)
+              , spec = Some Kubernetes/ServiceSpec::{
                 , ports = Some
-                  [ { name = Some "http"
-                    , nodePort = None Natural
+                  [ Kubernetes/ServicePort::{
+                    , name = Some "http"
                     , port = 30070
-                    , protocol = None Text
                     , targetPort = Some
                         (< Int : Natural | String : Text >.String "http")
                     }
                   ]
-                , publishNotReadyAddresses = None Bool
-                , selector = Some (toMap { app = "grafana" })
-                , sessionAffinity = None Text
-                , sessionAffinityConfig =
-                    None
-                      { clientIP :
-                          Optional { timeoutSeconds : Optional Natural }
-                      }
-                , topologyKeys = None (List Text)
+                , selector = Some [ { mapKey = "app", mapValue = "grafana" } ]
                 , type = Some "ClusterIP"
                 }
-              , status =
-                  None
-                    { loadBalancer :
-                        Optional
-                          { ingress :
-                              Optional
-                                ( List
-                                    { hostname : Optional Text
-                                    , ip : Optional Text
-                                    }
-                                )
-                          }
-                    }
               }
 
         in  service
@@ -240,1657 +141,106 @@ let StatefulSet/generate =
       λ(c : Configuration/global.Type) →
         let statefulSet =
               Kubernetes/StatefulSet::{
-              , apiVersion = "apps/v1"
-              , kind = "StatefulSet"
-              , metadata =
-                { annotations = Some
-                    ( toMap
-                        { description =
-                            "Metrics/monitoring dashboards and alerts."
-                        }
-                    )
-                , clusterName = None Text
-                , creationTimestamp = None Text
-                , deletionGracePeriodSeconds = None Natural
-                , deletionTimestamp = None Text
-                , finalizers = None (List Text)
-                , generateName = None Text
-                , generation = None Natural
+              , metadata = Kubernetes/ObjectMeta::{
+                , annotations = Some
+                  [ { mapKey = "description"
+                    , mapValue = "Metrics/monitoring dashboards and alerts."
+                    }
+                  ]
                 , labels = Some
-                    ( toMap
-                        { sourcegraph-resource-requires = "no-cluster-admin"
-                        , deploy = "sourcegraph"
-                        }
-                    )
-                , managedFields =
-                    None
-                      ( List
-                          { apiVersion : Text
-                          , fieldsType : Optional Text
-                          , fieldsV1 :
-                              Optional (List { mapKey : Text, mapValue : Text })
-                          , manager : Optional Text
-                          , operation : Optional Text
-                          , time : Optional Text
-                          }
-                      )
+                  [ { mapKey = "deploy", mapValue = "sourcegraph" }
+                  , { mapKey = "sourcegraph-resource-requires"
+                    , mapValue = "no-cluster-admin"
+                    }
+                  ]
                 , name = Some "grafana"
-                , namespace = None Text
-                , ownerReferences =
-                    None
-                      ( List
-                          { apiVersion : Text
-                          , blockOwnerDeletion : Optional Bool
-                          , controller : Optional Bool
-                          , kind : Text
-                          , name : Text
-                          , uid : Text
-                          }
-                      )
-                , resourceVersion = None Text
-                , selfLink = None Text
-                , uid = None Text
                 }
-              , spec = Some
-                { podManagementPolicy = None Text
+              , spec = Some Kubernetes/StatefulSetSpec::{
                 , replicas = Some 1
                 , revisionHistoryLimit = Some 10
-                , selector =
-                  { matchExpressions =
-                      None
-                        ( List
-                            { key : Text
-                            , operator : Text
-                            , values : Optional (List Text)
-                            }
-                        )
-                  , matchLabels = Some (toMap { app = "grafana" })
+                , selector = Kubernetes/LabelSelector::{
+                  , matchLabels = Some
+                    [ { mapKey = "app", mapValue = "grafana" } ]
                   }
                 , serviceName = "grafana"
-                , template =
-                  { metadata =
-                    { annotations =
-                        None (List { mapKey : Text, mapValue : Text })
-                    , clusterName = None Text
-                    , creationTimestamp = None Text
-                    , deletionGracePeriodSeconds = None Natural
-                    , deletionTimestamp = None Text
-                    , finalizers = None (List Text)
-                    , generateName = None Text
-                    , generation = None Natural
+                , template = Kubernetes/PodTemplateSpec::{
+                  , metadata = Kubernetes/ObjectMeta::{
                     , labels = Some
-                        (toMap { app = "grafana", deploy = "sourcegraph" })
-                    , managedFields =
-                        None
-                          ( List
-                              { apiVersion : Text
-                              , fieldsType : Optional Text
-                              , fieldsV1 :
-                                  Optional
-                                    (List { mapKey : Text, mapValue : Text })
-                              , manager : Optional Text
-                              , operation : Optional Text
-                              , time : Optional Text
-                              }
-                          )
-                    , name = None Text
-                    , namespace = None Text
-                    , ownerReferences =
-                        None
-                          ( List
-                              { apiVersion : Text
-                              , blockOwnerDeletion : Optional Bool
-                              , controller : Optional Bool
-                              , kind : Text
-                              , name : Text
-                              , uid : Text
-                              }
-                          )
-                    , resourceVersion = None Text
-                    , selfLink = None Text
-                    , uid = None Text
+                      [ { mapKey = "app", mapValue = "grafana" }
+                      , { mapKey = "deploy", mapValue = "sourcegraph" }
+                      ]
                     }
-                  , spec = Some
-                    { activeDeadlineSeconds = None Natural
-                    , affinity =
-                        None
-                          { nodeAffinity :
-                              Optional
-                                { preferredDuringSchedulingIgnoredDuringExecution :
-                                    Optional
-                                      ( List
-                                          { preference :
-                                              { matchExpressions :
-                                                  Optional
-                                                    ( List
-                                                        { key : Text
-                                                        , operator : Text
-                                                        , values :
-                                                            Optional (List Text)
-                                                        }
-                                                    )
-                                              , matchFields :
-                                                  Optional
-                                                    ( List
-                                                        { key : Text
-                                                        , operator : Text
-                                                        , values :
-                                                            Optional (List Text)
-                                                        }
-                                                    )
-                                              }
-                                          , weight : Natural
-                                          }
-                                      )
-                                , requiredDuringSchedulingIgnoredDuringExecution :
-                                    Optional
-                                      { nodeSelectorTerms :
-                                          List
-                                            { matchExpressions :
-                                                Optional
-                                                  ( List
-                                                      { key : Text
-                                                      , operator : Text
-                                                      , values :
-                                                          Optional (List Text)
-                                                      }
-                                                  )
-                                            , matchFields :
-                                                Optional
-                                                  ( List
-                                                      { key : Text
-                                                      , operator : Text
-                                                      , values :
-                                                          Optional (List Text)
-                                                      }
-                                                  )
-                                            }
-                                      }
-                                }
-                          , podAffinity :
-                              Optional
-                                { preferredDuringSchedulingIgnoredDuringExecution :
-                                    Optional
-                                      ( List
-                                          { podAffinityTerm :
-                                              { labelSelector :
-                                                  Optional
-                                                    { matchExpressions :
-                                                        Optional
-                                                          ( List
-                                                              { key : Text
-                                                              , operator : Text
-                                                              , values :
-                                                                  Optional
-                                                                    (List Text)
-                                                              }
-                                                          )
-                                                    , matchLabels :
-                                                        Optional
-                                                          ( List
-                                                              { mapKey : Text
-                                                              , mapValue : Text
-                                                              }
-                                                          )
-                                                    }
-                                              , namespaces :
-                                                  Optional (List Text)
-                                              , topologyKey : Text
-                                              }
-                                          , weight : Natural
-                                          }
-                                      )
-                                , requiredDuringSchedulingIgnoredDuringExecution :
-                                    Optional
-                                      ( List
-                                          { labelSelector :
-                                              Optional
-                                                { matchExpressions :
-                                                    Optional
-                                                      ( List
-                                                          { key : Text
-                                                          , operator : Text
-                                                          , values :
-                                                              Optional
-                                                                (List Text)
-                                                          }
-                                                      )
-                                                , matchLabels :
-                                                    Optional
-                                                      ( List
-                                                          { mapKey : Text
-                                                          , mapValue : Text
-                                                          }
-                                                      )
-                                                }
-                                          , namespaces : Optional (List Text)
-                                          , topologyKey : Text
-                                          }
-                                      )
-                                }
-                          , podAntiAffinity :
-                              Optional
-                                { preferredDuringSchedulingIgnoredDuringExecution :
-                                    Optional
-                                      ( List
-                                          { podAffinityTerm :
-                                              { labelSelector :
-                                                  Optional
-                                                    { matchExpressions :
-                                                        Optional
-                                                          ( List
-                                                              { key : Text
-                                                              , operator : Text
-                                                              , values :
-                                                                  Optional
-                                                                    (List Text)
-                                                              }
-                                                          )
-                                                    , matchLabels :
-                                                        Optional
-                                                          ( List
-                                                              { mapKey : Text
-                                                              , mapValue : Text
-                                                              }
-                                                          )
-                                                    }
-                                              , namespaces :
-                                                  Optional (List Text)
-                                              , topologyKey : Text
-                                              }
-                                          , weight : Natural
-                                          }
-                                      )
-                                , requiredDuringSchedulingIgnoredDuringExecution :
-                                    Optional
-                                      ( List
-                                          { labelSelector :
-                                              Optional
-                                                { matchExpressions :
-                                                    Optional
-                                                      ( List
-                                                          { key : Text
-                                                          , operator : Text
-                                                          , values :
-                                                              Optional
-                                                                (List Text)
-                                                          }
-                                                      )
-                                                , matchLabels :
-                                                    Optional
-                                                      ( List
-                                                          { mapKey : Text
-                                                          , mapValue : Text
-                                                          }
-                                                      )
-                                                }
-                                          , namespaces : Optional (List Text)
-                                          , topologyKey : Text
-                                          }
-                                      )
-                                }
-                          }
-                    , automountServiceAccountToken = None Bool
+                  , spec = Some Kubernetes/PodSpec::{
                     , containers =
-                      [ { args = None (List Text)
-                        , command = None (List Text)
-                        , env =
-                            None
-                              ( List
-                                  { name : Text
-                                  , value : Optional Text
-                                  , valueFrom :
-                                      Optional
-                                        { configMapKeyRef :
-                                            Optional
-                                              { key : Text
-                                              , name : Optional Text
-                                              , optional : Optional Bool
-                                              }
-                                        , fieldRef :
-                                            Optional
-                                              { apiVersion : Optional Text
-                                              , fieldPath : Text
-                                              }
-                                        , resourceFieldRef :
-                                            Optional
-                                              { containerName : Optional Text
-                                              , divisor : Optional Text
-                                              , resource : Text
-                                              }
-                                        , secretKeyRef :
-                                            Optional
-                                              { key : Text
-                                              , name : Optional Text
-                                              , optional : Optional Bool
-                                              }
-                                        }
-                                  }
-                              )
-                        , envFrom =
-                            None
-                              ( List
-                                  { configMapRef :
-                                      Optional
-                                        { name : Optional Text
-                                        , optional : Optional Bool
-                                        }
-                                  , prefix : Optional Text
-                                  , secretRef :
-                                      Optional
-                                        { name : Optional Text
-                                        , optional : Optional Bool
-                                        }
-                                  }
-                              )
+                      [ Kubernetes/Container::{
                         , image = Some
                             "index.docker.io/sourcegraph/grafana:3.17.2@sha256:f390384e2f57f3aba4eae41e51340a541a5b7a82ee16bdcea3cd9520423f193a"
-                        , imagePullPolicy = None Text
-                        , lifecycle =
-                            None
-                              { postStart :
-                                  Optional
-                                    { exec :
-                                        Optional
-                                          { command : Optional (List Text) }
-                                    , httpGet :
-                                        Optional
-                                          { host : Optional Text
-                                          , httpHeaders :
-                                              Optional
-                                                ( List
-                                                    { name : Text
-                                                    , value : Text
-                                                    }
-                                                )
-                                          , path : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          , scheme : Optional Text
-                                          }
-                                    , tcpSocket :
-                                        Optional
-                                          { host : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          }
-                                    }
-                              , preStop :
-                                  Optional
-                                    { exec :
-                                        Optional
-                                          { command : Optional (List Text) }
-                                    , httpGet :
-                                        Optional
-                                          { host : Optional Text
-                                          , httpHeaders :
-                                              Optional
-                                                ( List
-                                                    { name : Text
-                                                    , value : Text
-                                                    }
-                                                )
-                                          , path : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          , scheme : Optional Text
-                                          }
-                                    , tcpSocket :
-                                        Optional
-                                          { host : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          }
-                                    }
-                              }
-                        , livenessProbe =
-                            None
-                              { exec :
-                                  Optional { command : Optional (List Text) }
-                              , failureThreshold : Optional Natural
-                              , httpGet :
-                                  Optional
-                                    { host : Optional Text
-                                    , httpHeaders :
-                                        Optional
-                                          (List { name : Text, value : Text })
-                                    , path : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    , scheme : Optional Text
-                                    }
-                              , initialDelaySeconds : Optional Natural
-                              , periodSeconds : Optional Natural
-                              , successThreshold : Optional Natural
-                              , tcpSocket :
-                                  Optional
-                                    { host : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    }
-                              , timeoutSeconds : Optional Natural
-                              }
                         , name = "grafana"
                         , ports = Some
-                          [ { containerPort = 3370
-                            , hostIP = None Text
-                            , hostPort = None Natural
+                          [ Kubernetes/ContainerPort::{
+                            , containerPort = 3370
                             , name = Some "http"
-                            , protocol = None Text
                             }
                           ]
-                        , readinessProbe =
-                            None
-                              { exec :
-                                  Optional { command : Optional (List Text) }
-                              , failureThreshold : Optional Natural
-                              , httpGet :
-                                  Optional
-                                    { host : Optional Text
-                                    , httpHeaders :
-                                        Optional
-                                          (List { name : Text, value : Text })
-                                    , path : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    , scheme : Optional Text
-                                    }
-                              , initialDelaySeconds : Optional Natural
-                              , periodSeconds : Optional Natural
-                              , successThreshold : Optional Natural
-                              , tcpSocket :
-                                  Optional
-                                    { host : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    }
-                              , timeoutSeconds : Optional Natural
-                              }
-                        , resources = Some
-                          { limits = Some
-                              (toMap { memory = "512Mi", cpu = "1" })
+                        , resources = Some Kubernetes/ResourceRequirements::{
+                          , limits = Some
+                            [ { mapKey = "cpu", mapValue = "1" }
+                            , { mapKey = "memory", mapValue = "512Mi" }
+                            ]
                           , requests = Some
-                              (toMap { memory = "512Mi", cpu = "100m" })
+                            [ { mapKey = "cpu", mapValue = "100m" }
+                            , { mapKey = "memory", mapValue = "512Mi" }
+                            ]
                           }
-                        , securityContext =
-                            None
-                              { allowPrivilegeEscalation : Optional Bool
-                              , capabilities :
-                                  Optional
-                                    { add : Optional (List Text)
-                                    , drop : Optional (List Text)
-                                    }
-                              , privileged : Optional Bool
-                              , procMount : Optional Text
-                              , readOnlyRootFilesystem : Optional Bool
-                              , runAsGroup : Optional Natural
-                              , runAsNonRoot : Optional Bool
-                              , runAsUser : Optional Natural
-                              , seLinuxOptions :
-                                  Optional
-                                    { level : Optional Text
-                                    , role : Optional Text
-                                    , type : Optional Text
-                                    , user : Optional Text
-                                    }
-                              , windowsOptions :
-                                  Optional
-                                    { gmsaCredentialSpec : Optional Text
-                                    , gmsaCredentialSpecName : Optional Text
-                                    , runAsUserName : Optional Text
-                                    }
-                              }
-                        , startupProbe =
-                            None
-                              { exec :
-                                  Optional { command : Optional (List Text) }
-                              , failureThreshold : Optional Natural
-                              , httpGet :
-                                  Optional
-                                    { host : Optional Text
-                                    , httpHeaders :
-                                        Optional
-                                          (List { name : Text, value : Text })
-                                    , path : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    , scheme : Optional Text
-                                    }
-                              , initialDelaySeconds : Optional Natural
-                              , periodSeconds : Optional Natural
-                              , successThreshold : Optional Natural
-                              , tcpSocket :
-                                  Optional
-                                    { host : Optional Text
-                                    , port : < Int : Natural | String : Text >
-                                    }
-                              , timeoutSeconds : Optional Natural
-                              }
-                        , stdin = None Bool
-                        , stdinOnce = None Bool
-                        , terminationMessagePath = None Text
                         , terminationMessagePolicy = Some
                             "FallbackToLogsOnError"
-                        , tty = None Bool
-                        , volumeDevices =
-                            None (List { devicePath : Text, name : Text })
                         , volumeMounts = Some
-                          [ { mountPath = "/var/lib/grafana"
-                            , mountPropagation = None Text
+                          [ Kubernetes/VolumeMount::{
+                            , mountPath = "/var/lib/grafana"
                             , name = "grafana-data"
-                            , readOnly = None Bool
-                            , subPath = None Text
-                            , subPathExpr = None Text
                             }
-                          , { mountPath =
+                          , Kubernetes/VolumeMount::{
+                            , mountPath =
                                 "/sg_config_grafana/provisioning/datasources"
-                            , mountPropagation = None Text
                             , name = "config"
-                            , readOnly = None Bool
-                            , subPath = None Text
-                            , subPathExpr = None Text
                             }
                           ]
-                        , workingDir = None Text
                         }
                       ]
-                    , dnsConfig =
-                        None
-                          { nameservers : Optional (List Text)
-                          , options :
-                              Optional
-                                ( List
-                                    { name : Optional Text
-                                    , value : Optional Text
-                                    }
-                                )
-                          , searches : Optional (List Text)
-                          }
-                    , dnsPolicy = None Text
-                    , enableServiceLinks = None Bool
-                    , ephemeralContainers =
-                        None
-                          ( List
-                              { args : Optional (List Text)
-                              , command : Optional (List Text)
-                              , env :
-                                  Optional
-                                    ( List
-                                        { name : Text
-                                        , value : Optional Text
-                                        , valueFrom :
-                                            Optional
-                                              { configMapKeyRef :
-                                                  Optional
-                                                    { key : Text
-                                                    , name : Optional Text
-                                                    , optional : Optional Bool
-                                                    }
-                                              , fieldRef :
-                                                  Optional
-                                                    { apiVersion : Optional Text
-                                                    , fieldPath : Text
-                                                    }
-                                              , resourceFieldRef :
-                                                  Optional
-                                                    { containerName :
-                                                        Optional Text
-                                                    , divisor : Optional Text
-                                                    , resource : Text
-                                                    }
-                                              , secretKeyRef :
-                                                  Optional
-                                                    { key : Text
-                                                    , name : Optional Text
-                                                    , optional : Optional Bool
-                                                    }
-                                              }
-                                        }
-                                    )
-                              , envFrom :
-                                  Optional
-                                    ( List
-                                        { configMapRef :
-                                            Optional
-                                              { name : Optional Text
-                                              , optional : Optional Bool
-                                              }
-                                        , prefix : Optional Text
-                                        , secretRef :
-                                            Optional
-                                              { name : Optional Text
-                                              , optional : Optional Bool
-                                              }
-                                        }
-                                    )
-                              , image : Optional Text
-                              , imagePullPolicy : Optional Text
-                              , lifecycle :
-                                  Optional
-                                    { postStart :
-                                        Optional
-                                          { exec :
-                                              Optional
-                                                { command : Optional (List Text)
-                                                }
-                                          , httpGet :
-                                              Optional
-                                                { host : Optional Text
-                                                , httpHeaders :
-                                                    Optional
-                                                      ( List
-                                                          { name : Text
-                                                          , value : Text
-                                                          }
-                                                      )
-                                                , path : Optional Text
-                                                , port :
-                                                    < Int : Natural
-                                                    | String : Text
-                                                    >
-                                                , scheme : Optional Text
-                                                }
-                                          , tcpSocket :
-                                              Optional
-                                                { host : Optional Text
-                                                , port :
-                                                    < Int : Natural
-                                                    | String : Text
-                                                    >
-                                                }
-                                          }
-                                    , preStop :
-                                        Optional
-                                          { exec :
-                                              Optional
-                                                { command : Optional (List Text)
-                                                }
-                                          , httpGet :
-                                              Optional
-                                                { host : Optional Text
-                                                , httpHeaders :
-                                                    Optional
-                                                      ( List
-                                                          { name : Text
-                                                          , value : Text
-                                                          }
-                                                      )
-                                                , path : Optional Text
-                                                , port :
-                                                    < Int : Natural
-                                                    | String : Text
-                                                    >
-                                                , scheme : Optional Text
-                                                }
-                                          , tcpSocket :
-                                              Optional
-                                                { host : Optional Text
-                                                , port :
-                                                    < Int : Natural
-                                                    | String : Text
-                                                    >
-                                                }
-                                          }
-                                    }
-                              , livenessProbe :
-                                  Optional
-                                    { exec :
-                                        Optional
-                                          { command : Optional (List Text) }
-                                    , failureThreshold : Optional Natural
-                                    , httpGet :
-                                        Optional
-                                          { host : Optional Text
-                                          , httpHeaders :
-                                              Optional
-                                                ( List
-                                                    { name : Text
-                                                    , value : Text
-                                                    }
-                                                )
-                                          , path : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          , scheme : Optional Text
-                                          }
-                                    , initialDelaySeconds : Optional Natural
-                                    , periodSeconds : Optional Natural
-                                    , successThreshold : Optional Natural
-                                    , tcpSocket :
-                                        Optional
-                                          { host : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          }
-                                    , timeoutSeconds : Optional Natural
-                                    }
-                              , name : Text
-                              , ports :
-                                  Optional
-                                    ( List
-                                        { containerPort : Natural
-                                        , hostIP : Optional Text
-                                        , hostPort : Optional Natural
-                                        , name : Optional Text
-                                        , protocol : Optional Text
-                                        }
-                                    )
-                              , readinessProbe :
-                                  Optional
-                                    { exec :
-                                        Optional
-                                          { command : Optional (List Text) }
-                                    , failureThreshold : Optional Natural
-                                    , httpGet :
-                                        Optional
-                                          { host : Optional Text
-                                          , httpHeaders :
-                                              Optional
-                                                ( List
-                                                    { name : Text
-                                                    , value : Text
-                                                    }
-                                                )
-                                          , path : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          , scheme : Optional Text
-                                          }
-                                    , initialDelaySeconds : Optional Natural
-                                    , periodSeconds : Optional Natural
-                                    , successThreshold : Optional Natural
-                                    , tcpSocket :
-                                        Optional
-                                          { host : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          }
-                                    , timeoutSeconds : Optional Natural
-                                    }
-                              , resources :
-                                  Optional
-                                    { limits :
-                                        Optional
-                                          ( List
-                                              { mapKey : Text, mapValue : Text }
-                                          )
-                                    , requests :
-                                        Optional
-                                          ( List
-                                              { mapKey : Text, mapValue : Text }
-                                          )
-                                    }
-                              , securityContext :
-                                  Optional
-                                    { allowPrivilegeEscalation : Optional Bool
-                                    , capabilities :
-                                        Optional
-                                          { add : Optional (List Text)
-                                          , drop : Optional (List Text)
-                                          }
-                                    , privileged : Optional Bool
-                                    , procMount : Optional Text
-                                    , readOnlyRootFilesystem : Optional Bool
-                                    , runAsGroup : Optional Natural
-                                    , runAsNonRoot : Optional Bool
-                                    , runAsUser : Optional Natural
-                                    , seLinuxOptions :
-                                        Optional
-                                          { level : Optional Text
-                                          , role : Optional Text
-                                          , type : Optional Text
-                                          , user : Optional Text
-                                          }
-                                    , windowsOptions :
-                                        Optional
-                                          { gmsaCredentialSpec : Optional Text
-                                          , gmsaCredentialSpecName :
-                                              Optional Text
-                                          , runAsUserName : Optional Text
-                                          }
-                                    }
-                              , startupProbe :
-                                  Optional
-                                    { exec :
-                                        Optional
-                                          { command : Optional (List Text) }
-                                    , failureThreshold : Optional Natural
-                                    , httpGet :
-                                        Optional
-                                          { host : Optional Text
-                                          , httpHeaders :
-                                              Optional
-                                                ( List
-                                                    { name : Text
-                                                    , value : Text
-                                                    }
-                                                )
-                                          , path : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          , scheme : Optional Text
-                                          }
-                                    , initialDelaySeconds : Optional Natural
-                                    , periodSeconds : Optional Natural
-                                    , successThreshold : Optional Natural
-                                    , tcpSocket :
-                                        Optional
-                                          { host : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          }
-                                    , timeoutSeconds : Optional Natural
-                                    }
-                              , stdin : Optional Bool
-                              , stdinOnce : Optional Bool
-                              , targetContainerName : Optional Text
-                              , terminationMessagePath : Optional Text
-                              , terminationMessagePolicy : Optional Text
-                              , tty : Optional Bool
-                              , volumeDevices :
-                                  Optional
-                                    (List { devicePath : Text, name : Text })
-                              , volumeMounts :
-                                  Optional
-                                    ( List
-                                        { mountPath : Text
-                                        , mountPropagation : Optional Text
-                                        , name : Text
-                                        , readOnly : Optional Bool
-                                        , subPath : Optional Text
-                                        , subPathExpr : Optional Text
-                                        }
-                                    )
-                              , workingDir : Optional Text
-                              }
-                          )
-                    , hostAliases =
-                        None
-                          ( List
-                              { hostnames : Optional (List Text)
-                              , ip : Optional Text
-                              }
-                          )
-                    , hostIPC = None Bool
-                    , hostNetwork = None Bool
-                    , hostPID = None Bool
-                    , hostname = None Text
-                    , imagePullSecrets = None (List { name : Optional Text })
-                    , initContainers =
-                        None
-                          ( List
-                              { args : Optional (List Text)
-                              , command : Optional (List Text)
-                              , env :
-                                  Optional
-                                    ( List
-                                        { name : Text
-                                        , value : Optional Text
-                                        , valueFrom :
-                                            Optional
-                                              { configMapKeyRef :
-                                                  Optional
-                                                    { key : Text
-                                                    , name : Optional Text
-                                                    , optional : Optional Bool
-                                                    }
-                                              , fieldRef :
-                                                  Optional
-                                                    { apiVersion : Optional Text
-                                                    , fieldPath : Text
-                                                    }
-                                              , resourceFieldRef :
-                                                  Optional
-                                                    { containerName :
-                                                        Optional Text
-                                                    , divisor : Optional Text
-                                                    , resource : Text
-                                                    }
-                                              , secretKeyRef :
-                                                  Optional
-                                                    { key : Text
-                                                    , name : Optional Text
-                                                    , optional : Optional Bool
-                                                    }
-                                              }
-                                        }
-                                    )
-                              , envFrom :
-                                  Optional
-                                    ( List
-                                        { configMapRef :
-                                            Optional
-                                              { name : Optional Text
-                                              , optional : Optional Bool
-                                              }
-                                        , prefix : Optional Text
-                                        , secretRef :
-                                            Optional
-                                              { name : Optional Text
-                                              , optional : Optional Bool
-                                              }
-                                        }
-                                    )
-                              , image : Optional Text
-                              , imagePullPolicy : Optional Text
-                              , lifecycle :
-                                  Optional
-                                    { postStart :
-                                        Optional
-                                          { exec :
-                                              Optional
-                                                { command : Optional (List Text)
-                                                }
-                                          , httpGet :
-                                              Optional
-                                                { host : Optional Text
-                                                , httpHeaders :
-                                                    Optional
-                                                      ( List
-                                                          { name : Text
-                                                          , value : Text
-                                                          }
-                                                      )
-                                                , path : Optional Text
-                                                , port :
-                                                    < Int : Natural
-                                                    | String : Text
-                                                    >
-                                                , scheme : Optional Text
-                                                }
-                                          , tcpSocket :
-                                              Optional
-                                                { host : Optional Text
-                                                , port :
-                                                    < Int : Natural
-                                                    | String : Text
-                                                    >
-                                                }
-                                          }
-                                    , preStop :
-                                        Optional
-                                          { exec :
-                                              Optional
-                                                { command : Optional (List Text)
-                                                }
-                                          , httpGet :
-                                              Optional
-                                                { host : Optional Text
-                                                , httpHeaders :
-                                                    Optional
-                                                      ( List
-                                                          { name : Text
-                                                          , value : Text
-                                                          }
-                                                      )
-                                                , path : Optional Text
-                                                , port :
-                                                    < Int : Natural
-                                                    | String : Text
-                                                    >
-                                                , scheme : Optional Text
-                                                }
-                                          , tcpSocket :
-                                              Optional
-                                                { host : Optional Text
-                                                , port :
-                                                    < Int : Natural
-                                                    | String : Text
-                                                    >
-                                                }
-                                          }
-                                    }
-                              , livenessProbe :
-                                  Optional
-                                    { exec :
-                                        Optional
-                                          { command : Optional (List Text) }
-                                    , failureThreshold : Optional Natural
-                                    , httpGet :
-                                        Optional
-                                          { host : Optional Text
-                                          , httpHeaders :
-                                              Optional
-                                                ( List
-                                                    { name : Text
-                                                    , value : Text
-                                                    }
-                                                )
-                                          , path : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          , scheme : Optional Text
-                                          }
-                                    , initialDelaySeconds : Optional Natural
-                                    , periodSeconds : Optional Natural
-                                    , successThreshold : Optional Natural
-                                    , tcpSocket :
-                                        Optional
-                                          { host : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          }
-                                    , timeoutSeconds : Optional Natural
-                                    }
-                              , name : Text
-                              , ports :
-                                  Optional
-                                    ( List
-                                        { containerPort : Natural
-                                        , hostIP : Optional Text
-                                        , hostPort : Optional Natural
-                                        , name : Optional Text
-                                        , protocol : Optional Text
-                                        }
-                                    )
-                              , readinessProbe :
-                                  Optional
-                                    { exec :
-                                        Optional
-                                          { command : Optional (List Text) }
-                                    , failureThreshold : Optional Natural
-                                    , httpGet :
-                                        Optional
-                                          { host : Optional Text
-                                          , httpHeaders :
-                                              Optional
-                                                ( List
-                                                    { name : Text
-                                                    , value : Text
-                                                    }
-                                                )
-                                          , path : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          , scheme : Optional Text
-                                          }
-                                    , initialDelaySeconds : Optional Natural
-                                    , periodSeconds : Optional Natural
-                                    , successThreshold : Optional Natural
-                                    , tcpSocket :
-                                        Optional
-                                          { host : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          }
-                                    , timeoutSeconds : Optional Natural
-                                    }
-                              , resources :
-                                  Optional
-                                    { limits :
-                                        Optional
-                                          ( List
-                                              { mapKey : Text, mapValue : Text }
-                                          )
-                                    , requests :
-                                        Optional
-                                          ( List
-                                              { mapKey : Text, mapValue : Text }
-                                          )
-                                    }
-                              , securityContext :
-                                  Optional
-                                    { allowPrivilegeEscalation : Optional Bool
-                                    , capabilities :
-                                        Optional
-                                          { add : Optional (List Text)
-                                          , drop : Optional (List Text)
-                                          }
-                                    , privileged : Optional Bool
-                                    , procMount : Optional Text
-                                    , readOnlyRootFilesystem : Optional Bool
-                                    , runAsGroup : Optional Natural
-                                    , runAsNonRoot : Optional Bool
-                                    , runAsUser : Optional Natural
-                                    , seLinuxOptions :
-                                        Optional
-                                          { level : Optional Text
-                                          , role : Optional Text
-                                          , type : Optional Text
-                                          , user : Optional Text
-                                          }
-                                    , windowsOptions :
-                                        Optional
-                                          { gmsaCredentialSpec : Optional Text
-                                          , gmsaCredentialSpecName :
-                                              Optional Text
-                                          , runAsUserName : Optional Text
-                                          }
-                                    }
-                              , startupProbe :
-                                  Optional
-                                    { exec :
-                                        Optional
-                                          { command : Optional (List Text) }
-                                    , failureThreshold : Optional Natural
-                                    , httpGet :
-                                        Optional
-                                          { host : Optional Text
-                                          , httpHeaders :
-                                              Optional
-                                                ( List
-                                                    { name : Text
-                                                    , value : Text
-                                                    }
-                                                )
-                                          , path : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          , scheme : Optional Text
-                                          }
-                                    , initialDelaySeconds : Optional Natural
-                                    , periodSeconds : Optional Natural
-                                    , successThreshold : Optional Natural
-                                    , tcpSocket :
-                                        Optional
-                                          { host : Optional Text
-                                          , port :
-                                              < Int : Natural | String : Text >
-                                          }
-                                    , timeoutSeconds : Optional Natural
-                                    }
-                              , stdin : Optional Bool
-                              , stdinOnce : Optional Bool
-                              , terminationMessagePath : Optional Text
-                              , terminationMessagePolicy : Optional Text
-                              , tty : Optional Bool
-                              , volumeDevices :
-                                  Optional
-                                    (List { devicePath : Text, name : Text })
-                              , volumeMounts :
-                                  Optional
-                                    ( List
-                                        { mountPath : Text
-                                        , mountPropagation : Optional Text
-                                        , name : Text
-                                        , readOnly : Optional Bool
-                                        , subPath : Optional Text
-                                        , subPathExpr : Optional Text
-                                        }
-                                    )
-                              , workingDir : Optional Text
-                              }
-                          )
-                    , nodeName = None Text
-                    , nodeSelector =
-                        None (List { mapKey : Text, mapValue : Text })
-                    , overhead = None (List { mapKey : Text, mapValue : Text })
-                    , preemptionPolicy = None Text
-                    , priority = None Natural
-                    , priorityClassName = None Text
-                    , readinessGates = None (List { conditionType : Text })
-                    , restartPolicy = None Text
-                    , runtimeClassName = None Text
-                    , schedulerName = None Text
-                    , securityContext = Some
-                      { fsGroup = None Natural
-                      , runAsGroup = None Natural
-                      , runAsNonRoot = None Bool
+                    , securityContext = Some Kubernetes/PodSecurityContext::{
                       , runAsUser = Some 0
-                      , seLinuxOptions =
-                          None
-                            { level : Optional Text
-                            , role : Optional Text
-                            , type : Optional Text
-                            , user : Optional Text
-                            }
-                      , supplementalGroups = None (List Natural)
-                      , sysctls = None (List { name : Text, value : Text })
-                      , windowsOptions =
-                          None
-                            { gmsaCredentialSpec : Optional Text
-                            , gmsaCredentialSpecName : Optional Text
-                            , runAsUserName : Optional Text
-                            }
                       }
-                    , serviceAccount = None Text
                     , serviceAccountName = Some "grafana"
-                    , shareProcessNamespace = None Bool
-                    , subdomain = None Text
-                    , terminationGracePeriodSeconds = None Natural
-                    , tolerations =
-                        None
-                          ( List
-                              { effect : Optional Text
-                              , key : Optional Text
-                              , operator : Optional Text
-                              , tolerationSeconds : Optional Natural
-                              , value : Optional Text
-                              }
-                          )
-                    , topologySpreadConstraints =
-                        None
-                          ( List
-                              { labelSelector :
-                                  Optional
-                                    { matchExpressions :
-                                        Optional
-                                          ( List
-                                              { key : Text
-                                              , operator : Text
-                                              , values : Optional (List Text)
-                                              }
-                                          )
-                                    , matchLabels :
-                                        Optional
-                                          ( List
-                                              { mapKey : Text, mapValue : Text }
-                                          )
-                                    }
-                              , maxSkew : Natural
-                              , topologyKey : Text
-                              , whenUnsatisfiable : Text
-                              }
-                          )
                     , volumes = Some
-                      [ { awsElasticBlockStore =
-                            None
-                              { fsType : Optional Text
-                              , partition : Optional Natural
-                              , readOnly : Optional Bool
-                              , volumeID : Text
-                              }
-                        , azureDisk =
-                            None
-                              { cachingMode : Optional Text
-                              , diskName : Text
-                              , diskURI : Text
-                              , fsType : Optional Text
-                              , kind : Text
-                              , readOnly : Optional Bool
-                              }
-                        , azureFile =
-                            None
-                              { readOnly : Optional Bool
-                              , secretName : Text
-                              , shareName : Text
-                              }
-                        , cephfs =
-                            None
-                              { monitors : List Text
-                              , path : Optional Text
-                              , readOnly : Optional Bool
-                              , secretFile : Optional Text
-                              , secretRef : Optional { name : Optional Text }
-                              , user : Optional Text
-                              }
-                        , cinder =
-                            None
-                              { fsType : Optional Text
-                              , readOnly : Optional Bool
-                              , secretRef : Optional { name : Optional Text }
-                              , volumeID : Text
-                              }
-                        , configMap = Some
-                          { defaultMode = Some 777
-                          , items =
-                              None
-                                ( List
-                                    { key : Text
-                                    , mode : Optional Natural
-                                    , path : Text
-                                    }
-                                )
+                      [ Kubernetes/Volume::{
+                        , configMap = Some Kubernetes/ConfigMapVolumeSource::{
+                          , defaultMode = Some 777
                           , name = Some "grafana"
-                          , optional = None Bool
                           }
-                        , csi =
-                            None
-                              { driver : Text
-                              , fsType : Optional Text
-                              , nodePublishSecretRef :
-                                  Optional { name : Optional Text }
-                              , readOnly : Optional Bool
-                              , volumeAttributes :
-                                  Optional
-                                    (List { mapKey : Text, mapValue : Text })
-                              }
-                        , downwardAPI =
-                            None
-                              { defaultMode : Optional Natural
-                              , items :
-                                  Optional
-                                    ( List
-                                        { fieldRef :
-                                            Optional
-                                              { apiVersion : Optional Text
-                                              , fieldPath : Text
-                                              }
-                                        , mode : Optional Natural
-                                        , path : Text
-                                        , resourceFieldRef :
-                                            Optional
-                                              { containerName : Optional Text
-                                              , divisor : Optional Text
-                                              , resource : Text
-                                              }
-                                        }
-                                    )
-                              }
-                        , emptyDir =
-                            None
-                              { medium : Optional Text
-                              , sizeLimit : Optional Text
-                              }
-                        , fc =
-                            None
-                              { fsType : Optional Text
-                              , lun : Optional Natural
-                              , readOnly : Optional Bool
-                              , targetWWNs : Optional (List Text)
-                              , wwids : Optional (List Text)
-                              }
-                        , flexVolume =
-                            None
-                              { driver : Text
-                              , fsType : Optional Text
-                              , options :
-                                  Optional
-                                    (List { mapKey : Text, mapValue : Text })
-                              , readOnly : Optional Bool
-                              , secretRef : Optional { name : Optional Text }
-                              }
-                        , flocker =
-                            None
-                              { datasetName : Optional Text
-                              , datasetUUID : Optional Text
-                              }
-                        , gcePersistentDisk =
-                            None
-                              { fsType : Optional Text
-                              , partition : Optional Natural
-                              , pdName : Text
-                              , readOnly : Optional Bool
-                              }
-                        , gitRepo =
-                            None
-                              { directory : Optional Text
-                              , repository : Text
-                              , revision : Optional Text
-                              }
-                        , glusterfs =
-                            None
-                              { endpoints : Text
-                              , path : Text
-                              , readOnly : Optional Bool
-                              }
-                        , hostPath = None { path : Text, type : Optional Text }
-                        , iscsi =
-                            None
-                              { chapAuthDiscovery : Optional Bool
-                              , chapAuthSession : Optional Bool
-                              , fsType : Optional Text
-                              , initiatorName : Optional Text
-                              , iqn : Text
-                              , iscsiInterface : Optional Text
-                              , lun : Natural
-                              , portals : Optional (List Text)
-                              , readOnly : Optional Bool
-                              , secretRef : Optional { name : Optional Text }
-                              , targetPortal : Text
-                              }
                         , name = "config"
-                        , nfs =
-                            None
-                              { path : Text
-                              , readOnly : Optional Bool
-                              , server : Text
-                              }
-                        , persistentVolumeClaim =
-                            None { claimName : Text, readOnly : Optional Bool }
-                        , photonPersistentDisk =
-                            None { fsType : Optional Text, pdID : Text }
-                        , portworxVolume =
-                            None
-                              { fsType : Optional Text
-                              , readOnly : Optional Bool
-                              , volumeID : Text
-                              }
-                        , projected =
-                            None
-                              { defaultMode : Optional Natural
-                              , sources :
-                                  List
-                                    { configMap :
-                                        Optional
-                                          { items :
-                                              Optional
-                                                ( List
-                                                    { key : Text
-                                                    , mode : Optional Natural
-                                                    , path : Text
-                                                    }
-                                                )
-                                          , name : Optional Text
-                                          , optional : Optional Bool
-                                          }
-                                    , downwardAPI :
-                                        Optional
-                                          { items :
-                                              Optional
-                                                ( List
-                                                    { fieldRef :
-                                                        Optional
-                                                          { apiVersion :
-                                                              Optional Text
-                                                          , fieldPath : Text
-                                                          }
-                                                    , mode : Optional Natural
-                                                    , path : Text
-                                                    , resourceFieldRef :
-                                                        Optional
-                                                          { containerName :
-                                                              Optional Text
-                                                          , divisor :
-                                                              Optional Text
-                                                          , resource : Text
-                                                          }
-                                                    }
-                                                )
-                                          }
-                                    , secret :
-                                        Optional
-                                          { items :
-                                              Optional
-                                                ( List
-                                                    { key : Text
-                                                    , mode : Optional Natural
-                                                    , path : Text
-                                                    }
-                                                )
-                                          , name : Optional Text
-                                          , optional : Optional Bool
-                                          }
-                                    , serviceAccountToken :
-                                        Optional
-                                          { audience : Optional Text
-                                          , expirationSeconds : Optional Natural
-                                          , path : Text
-                                          }
-                                    }
-                              }
-                        , quobyte =
-                            None
-                              { group : Optional Text
-                              , readOnly : Optional Bool
-                              , registry : Text
-                              , tenant : Optional Text
-                              , user : Optional Text
-                              , volume : Text
-                              }
-                        , rbd =
-                            None
-                              { fsType : Optional Text
-                              , image : Text
-                              , keyring : Optional Text
-                              , monitors : List Text
-                              , pool : Optional Text
-                              , readOnly : Optional Bool
-                              , secretRef : Optional { name : Optional Text }
-                              , user : Optional Text
-                              }
-                        , scaleIO =
-                            None
-                              { fsType : Optional Text
-                              , gateway : Text
-                              , protectionDomain : Optional Text
-                              , readOnly : Optional Bool
-                              , secretRef : { name : Optional Text }
-                              , sslEnabled : Optional Bool
-                              , storageMode : Optional Text
-                              , storagePool : Optional Text
-                              , system : Text
-                              , volumeName : Optional Text
-                              }
-                        , secret =
-                            None
-                              { defaultMode : Optional Natural
-                              , items :
-                                  Optional
-                                    ( List
-                                        { key : Text
-                                        , mode : Optional Natural
-                                        , path : Text
-                                        }
-                                    )
-                              , optional : Optional Bool
-                              , secretName : Optional Text
-                              }
-                        , storageos =
-                            None
-                              { fsType : Optional Text
-                              , readOnly : Optional Bool
-                              , secretRef : Optional { name : Optional Text }
-                              , volumeName : Optional Text
-                              , volumeNamespace : Optional Text
-                              }
-                        , vsphereVolume =
-                            None
-                              { fsType : Optional Text
-                              , storagePolicyID : Optional Text
-                              , storagePolicyName : Optional Text
-                              , volumePath : Text
-                              }
                         }
                       ]
                     }
                   }
-                , updateStrategy = Some
-                  { rollingUpdate = None { partition : Optional Natural }
+                , updateStrategy = Some Kubernetes/StatefulSetUpdateStrategy::{
                   , type = Some "RollingUpdate"
                   }
                 , volumeClaimTemplates = Some
-                  [ { apiVersion = "v1"
-                    , kind = "PersistentVolumeClaim"
-                    , metadata =
-                      { annotations =
-                          None (List { mapKey : Text, mapValue : Text })
-                      , clusterName = None Text
-                      , creationTimestamp = None Text
-                      , deletionGracePeriodSeconds = None Natural
-                      , deletionTimestamp = None Text
-                      , finalizers = None (List Text)
-                      , generateName = None Text
-                      , generation = None Natural
-                      , labels = None (List { mapKey : Text, mapValue : Text })
-                      , managedFields =
-                          None
-                            ( List
-                                { apiVersion : Text
-                                , fieldsType : Optional Text
-                                , fieldsV1 :
-                                    Optional
-                                      (List { mapKey : Text, mapValue : Text })
-                                , manager : Optional Text
-                                , operation : Optional Text
-                                , time : Optional Text
-                                }
-                            )
+                  [ Kubernetes/PersistentVolumeClaim::{
+                    , metadata = Kubernetes/ObjectMeta::{
                       , name = Some "grafana-data"
-                      , namespace = None Text
-                      , ownerReferences =
-                          None
-                            ( List
-                                { apiVersion : Text
-                                , blockOwnerDeletion : Optional Bool
-                                , controller : Optional Bool
-                                , kind : Text
-                                , name : Text
-                                , uid : Text
-                                }
-                            )
-                      , resourceVersion = None Text
-                      , selfLink = None Text
-                      , uid = None Text
                       }
-                    , spec = Some
-                      { accessModes = Some [ "ReadWriteOnce" ]
-                      , dataSource =
-                          None
-                            { apiGroup : Optional Text
-                            , kind : Text
-                            , name : Text
-                            }
-                      , resources = Some
-                        { limits =
-                            None (List { mapKey : Text, mapValue : Text })
-                        , requests = Some (toMap { storage = "2Gi" })
+                    , spec = Some Kubernetes/PersistentVolumeClaimSpec::{
+                      , accessModes = Some [ "ReadWriteOnce" ]
+                      , resources = Some Kubernetes/ResourceRequirements::{
+                        , requests = Some
+                          [ { mapKey = "storage", mapValue = "2Gi" } ]
                         }
-                      , selector =
-                          None
-                            { matchExpressions :
-                                Optional
-                                  ( List
-                                      { key : Text
-                                      , operator : Text
-                                      , values : Optional (List Text)
-                                      }
-                                  )
-                            , matchLabels :
-                                Optional
-                                  (List { mapKey : Text, mapValue : Text })
-                            }
                       , storageClassName = Some "sourcegraph"
-                      , volumeMode = None Text
-                      , volumeName = None Text
                       }
-                    , status =
-                        None
-                          { accessModes : Optional (List Text)
-                          , capacity :
-                              Optional (List { mapKey : Text, mapValue : Text })
-                          , conditions :
-                              Optional
-                                ( List
-                                    { lastProbeTime : Optional Text
-                                    , lastTransitionTime : Optional Text
-                                    , message : Optional Text
-                                    , reason : Optional Text
-                                    , status : Text
-                                    , type : Text
-                                    }
-                                )
-                          , phase : Optional Text
-                          }
                     }
                   ]
                 }
-              , status =
-                  None
-                    { collisionCount : Optional Natural
-                    , conditions :
-                        Optional
-                          ( List
-                              { lastTransitionTime : Optional Text
-                              , message : Optional Text
-                              , reason : Optional Text
-                              , status : Text
-                              , type : Text
-                              }
-                          )
-                    , currentReplicas : Optional Natural
-                    , currentRevision : Optional Text
-                    , observedGeneration : Optional Natural
-                    , readyReplicas : Optional Natural
-                    , replicas : Natural
-                    , updateRevision : Optional Text
-                    , updatedReplicas : Optional Natural
-                    }
               }
 
         in  statefulSet
