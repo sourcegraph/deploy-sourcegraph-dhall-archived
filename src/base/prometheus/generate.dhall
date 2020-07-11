@@ -89,23 +89,30 @@ let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
 
+let resources/transform = ../../configuration/resource/resources/transform.dhall
+
+let resources/configurationMerge =
+      ../../configuration/resource/resources/configurationMerge.dhall
+
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
-        let overrides = c.Prometheus.Deployment.Containers.Prometheus
-
         let resources =
-              Optional/default
-                Kubernetes/ResourceRequirements.Type
-                { limits = Some
-                  [ { mapKey = "cpu", mapValue = "2" }
-                  , { mapKey = "memory", mapValue = "3G" }
-                  ]
-                , requests = Some
-                  [ { mapKey = "cpu", mapValue = "500m" }
-                  , { mapKey = "memory", mapValue = "3G" }
-                  ]
+              resources/transform
+                { limits =
+                    resources/configurationMerge
+                      { cpu = Some "2"
+                      , memory = Some "3G"
+                      , ephemeralStorage = None Text
+                      }
+                      c.Prometheus.PromResources.limits
+                , requests =
+                    resources/configurationMerge
+                      { cpu = Some "500m"
+                      , memory = Some "3G"
+                      , ephemeralStorage = None Text
+                      }
+                      c.Prometheus.PromResources.requests
                 }
-                overrides.resources
 
         let deployment =
               Kubernetes/Deployment::{
