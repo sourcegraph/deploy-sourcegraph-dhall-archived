@@ -6,9 +6,6 @@ let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let Resources = ../../configuration/resource/resources/resources.dhall
 
-let Resources/Configuration =
-      ../../configuration/resource/resources/configuration.dhall
-
 let containers =
       { Type = { Prometheus : Configuration/container.Type }
       , default.Prometheus = Configuration/container.default

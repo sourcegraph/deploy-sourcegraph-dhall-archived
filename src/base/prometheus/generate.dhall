@@ -1,6 +1,3 @@
-let Optional/default =
-      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
-
 let Kubernetes/HTTPGetAction =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.HTTPGetAction.dhall
 
