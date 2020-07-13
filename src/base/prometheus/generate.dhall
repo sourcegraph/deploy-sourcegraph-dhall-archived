@@ -93,6 +93,8 @@ let resources/configurationMerge =
 
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
+        let overrides = c.Prometheus.Deployment.Containers.Prometheus
+
         let resources =
               resources/transform
                 { limits =
@@ -101,14 +103,14 @@ let Deployment/generate =
                       , memory = Some "3G"
                       , ephemeralStorage = None Text
                       }
-                      c.Prometheus.PromResources.limits
+                      overrides.resources.limits
                 , requests =
                     resources/configurationMerge
                       { cpu = Some "500m"
                       , memory = Some "3G"
                       , ephemeralStorage = None Text
                       }
-                      c.Prometheus.PromResources.requests
+                      overrides.resources.requests
                 }
 
         let deployment =

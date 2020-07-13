@@ -65,6 +65,11 @@ let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let component = ./component.dhall
 
+let resources/transform = ../../configuration/resource/resources/transform.dhall
+
+let resources/configurationMerge =
+      ../../configuration/resource/resources/configurationMerge.dhall
+
 let Service/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Gitserver.Service
@@ -137,18 +142,22 @@ let gitserverContainer/generate =
                 overrides.image
 
         let resources =
-              Optional/default
-                Kubernetes/ResourceRequirements.Type
-                { limits = Some
-                  [ { mapKey = "cpu", mapValue = "4" }
-                  , { mapKey = "memory", mapValue = "8G" }
-                  ]
-                , requests = Some
-                  [ { mapKey = "cpu", mapValue = "4" }
-                  , { mapKey = "memory", mapValue = "8G" }
-                  ]
+              resources/transform
+                { limits =
+                    resources/configurationMerge
+                      { cpu = Some "4"
+                      , memory = Some "8G"
+                      , ephemeralStorage = None Text
+                      }
+                      overrides.resources.limits
+                , requests =
+                    resources/configurationMerge
+                      { cpu = Some "4"
+                      , memory = Some "8G"
+                      , ephemeralStorage = None Text
+                      }
+                      overrides.resources.requests
                 }
-                overrides.resources
 
         let container =
               Kubernetes/Container::{

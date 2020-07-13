@@ -70,8 +70,33 @@ let Configuration/global = ../../configuration/global.dhall
 
 let Component = ./component.dhall
 
+let resources/transform = ../../configuration/resource/resources/transform.dhall
+
+let resources/configurationMerge =
+      ../../configuration/resource/resources/configurationMerge.dhall
+
 let DaemonSet/generate =
       λ(c : Configuration/global.Type) →
+        let overrides = c.Cadvisor.DaemonSet.Containers.Cadvisor
+
+        let resources =
+              resources/transform
+                { limits =
+                    resources/configurationMerge
+                      { cpu = Some "300m"
+                      , memory = Some "2000Mi"
+                      , ephemeralStorage = None Text
+                      }
+                      overrides.resources.limits
+                , requests =
+                    resources/configurationMerge
+                      { cpu = Some "150m"
+                      , memory = Some "200Mi"
+                      , ephemeralStorage = None Text
+                      }
+                      overrides.resources.requests
+                }
+
         let daemonSet =
               Kubernetes/DaemonSet::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -131,16 +156,7 @@ let DaemonSet/generate =
                             , protocol = Some "TCP"
                             }
                           ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "300m" }
-                            , { mapKey = "memory", mapValue = "2000Mi" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "150m" }
-                            , { mapKey = "memory", mapValue = "200Mi" }
-                            ]
-                          }
+                        , resources = Some resources
                         , volumeMounts = Some
                           [ Kubernetes/VolumeMount::{
                             , mountPath = "/rootfs"

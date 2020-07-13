@@ -3,16 +3,18 @@ let Kubernetes/ResourceRequirements =
 
 let Kubernetes/EnvVar = ../../deps/k8s/schemas/io.k8s.api.core.v1.EnvVar.dhall
 
+let Resources = ./resources/resources.dhall
+
 let configuration =
       { Type =
           { image : Optional Text
-          , resources : Optional Kubernetes/ResourceRequirements.Type
+          , resources : Resources.Type
           , additionalEnvironmentVariables :
               Optional (List Kubernetes/EnvVar.Type)
           }
       , default =
         { image = None Text
-        , resources = None Kubernetes/ResourceRequirements.Type
+        , resources = Resources.default
         , additionalEnvironmentVariables = None (List Kubernetes/EnvVar.Type)
         }
       }

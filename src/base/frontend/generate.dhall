@@ -103,6 +103,11 @@ let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let component = ./component.dhall
 
+let resources/transform = ../../configuration/resource/resources/transform.dhall
+
+let resources/configurationMerge =
+      ../../configuration/resource/resources/configurationMerge.dhall
+
 let makeGitserverEnvVar =
       λ(replicas : Natural) →
         let indicies = Natural/enumerate replicas
@@ -124,6 +129,24 @@ let frontendContainer/generate =
 
         let gitserverReplicas =
               Optional/default Natural 1 c.Gitserver.StatefulSet.replicas
+
+        let resources =
+              resources/transform
+                { limits =
+                    resources/configurationMerge
+                      { cpu = Some "2"
+                      , memory = Some "4G"
+                      , ephemeralStorage = None Text
+                      }
+                      overrides.resources.limits
+                , requests =
+                    resources/configurationMerge
+                      { cpu = Some "2"
+                      , memory = Some "2G"
+                      , ephemeralStorage = None Text
+                      }
+                      overrides.resources.requests
+                }
 
         let environment =
                 [ Kubernetes/EnvVar::{ name = "PGDATABASE", value = Some "sg" }
@@ -167,20 +190,6 @@ let frontendContainer/generate =
                   }
                 ]
               # additionalEnvironmentVariables
-
-        let resources =
-              Optional/default
-                Kubernetes/ResourceRequirements.Type
-                { limits = Some
-                  [ { mapKey = "cpu", mapValue = "2" }
-                  , { mapKey = "memory", mapValue = "4G" }
-                  ]
-                , requests = Some
-                  [ { mapKey = "cpu", mapValue = "2" }
-                  , { mapKey = "memory", mapValue = "2G" }
-                  ]
-                }
-                overrides.resources
 
         let image =
               Optional/default

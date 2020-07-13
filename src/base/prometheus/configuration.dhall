@@ -4,8 +4,6 @@ let Configuration/container = ../../configuration/resource/container.dhall
 
 let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
-let Resources = ../../configuration/resource/resources/resources.dhall
-
 let containers =
       { Type = { Prometheus : Configuration/container.Type }
       , default.Prometheus = Configuration/container.default
@@ -36,7 +34,6 @@ let configuration =
           , Service : Configuration/universal.Type
           , ServiceAccount : Configuration/universal.Type
           , ConfigMap : Configuration/universal.Type
-          , PromResources : Resources.Type
           }
       , default =
         { Deployment = Deployment.default
@@ -45,7 +42,6 @@ let configuration =
         , Service = Configuration/universal.default
         , ServiceAccount = Configuration/universal.default
         , ConfigMap = Configuration/universal.default
-        , PromResources = Resources.default
         }
       }
 
