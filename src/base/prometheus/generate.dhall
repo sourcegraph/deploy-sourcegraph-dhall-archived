@@ -95,6 +95,12 @@ let Deployment/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Prometheus.Deployment.Containers.Prometheus
 
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/prometheus:3.17.2@sha256:a725419a532fb17f6955e80f8a2f35efe15287c0a556e4fe7168d5fc6ff730d8"
+                overrides.image
+
         let resources =
               resources/transform
                 { limits =
@@ -151,8 +157,7 @@ let Deployment/generate =
                   , spec = Some Kubernetes/PodSpec::{
                     , containers =
                       [ Kubernetes/Container::{
-                        , image = Some
-                            "index.docker.io/sourcegraph/prometheus:3.17.2@sha256:a725419a532fb17f6955e80f8a2f35efe15287c0a556e4fe7168d5fc6ff730d8"
+                        , image = Some image
                         , livenessProbe = Some Kubernetes/Probe::{
                           , httpGet = Some Kubernetes/HTTPGetAction::{
                             , path = Some "/-/healthy"
