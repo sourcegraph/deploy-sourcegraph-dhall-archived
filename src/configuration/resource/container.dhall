@@ -1,6 +1,3 @@
-let Kubernetes/ResourceRequirements =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
-
 let Kubernetes/EnvVar = ../../deps/k8s/schemas/io.k8s.api.core.v1.EnvVar.dhall
 
 let Resources = ./resources/resources.dhall

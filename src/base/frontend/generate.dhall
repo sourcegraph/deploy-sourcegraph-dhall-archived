@@ -67,9 +67,6 @@ let Kubernetes/PolicyRule =
 
 let Kubernetes/Probe = ../../deps/k8s/schemas/io.k8s.api.core.v1.Probe.dhall
 
-let Kubernetes/ResourceRequirements =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
-
 let Kubernetes/Role = ../../deps/k8s/schemas/io.k8s.api.rbac.v1.Role.dhall
 
 let Kubernetes/RoleBinding =

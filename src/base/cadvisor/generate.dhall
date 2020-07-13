@@ -33,9 +33,6 @@ let Kubernetes/PodTemplateSpec =
 let Kubernetes/PolicyRule =
       ../../deps/k8s/schemas/io.k8s.api.rbac.v1.PolicyRule.dhall
 
-let Kubernetes/ResourceRequirements =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
-
 let Kubernetes/RoleRef = ../../deps/k8s/schemas/io.k8s.api.rbac.v1.RoleRef.dhall
 
 let Kubernetes/ServiceAccount =
