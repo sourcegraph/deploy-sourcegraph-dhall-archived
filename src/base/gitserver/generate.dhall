@@ -208,6 +208,9 @@ let StatefulSet/generate =
 
         let replicas = Optional/default Natural 1 overrides.replicas
 
+        let pvcSize =
+              Optional/default Text "200Gi" overrides.persistentVolumeSize
+
         let gitserverContainer = gitserverContainer/generate c
 
         let statefulSet =
@@ -269,7 +272,7 @@ let StatefulSet/generate =
                       , accessModes = Some [ "ReadWriteOnce" ]
                       , resources = Some Kubernetes/ResourceRequirements::{
                         , requests = Some
-                          [ { mapKey = "storage", mapValue = "200Gi" } ]
+                          [ { mapKey = "storage", mapValue = pvcSize } ]
                         }
                       , storageClassName = Some "sourcegraph"
                       }
