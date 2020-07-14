@@ -54,6 +54,9 @@ let Kubernetes/TCPSocketAction =
 
 let Kubernetes/Volume = ../../deps/k8s/schemas/io.k8s.api.core.v1.Volume.dhall
 
+let Kubernetes/SecretVolumeSource =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.SecretVolumeSource.dhall
+
 let Kubernetes/VolumeMount =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.VolumeMount.dhall
 
@@ -213,6 +216,22 @@ let StatefulSet/generate =
 
         let gitserverContainer = gitserverContainer/generate c
 
+        let sshVolume =
+              merge
+                { Some =
+                    λ(x : Text) →
+                      [ Kubernetes/Volume::{
+                        , name = "ssh"
+                        , secret = Some Kubernetes/SecretVolumeSource::{
+                          , secretName = Some x
+                          , defaultMode = Some 384
+                          }
+                        }
+                      ]
+                , None = [] : List Kubernetes/Volume.Type
+                }
+                overrides.sshSecretName
+
         let statefulSet =
               Kubernetes/StatefulSet::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -258,7 +277,8 @@ let StatefulSet/generate =
                     , securityContext = Some Kubernetes/PodSecurityContext::{
                       , runAsUser = Some 0
                       }
-                    , volumes = Some [ Kubernetes/Volume::{ name = "repos" } ]
+                    , volumes = Some
+                        ([ Kubernetes/Volume::{ name = "repos" } ] # sshVolume)
                     }
                   }
                 , updateStrategy = Some

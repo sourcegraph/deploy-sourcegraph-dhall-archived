@@ -16,6 +16,7 @@ let statefulset =
           , additionalLabels : Optional (List Util/KeyValuePair)
           , replicas : Optional Natural
           , persistentVolumeSize : Optional Text
+          , sshSecretName : Optional Text
           , Containers : containers.Type
           }
       , default =
@@ -24,6 +25,7 @@ let statefulset =
         , additionalLabels = None (List Util/KeyValuePair)
         , replicas = None Natural
         , persistentVolumeSize = None Text
+        , sshSecretName = None Text
         , Containers = containers.default
         }
       }
