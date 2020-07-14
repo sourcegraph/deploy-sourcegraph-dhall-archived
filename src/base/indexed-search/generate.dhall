@@ -1,3 +1,6 @@
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
+
 let Kubernetes/HTTPGetAction =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.HTTPGetAction.dhall
 
@@ -57,6 +60,11 @@ let Kubernetes/VolumeMount =
 let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
+
+let resources/transform = ../../configuration/resource/resources/transform.dhall
+
+let resources/configurationMerge =
+      ../../configuration/resource/resources/configurationMerge.dhall
 
 let IndexerService/generate =
       λ(c : Configuration/global.Type) →
@@ -134,8 +142,121 @@ let Service/generate =
 
         in  service
 
+let zoektWebServerContainer/generate =
+      λ(c : Configuration/global.Type) →
+        let overrides = c.IndexedSearch.StatefulSet.Containers.ZoektWebServer
+
+        let environment = overrides.additionalEnvironmentVariables
+
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/indexed-searcher:3.17.2@sha256:8324943e1b52466dc2052cf82bfd22b18ad045346d2b0ea403b4674f48214602"
+                overrides.image
+
+        let resources =
+              resources/transform
+                { limits =
+                    resources/configurationMerge
+                      { cpu = Some "2"
+                      , memory = Some "4G"
+                      , ephemeralStorage = None Text
+                      }
+                      overrides.resources.limits
+                , requests =
+                    resources/configurationMerge
+                      { cpu = Some "500m"
+                      , memory = Some "2G"
+                      , ephemeralStorage = None Text
+                      }
+                      overrides.resources.requests
+                }
+
+        let container =
+              Kubernetes/Container::{
+              , image = Some image
+              , env = environment
+              , name = "zoekt-webserver"
+              , ports = Some
+                [ Kubernetes/ContainerPort::{
+                  , containerPort = 6070
+                  , name = Some "http"
+                  }
+                ]
+              , readinessProbe = Some Kubernetes/Probe::{
+                , failureThreshold = Some 1
+                , httpGet = Some Kubernetes/HTTPGetAction::{
+                  , path = Some "/healthz"
+                  , port = < Int : Natural | String : Text >.String "http"
+                  , scheme = Some "HTTP"
+                  }
+                , periodSeconds = Some 1
+                }
+              , resources = Some resources
+              , terminationMessagePolicy = Some "FallbackToLogsOnError"
+              , volumeMounts = Some
+                [ Kubernetes/VolumeMount::{ mountPath = "/data", name = "data" }
+                ]
+              }
+
+        in  container
+
+let zoektIndexServerContainer/generate =
+      λ(c : Configuration/global.Type) →
+        let overrides = c.IndexedSearch.StatefulSet.Containers.ZoektIndexServer
+
+        let environment = overrides.additionalEnvironmentVariables
+
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/search-indexer:3.17.2@sha256:f31ec682b907bde2975acda88ee99ac268ef32a79309a6036ef5f26e8af0dcac"
+                overrides.image
+
+        let resources =
+              resources/transform
+                { limits =
+                    resources/configurationMerge
+                      { cpu = Some "8"
+                      , memory = Some "8G"
+                      , ephemeralStorage = None Text
+                      }
+                      overrides.resources.limits
+                , requests =
+                    resources/configurationMerge
+                      { cpu = Some "4"
+                      , memory = Some "4G"
+                      , ephemeralStorage = None Text
+                      }
+                      overrides.resources.requests
+                }
+
+        let container =
+              Kubernetes/Container::{
+              , image = Some image
+              , env = environment
+              , name = "zoekt-indexserver"
+              , ports = Some
+                [ Kubernetes/ContainerPort::{
+                  , containerPort = 6072
+                  , name = Some "index-http"
+                  }
+                ]
+              , resources = Some resources
+              , terminationMessagePolicy = Some "FallbackToLogsOnError"
+              , volumeMounts = Some
+                [ Kubernetes/VolumeMount::{ mountPath = "/data", name = "data" }
+                ]
+              }
+
+        in  container
+
 let StatefulSet/generate =
       λ(c : Configuration/global.Type) →
+        let zoektWebServerContainer = zoektWebServerContainer/generate c
+
+        let zoektIndexServerContainer = zoektIndexServerContainer/generate c
+
         let statefulSet =
               Kubernetes/StatefulSet::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -169,75 +290,7 @@ let StatefulSet/generate =
                     }
                   , spec = Some Kubernetes/PodSpec::{
                     , containers =
-                      [ Kubernetes/Container::{
-                        , image = Some
-                            "index.docker.io/sourcegraph/indexed-searcher:3.17.2@sha256:8324943e1b52466dc2052cf82bfd22b18ad045346d2b0ea403b4674f48214602"
-                        , name = "zoekt-webserver"
-                        , ports = Some
-                          [ Kubernetes/ContainerPort::{
-                            , containerPort = 6070
-                            , name = Some "http"
-                            }
-                          ]
-                        , readinessProbe = Some Kubernetes/Probe::{
-                          , failureThreshold = Some 1
-                          , httpGet = Some Kubernetes/HTTPGetAction::{
-                            , path = Some "/healthz"
-                            , port =
-                                < Int : Natural | String : Text >.String "http"
-                            , scheme = Some "HTTP"
-                            }
-                          , periodSeconds = Some 1
-                          }
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "2" }
-                            , { mapKey = "memory", mapValue = "4G" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "500m" }
-                            , { mapKey = "memory", mapValue = "2G" }
-                            ]
-                          }
-                        , terminationMessagePolicy = Some
-                            "FallbackToLogsOnError"
-                        , volumeMounts = Some
-                          [ Kubernetes/VolumeMount::{
-                            , mountPath = "/data"
-                            , name = "data"
-                            }
-                          ]
-                        }
-                      , Kubernetes/Container::{
-                        , image = Some
-                            "index.docker.io/sourcegraph/search-indexer:3.17.2@sha256:f31ec682b907bde2975acda88ee99ac268ef32a79309a6036ef5f26e8af0dcac"
-                        , name = "zoekt-indexserver"
-                        , ports = Some
-                          [ Kubernetes/ContainerPort::{
-                            , containerPort = 6072
-                            , name = Some "index-http"
-                            }
-                          ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "8" }
-                            , { mapKey = "memory", mapValue = "8G" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "4" }
-                            , { mapKey = "memory", mapValue = "4G" }
-                            ]
-                          }
-                        , terminationMessagePolicy = Some
-                            "FallbackToLogsOnError"
-                        , volumeMounts = Some
-                          [ Kubernetes/VolumeMount::{
-                            , mountPath = "/data"
-                            , name = "data"
-                            }
-                          ]
-                        }
-                      ]
+                      [ zoektWebServerContainer, zoektIndexServerContainer ]
                     , securityContext = Some Kubernetes/PodSecurityContext::{
                       , runAsUser = Some 0
                       }

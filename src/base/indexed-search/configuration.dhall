@@ -5,8 +5,13 @@ let Configuration/container = ../../configuration/resource/container.dhall
 let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let containers =
-      { Type = { Zoekt : Configuration/container.Type }
-      , default.Zoekt = Configuration/container.default
+      { Type =
+          { ZoektWebServer : Configuration/container.Type
+          , ZoektIndexServer : Configuration/container.Type
+          }
+      , default =
+            { ZoektWebServer = Configuration/container.default }
+          ∧ { ZoektIndexServer = Configuration/container.default }
       }
 
 let statefulset =
