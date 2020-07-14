@@ -253,6 +253,13 @@ let zoektIndexServerContainer/generate =
 
 let StatefulSet/generate =
       λ(c : Configuration/global.Type) →
+        let overrides = c.IndexedSearch.StatefulSet
+
+        let replicas = Optional/default Natural 1 overrides.replicas
+
+        let pvcSize =
+              Optional/default Text "200Gi" overrides.persistentVolumeSize
+
         let zoektWebServerContainer = zoektWebServerContainer/generate c
 
         let zoektIndexServerContainer = zoektIndexServerContainer/generate c
@@ -274,7 +281,7 @@ let StatefulSet/generate =
                 , name = Some "indexed-search"
                 }
               , spec = Some Kubernetes/StatefulSetSpec::{
-                , replicas = Some 1
+                , replicas = Some replicas
                 , revisionHistoryLimit = Some 10
                 , selector = Kubernetes/LabelSelector::{
                   , matchLabels = Some
@@ -311,7 +318,7 @@ let StatefulSet/generate =
                       , accessModes = Some [ "ReadWriteOnce" ]
                       , resources = Some Kubernetes/ResourceRequirements::{
                         , requests = Some
-                          [ { mapKey = "storage", mapValue = "200Gi" } ]
+                          [ { mapKey = "storage", mapValue = pvcSize } ]
                         }
                       , storageClassName = Some "sourcegraph"
                       }
