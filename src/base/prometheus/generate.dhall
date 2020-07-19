@@ -89,10 +89,9 @@ let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
 
-let resources/transform = ../../configuration/resource/resources/transform.dhall
+let containerResources = ../../configuration/container-resources.dhall
 
-let resources/configurationMerge =
-      ../../configuration/resource/resources/configurationMerge.dhall
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
 
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
@@ -105,17 +104,19 @@ let Deployment/generate =
                 overrides.image
 
         let resources =
-              resources/transform
+              containerResources/tok8s
                 { limits =
-                    resources/configurationMerge
-                      { cpu = Some "2"
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "2"
                       , memory = Some "3G"
                       , ephemeralStorage = None Text
                       }
                       overrides.resources.limits
                 , requests =
-                    resources/configurationMerge
-                      { cpu = Some "500m"
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "500m"
                       , memory = Some "3G"
                       , ephemeralStorage = None Text
                       }
