@@ -61,10 +61,9 @@ let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
 
-let resources/transform = ../../configuration/resource/resources/transform.dhall
+let containerResources = ../../configuration/container-resources.dhall
 
-let resources/configurationMerge =
-      ../../configuration/resource/resources/configurationMerge.dhall
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
 
 let IndexerService/generate =
       λ(c : Configuration/global.Type) →
@@ -155,19 +154,19 @@ let zoektWebServerContainer/generate =
                 overrides.image
 
         let resources =
-              resources/transform
+              containerResources/tok8s
                 { limits =
-                    resources/configurationMerge
-                      { cpu = Some "2"
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "2"
                       , memory = Some "4G"
-                      , ephemeralStorage = None Text
                       }
                       overrides.resources.limits
                 , requests =
-                    resources/configurationMerge
-                      { cpu = Some "500m"
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "500m"
                       , memory = Some "2G"
-                      , ephemeralStorage = None Text
                       }
                       overrides.resources.requests
                 }
@@ -214,19 +213,19 @@ let zoektIndexServerContainer/generate =
                 overrides.image
 
         let resources =
-              resources/transform
+              containerResources/tok8s
                 { limits =
-                    resources/configurationMerge
-                      { cpu = Some "8"
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "8"
                       , memory = Some "8G"
-                      , ephemeralStorage = None Text
                       }
                       overrides.resources.limits
                 , requests =
-                    resources/configurationMerge
-                      { cpu = Some "4"
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "4"
                       , memory = Some "4G"
-                      , ephemeralStorage = None Text
                       }
                       overrides.resources.requests
                 }

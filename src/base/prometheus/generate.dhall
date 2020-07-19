@@ -110,7 +110,6 @@ let Deployment/generate =
                       containerResources.Configuration::{
                       , cpu = Some "2"
                       , memory = Some "3G"
-                      , ephemeralStorage = None Text
                       }
                       overrides.resources.limits
                 , requests =
@@ -118,7 +117,6 @@ let Deployment/generate =
                       containerResources.Configuration::{
                       , cpu = Some "500m"
                       , memory = Some "3G"
-                      , ephemeralStorage = None Text
                       }
                       overrides.resources.requests
                 }
