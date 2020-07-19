@@ -34,6 +34,8 @@ let QueryRunner/configuration = ../base/query-runner/configuration.dhall
 
 let Prometheus/configuration = ../base/prometheus/configuration.dhall
 
+let Searcher/configuration = ../base/searcher/configuration.dhall
+
 let configuration =
       { Type =
           { Frontend : Frontend/configuration.Type

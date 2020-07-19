@@ -1,3 +1,6 @@
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
+
 let Kubernetes/HTTPGetAction =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.HTTPGetAction.dhall
 
@@ -66,6 +69,10 @@ let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
 
+let containerResources = ../../configuration/container-resources.dhall
+
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
+
 let Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
@@ -110,6 +117,32 @@ let Service/generate =
 
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
+        let overrides = c.Searcher.Deployment.Containers.Searcher
+
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/searcher:3.17.2@sha256:7813d44b378e6ce9f85bbe8a378a6b671f525545369fc4d8b22984cd9bffe4b1"
+                overrides.image
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "2"
+                      , memory = Some "2G"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "500m"
+                      , memory = Some "500M"
+                      }
+                      overrides.resources.requests
+                }
+
         let deployment =
               Kubernetes/Deployment::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -170,8 +203,7 @@ let Deployment/generate =
                             , value = Some "/mnt/cache/\$(POD_NAME)"
                             }
                           ]
-                        , image = Some
-                            "index.docker.io/sourcegraph/searcher:3.17.2@sha256:7813d44b378e6ce9f85bbe8a378a6b671f525545369fc4d8b22984cd9bffe4b1"
+                        , image = Some image
                         , name = "searcher"
                         , ports = Some
                           [ Kubernetes/ContainerPort::{
@@ -193,16 +225,7 @@ let Deployment/generate =
                             }
                           , periodSeconds = Some 1
                           }
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "2" }
-                            , { mapKey = "memory", mapValue = "2G" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "500m" }
-                            , { mapKey = "memory", mapValue = "500M" }
-                            ]
-                          }
+                        , resources = Some resources
                         , terminationMessagePolicy = Some
                             "FallbackToLogsOnError"
                         , volumeMounts = Some
