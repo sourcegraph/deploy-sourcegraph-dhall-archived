@@ -1,3 +1,6 @@
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
+
 let Kubernetes/HTTPGetAction =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.HTTPGetAction.dhall
 
@@ -53,6 +56,10 @@ let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
 
+let containerResources = ../../configuration/container-resources.dhall
+
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
+
 let Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
@@ -86,6 +93,33 @@ let Service/generate =
 
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
+        let overrides =
+              c.SyntaxHighlighter.Deployment.Containers.SyntaxHighlighter
+
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/syntax-highlighter:3.17.2@sha256:aa93514b7bc3aaf7a4e9c92e5ff52ee5052db6fb101255a69f054e5b8cdb46ff"
+                overrides.image
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "4"
+                      , memory = Some "6G"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "250m"
+                      , memory = Some "2G"
+                      }
+                      overrides.resources.requests
+                }
+
         let deployment =
               Kubernetes/Deployment::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -128,8 +162,7 @@ let Deployment/generate =
                   , spec = Some Kubernetes/PodSpec::{
                     , containers =
                       [ Kubernetes/Container::{
-                        , image = Some
-                            "index.docker.io/sourcegraph/syntax-highlighter:3.17.2@sha256:aa93514b7bc3aaf7a4e9c92e5ff52ee5052db6fb101255a69f054e5b8cdb46ff"
+                        , image = Some image
                         , livenessProbe = Some Kubernetes/Probe::{
                           , httpGet = Some Kubernetes/HTTPGetAction::{
                             , path = Some "/health"
@@ -153,16 +186,7 @@ let Deployment/generate =
                                 < Int : Natural | String : Text >.String "http"
                             }
                           }
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "4" }
-                            , { mapKey = "memory", mapValue = "6G" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "250m" }
-                            , { mapKey = "memory", mapValue = "2G" }
-                            ]
-                          }
+                        , resources = Some resources
                         , terminationMessagePolicy = Some
                             "FallbackToLogsOnError"
                         }
