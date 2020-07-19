@@ -2,6 +2,8 @@ let Frontend/configuration = ../base/frontend/configuration.dhall
 
 let Gitserver/configuration = ../base/gitserver/configuration.dhall
 
+let GithubProxy/configuration = ../base/github-proxy/configuration.dhall
+
 let Postgres/configuration = ../base/postgres/configuration.dhall
 
 let IndexedSearch/configuration = ../base/indexed-search/configuration.dhall
@@ -36,6 +38,7 @@ let configuration =
       { Type =
           { Frontend : Frontend/configuration.Type
           , Gitserver : Gitserver/configuration.Type
+          , GithubProxy : GithubProxy/configuration.Type
           , Postgres : Postgres/configuration.Type
           , IndexedSearch : IndexedSearch/configuration.Type
           , Symbols : Symbols/configuration.Type
@@ -54,6 +57,7 @@ let configuration =
       , default =
         { Frontend = Frontend/configuration.default
         , Gitserver = Gitserver/configuration.default
+        , GithubProxy = GithubProxy/configuration.default
         , Postgres = Postgres/configuration.default
         , IndexedSearch = IndexedSearch/configuration.default
         , Symbols = Symbols/configuration.default

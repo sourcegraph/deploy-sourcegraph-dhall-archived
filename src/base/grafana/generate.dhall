@@ -1,3 +1,6 @@
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
+
 let Kubernetes/ConfigMap =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.ConfigMap.dhall
 
@@ -46,6 +49,8 @@ let Kubernetes/ServiceSpec =
 
 let Kubernetes/StatefulSet =
       ../../deps/k8s/schemas/io.k8s.api.apps.v1.StatefulSet.dhall
+
+let Kubernetes/EnvVar = ../../deps/k8s/schemas/io.k8s.api.core.v1.EnvVar.dhall
 
 let Kubernetes/StatefulSetSpec =
       ../../deps/k8s/schemas/io.k8s.api.apps.v1.StatefulSetSpec.dhall
@@ -145,6 +150,12 @@ let StatefulSet/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Grafana.StatefulSet.Containers.Grafana
 
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/grafana:3.17.2@sha256:f390384e2f57f3aba4eae41e51340a541a5b7a82ee16bdcea3cd9520423f193a"
+                overrides.image
+
         let resources =
               containerResources/tok8s
                 { limits =
@@ -162,6 +173,12 @@ let StatefulSet/generate =
                       }
                       overrides.resources.requests
                 }
+
+        let additionalEnvironmentVariables =
+              Optional/default
+                (List Kubernetes/EnvVar.Type)
+                ([] : List Kubernetes/EnvVar.Type)
+                overrides.additionalEnvironmentVariables
 
         let statefulSet =
               Kubernetes/StatefulSet::{
@@ -197,8 +214,8 @@ let StatefulSet/generate =
                   , spec = Some Kubernetes/PodSpec::{
                     , containers =
                       [ Kubernetes/Container::{
-                        , image = Some
-                            "index.docker.io/sourcegraph/grafana:3.17.2@sha256:f390384e2f57f3aba4eae41e51340a541a5b7a82ee16bdcea3cd9520423f193a"
+                        , env = Some additionalEnvironmentVariables
+                        , image = Some image
                         , name = "grafana"
                         , ports = Some
                           [ Kubernetes/ContainerPort::{
