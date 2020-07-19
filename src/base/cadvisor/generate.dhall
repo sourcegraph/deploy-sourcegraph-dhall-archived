@@ -67,29 +67,28 @@ let Configuration/global = ../../configuration/global.dhall
 
 let Component = ./component.dhall
 
-let resources/transform = ../../configuration/resource/resources/transform.dhall
+let containerResources = ../../configuration/container-resources.dhall
 
-let resources/configurationMerge =
-      ../../configuration/resource/resources/configurationMerge.dhall
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
 
 let DaemonSet/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Cadvisor.DaemonSet.Containers.Cadvisor
 
         let resources =
-              resources/transform
+              containerResources/tok8s
                 { limits =
-                    resources/configurationMerge
-                      { cpu = Some "300m"
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "300m"
                       , memory = Some "2000Mi"
-                      , ephemeralStorage = None Text
                       }
                       overrides.resources.limits
                 , requests =
-                    resources/configurationMerge
-                      { cpu = Some "150m"
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "150m"
                       , memory = Some "200Mi"
-                      , ephemeralStorage = None Text
                       }
                       overrides.resources.requests
                 }
