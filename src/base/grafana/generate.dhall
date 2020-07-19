@@ -65,10 +65,9 @@ let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
 
-let resources/transform = ../../configuration/resource/resources/transform.dhall
+let containerResources = ../../configuration/container-resources.dhall
 
-let resources/configurationMerge =
-      ../../configuration/resource/resources/configurationMerge.dhall
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
 
 let ServiceAccount/generate =
       λ(c : Configuration/global.Type) →
@@ -147,19 +146,19 @@ let StatefulSet/generate =
         let overrides = c.Grafana.StatefulSet.Containers.Grafana
 
         let resources =
-              resources/transform
+              containerResources/tok8s
                 { limits =
-                    resources/configurationMerge
-                      { cpu = Some "1"
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "1"
                       , memory = Some "512Mi"
-                      , ephemeralStorage = None Text
                       }
                       overrides.resources.limits
                 , requests =
-                    resources/configurationMerge
-                      { cpu = Some "100m"
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "100m"
                       , memory = Some "512Mi"
-                      , ephemeralStorage = None Text
                       }
                       overrides.resources.requests
                 }

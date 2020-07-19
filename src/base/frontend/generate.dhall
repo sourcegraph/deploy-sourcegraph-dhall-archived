@@ -100,10 +100,9 @@ let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let component = ./component.dhall
 
-let resources/transform = ../../configuration/resource/resources/transform.dhall
+let containerResources = ../../configuration/container-resources.dhall
 
-let resources/configurationMerge =
-      ../../configuration/resource/resources/configurationMerge.dhall
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
 
 let makeGitserverEnvVar =
       λ(replicas : Natural) →
@@ -128,17 +127,19 @@ let frontendContainer/generate =
               Optional/default Natural 1 c.Gitserver.StatefulSet.replicas
 
         let resources =
-              resources/transform
+              containerResources/tok8s
                 { limits =
-                    resources/configurationMerge
-                      { cpu = Some "2"
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "2"
                       , memory = Some "4G"
                       , ephemeralStorage = None Text
                       }
                       overrides.resources.limits
                 , requests =
-                    resources/configurationMerge
-                      { cpu = Some "2"
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "2"
                       , memory = Some "2G"
                       , ephemeralStorage = None Text
                       }

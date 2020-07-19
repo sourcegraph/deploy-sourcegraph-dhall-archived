@@ -1,16 +1,14 @@
 let List/null = https://prelude.dhall-lang.org/v17.0.0/List/null
 
 let Kubernetes/ResourceRequirements =
-      ../../../deps/k8s/types/io.k8s.api.core.v1.ResourceRequirements.dhall
+      ../deps/k8s/types/io.k8s.api.core.v1.ResourceRequirements.dhall
 
-let Util/KeyValuePair = ../../../util/key-value-pair.dhall
+let Resources = ../configuration/container-resources.dhall
 
-let Configuration = ./configuration.dhall
+let Configuration = Resources.Configuration
 
-let Resources = ./resources.dhall
-
-let configurationTransform
-    : Configuration.Type → Optional (List Util/KeyValuePair)
+let configurationToK8s
+    : Configuration.Type → Optional (List { mapKey : Text, mapValue : Text })
     = λ(c : Configuration.Type) →
         let memoryItem =
               merge
@@ -41,14 +39,14 @@ let configurationTransform
             then  None (List Util/KeyValuePair)
             else  Some all
 
-let transform
+let tok8s
     : Resources.Type → Kubernetes/ResourceRequirements
     = λ(r : Resources.Type) →
         let result =
-              { limits = configurationTransform r.limits
-              , requests = configurationTransform r.requests
+              { limits = configurationToK8s r.limits
+              , requests = configurationToK8s r.requests
               }
 
         in  result
 
-in  transform
+in  tok8s
