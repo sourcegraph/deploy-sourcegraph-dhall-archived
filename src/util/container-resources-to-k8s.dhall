@@ -1,5 +1,7 @@
 let List/null = https://prelude.dhall-lang.org/v17.0.0/List/null
 
+let Util/KeyValuePair = ./key-value-pair.dhall
+
 let Kubernetes/ResourceRequirements =
       ../deps/k8s/types/io.k8s.api.core.v1.ResourceRequirements.dhall
 
