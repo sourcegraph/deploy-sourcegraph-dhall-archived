@@ -46,7 +46,7 @@ let toText
                 overlay.imageSuffix
 
         let return =
-                  registry
+                  registryPart
               ++  "/"
               ++  base.orgName
               ++  "/"
