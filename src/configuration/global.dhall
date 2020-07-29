@@ -15,8 +15,6 @@ let Jaeger/configuration = ../base/jaeger/configuration.dhall
 let SyntaxHighlighter/configuration =
       ../base/syntax-highlighter/configuration.dhall
 
-let Searcher/configuration = ../base/syntax-highlighter/configuration.dhall
-
 let RepoUpdater/configuration = ../base/repo-updater/configuration.dhall
 
 let Cadvisor/configuration = ../base/cadvisor/configuration.dhall

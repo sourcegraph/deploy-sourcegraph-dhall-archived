@@ -41,9 +41,6 @@ let Kubernetes/PodSpec = ../../deps/k8s/schemas/io.k8s.api.core.v1.PodSpec.dhall
 let Kubernetes/PodTemplateSpec =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.PodTemplateSpec.dhall
 
-let Kubernetes/ResourceRequirements =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
-
 let Kubernetes/Service = ../../deps/k8s/schemas/io.k8s.api.core.v1.Service.dhall
 
 let Kubernetes/ServicePort =
