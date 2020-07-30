@@ -358,8 +358,118 @@ let Store/Service/generate =
 
         in  service
 
+let storeContainer/generate =
+      λ(c : Configuration/global.Type) →
+        let overrides = c.Redis.Store.Deployment.Containers.Store
+
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/redis-store:3.17.2@sha256:e8467a8279832207559bdfbc4a89b68916ecd5b44ab5cf7620c995461c005168"
+                overrides.image
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "1"
+                      , memory = Some "6Gi"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "1"
+                      , memory = Some "6Gi"
+                      }
+                      overrides.resources.requests
+                }
+
+        let container =
+              Kubernetes/Container::{
+              , image = Some image
+              , livenessProbe = Some Kubernetes/Probe::{
+                , initialDelaySeconds = Some 30
+                , tcpSocket = Some Kubernetes/TCPSocketAction::{
+                  , port = < Int : Natural | String : Text >.String "redis"
+                  }
+                }
+              , name = "redis-store"
+              , ports = Some
+                [ Kubernetes/ContainerPort::{
+                  , containerPort = 6379
+                  , name = Some "redis"
+                  }
+                ]
+              , readinessProbe = Some Kubernetes/Probe::{
+                , initialDelaySeconds = Some 5
+                , tcpSocket = Some Kubernetes/TCPSocketAction::{
+                  , port = < Int : Natural | String : Text >.String "redis"
+                  }
+                }
+              , resources = Some resources
+              , terminationMessagePolicy = Some "FallbackToLogsOnError"
+              , volumeMounts = Some
+                [ Kubernetes/VolumeMount::{
+                  , mountPath = "/redis-data"
+                  , name = "redis-data"
+                  }
+                ]
+              }
+
+        in  container
+
+let storeExporterContainer/generate =
+      λ(c : Configuration/global.Type) →
+        let overrides = c.Redis.Store.Deployment.Containers.Exporter
+
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/redis_exporter:18-02-07_bb60087_v0.15.0@sha256:282d59b2692cca68da128a4e28d368ced3d17945cd1d273d3ee7ba719d77b753"
+                overrides.image
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "10m"
+                      , memory = Some "100Mi"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "10m"
+                      , memory = Some "100Mi"
+                      }
+                      overrides.resources.requests
+                }
+
+        let container =
+              Kubernetes/Container::{
+              , image = Some image
+              , name = "redis-exporter"
+              , ports = Some
+                [ Kubernetes/ContainerPort::{
+                  , containerPort = 9121
+                  , name = Some "redisexp"
+                  }
+                ]
+              , resources = Some resources
+              , terminationMessagePolicy = Some "FallbackToLogsOnError"
+              }
+
+        in  container
+
 let Store/Deployment/generate =
       λ(c : Configuration/global.Type) →
+        let storeContainer = cacheContainer/generate c
+
+        let exporterContainer = cacheExporterContainer/generate c
+
         let deployment =
               Kubernetes/Deployment::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -396,74 +506,7 @@ let Store/Deployment/generate =
                       ]
                     }
                   , spec = Some Kubernetes/PodSpec::{
-                    , containers =
-                      [ Kubernetes/Container::{
-                        , image = Some
-                            "index.docker.io/sourcegraph/redis-store:3.17.2@sha256:e8467a8279832207559bdfbc4a89b68916ecd5b44ab5cf7620c995461c005168"
-                        , livenessProbe = Some Kubernetes/Probe::{
-                          , initialDelaySeconds = Some 30
-                          , tcpSocket = Some Kubernetes/TCPSocketAction::{
-                            , port =
-                                < Int : Natural | String : Text >.String "redis"
-                            }
-                          }
-                        , name = "redis-store"
-                        , ports = Some
-                          [ Kubernetes/ContainerPort::{
-                            , containerPort = 6379
-                            , name = Some "redis"
-                            }
-                          ]
-                        , readinessProbe = Some Kubernetes/Probe::{
-                          , initialDelaySeconds = Some 5
-                          , tcpSocket = Some Kubernetes/TCPSocketAction::{
-                            , port =
-                                < Int : Natural | String : Text >.String "redis"
-                            }
-                          }
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "1" }
-                            , { mapKey = "memory", mapValue = "6Gi" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "1" }
-                            , { mapKey = "memory", mapValue = "6Gi" }
-                            ]
-                          }
-                        , terminationMessagePolicy = Some
-                            "FallbackToLogsOnError"
-                        , volumeMounts = Some
-                          [ Kubernetes/VolumeMount::{
-                            , mountPath = "/redis-data"
-                            , name = "redis-data"
-                            }
-                          ]
-                        }
-                      , Kubernetes/Container::{
-                        , image = Some
-                            "index.docker.io/sourcegraph/redis_exporter:18-02-07_bb60087_v0.15.0@sha256:282d59b2692cca68da128a4e28d368ced3d17945cd1d273d3ee7ba719d77b753"
-                        , name = "redis-exporter"
-                        , ports = Some
-                          [ Kubernetes/ContainerPort::{
-                            , containerPort = 9121
-                            , name = Some "redisexp"
-                            }
-                          ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "10m" }
-                            , { mapKey = "memory", mapValue = "100Mi" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "10m" }
-                            , { mapKey = "memory", mapValue = "100Mi" }
-                            ]
-                          }
-                        , terminationMessagePolicy = Some
-                            "FallbackToLogsOnError"
-                        }
-                      ]
+                    , containers = [ storeContainer, exporterContainer ]
                     , securityContext = Some Kubernetes/PodSecurityContext::{
                       , runAsUser = Some 0
                       }
