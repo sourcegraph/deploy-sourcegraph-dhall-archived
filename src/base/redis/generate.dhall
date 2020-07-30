@@ -1,3 +1,6 @@
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
+
 let Kubernetes/TCPSocketAction =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.TCPSocketAction.dhall
 
@@ -61,6 +64,10 @@ let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
 
+let containerResources = ../../configuration/container-resources.dhall
+
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
+
 let Cache/PersistentVolumeClaim/generate =
       λ(c : Configuration/global.Type) →
         let persistentVolumeClaim =
@@ -123,8 +130,118 @@ let Cache/Service/generate =
 
         in  service
 
+let cacheContainer/generate =
+      λ(c : Configuration/global.Type) →
+        let overrides = c.Redis.Cache.Deployment.Containers.Cache
+
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/redis-cache:3.17.2@sha256:7820219195ab3e8fdae5875cd690fed1b2a01fd1063bd94210c0e9d529c38e56"
+                overrides.image
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "1"
+                      , memory = Some "6Gi"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "1"
+                      , memory = Some "6Gi"
+                      }
+                      overrides.resources.requests
+                }
+
+        let container =
+              Kubernetes/Container::{
+              , image = Some image
+              , livenessProbe = Some Kubernetes/Probe::{
+                , initialDelaySeconds = Some 30
+                , tcpSocket = Some Kubernetes/TCPSocketAction::{
+                  , port = < Int : Natural | String : Text >.String "redis"
+                  }
+                }
+              , name = "redis-cache"
+              , ports = Some
+                [ Kubernetes/ContainerPort::{
+                  , containerPort = 6379
+                  , name = Some "redis"
+                  }
+                ]
+              , readinessProbe = Some Kubernetes/Probe::{
+                , initialDelaySeconds = Some 5
+                , tcpSocket = Some Kubernetes/TCPSocketAction::{
+                  , port = < Int : Natural | String : Text >.String "redis"
+                  }
+                }
+              , resources = Some resources
+              , terminationMessagePolicy = Some "FallbackToLogsOnError"
+              , volumeMounts = Some
+                [ Kubernetes/VolumeMount::{
+                  , mountPath = "/redis-data"
+                  , name = "redis-data"
+                  }
+                ]
+              }
+
+        in  container
+
+let cacheExporterContainer/generate =
+      λ(c : Configuration/global.Type) →
+        let overrides = c.Redis.Cache.Deployment.Containers.Exporter
+
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/redis_exporter:18-02-07_bb60087_v0.15.0@sha256:282d59b2692cca68da128a4e28d368ced3d17945cd1d273d3ee7ba719d77b753"
+                overrides.image
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "10m"
+                      , memory = Some "100Mi"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "10m"
+                      , memory = Some "100Mi"
+                      }
+                      overrides.resources.requests
+                }
+
+        let container =
+              Kubernetes/Container::{
+              , image = Some image
+              , name = "redis-exporter"
+              , ports = Some
+                [ Kubernetes/ContainerPort::{
+                  , containerPort = 9121
+                  , name = Some "redisexp"
+                  }
+                ]
+              , resources = Some resources
+              , terminationMessagePolicy = Some "FallbackToLogsOnError"
+              }
+
+        in  container
+
 let Cache/Deployment/generate =
       λ(c : Configuration/global.Type) →
+        let cacheContainer = cacheContainer/generate c
+
+        let exporterContainer = cacheExporterContainer/generate c
+
         let deployment =
               Kubernetes/Deployment::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -160,74 +277,7 @@ let Cache/Deployment/generate =
                       ]
                     }
                   , spec = Some Kubernetes/PodSpec::{
-                    , containers =
-                      [ Kubernetes/Container::{
-                        , image = Some
-                            "index.docker.io/sourcegraph/redis-cache:3.17.2@sha256:7820219195ab3e8fdae5875cd690fed1b2a01fd1063bd94210c0e9d529c38e56"
-                        , livenessProbe = Some Kubernetes/Probe::{
-                          , initialDelaySeconds = Some 30
-                          , tcpSocket = Some Kubernetes/TCPSocketAction::{
-                            , port =
-                                < Int : Natural | String : Text >.String "redis"
-                            }
-                          }
-                        , name = "redis-cache"
-                        , ports = Some
-                          [ Kubernetes/ContainerPort::{
-                            , containerPort = 6379
-                            , name = Some "redis"
-                            }
-                          ]
-                        , readinessProbe = Some Kubernetes/Probe::{
-                          , initialDelaySeconds = Some 5
-                          , tcpSocket = Some Kubernetes/TCPSocketAction::{
-                            , port =
-                                < Int : Natural | String : Text >.String "redis"
-                            }
-                          }
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "1" }
-                            , { mapKey = "memory", mapValue = "6Gi" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "1" }
-                            , { mapKey = "memory", mapValue = "6Gi" }
-                            ]
-                          }
-                        , terminationMessagePolicy = Some
-                            "FallbackToLogsOnError"
-                        , volumeMounts = Some
-                          [ Kubernetes/VolumeMount::{
-                            , mountPath = "/redis-data"
-                            , name = "redis-data"
-                            }
-                          ]
-                        }
-                      , Kubernetes/Container::{
-                        , image = Some
-                            "index.docker.io/sourcegraph/redis_exporter:18-02-07_bb60087_v0.15.0@sha256:282d59b2692cca68da128a4e28d368ced3d17945cd1d273d3ee7ba719d77b753"
-                        , name = "redis-exporter"
-                        , ports = Some
-                          [ Kubernetes/ContainerPort::{
-                            , containerPort = 9121
-                            , name = Some "redisexp"
-                            }
-                          ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "10m" }
-                            , { mapKey = "memory", mapValue = "100Mi" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "10m" }
-                            , { mapKey = "memory", mapValue = "100Mi" }
-                            ]
-                          }
-                        , terminationMessagePolicy = Some
-                            "FallbackToLogsOnError"
-                        }
-                      ]
+                    , containers = [ cacheContainer, exporterContainer ]
                     , securityContext = Some Kubernetes/PodSecurityContext::{
                       , runAsUser = Some 0
                       }
