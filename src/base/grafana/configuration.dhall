@@ -1,6 +1,6 @@
 let Configuration/universal = ../../configuration/universal.dhall
 
-let Configuration/container = ../../configuration/resource/container.dhall
+let Configuration/container = ../../configuration/container.dhall
 
 let Util/KeyValuePair = ../../util/key-value-pair.dhall
 

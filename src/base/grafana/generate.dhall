@@ -65,6 +65,10 @@ let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
 
+let containerResources = ../../configuration/container-resources.dhall
+
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
+
 let ServiceAccount/generate =
       λ(c : Configuration/global.Type) →
         let serviceAccount =
@@ -139,6 +143,26 @@ let Service/generate =
 
 let StatefulSet/generate =
       λ(c : Configuration/global.Type) →
+        let overrides = c.Grafana.StatefulSet.Containers.Grafana
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "1"
+                      , memory = Some "512Mi"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "100m"
+                      , memory = Some "512Mi"
+                      }
+                      overrides.resources.requests
+                }
+
         let statefulSet =
               Kubernetes/StatefulSet::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -182,16 +206,7 @@ let StatefulSet/generate =
                             , name = Some "http"
                             }
                           ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "1" }
-                            , { mapKey = "memory", mapValue = "512Mi" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "100m" }
-                            , { mapKey = "memory", mapValue = "512Mi" }
-                            ]
-                          }
+                        , resources = Some resources
                         , terminationMessagePolicy = Some
                             "FallbackToLogsOnError"
                         , volumeMounts = Some

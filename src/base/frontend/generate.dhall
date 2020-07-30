@@ -67,9 +67,6 @@ let Kubernetes/PolicyRule =
 
 let Kubernetes/Probe = ../../deps/k8s/schemas/io.k8s.api.core.v1.Probe.dhall
 
-let Kubernetes/ResourceRequirements =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
-
 let Kubernetes/Role = ../../deps/k8s/schemas/io.k8s.api.rbac.v1.Role.dhall
 
 let Kubernetes/RoleBinding =
@@ -103,6 +100,10 @@ let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let component = ./component.dhall
 
+let containerResources = ../../configuration/container-resources.dhall
+
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
+
 let makeGitserverEnvVar =
       λ(replicas : Natural) →
         let indicies = Natural/enumerate replicas
@@ -124,6 +125,26 @@ let frontendContainer/generate =
 
         let gitserverReplicas =
               Optional/default Natural 1 c.Gitserver.StatefulSet.replicas
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "2"
+                      , memory = Some "4G"
+                      , ephemeralStorage = None Text
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "2"
+                      , memory = Some "2G"
+                      , ephemeralStorage = None Text
+                      }
+                      overrides.resources.requests
+                }
 
         let environment =
                 [ Kubernetes/EnvVar::{ name = "PGDATABASE", value = Some "sg" }
@@ -167,20 +188,6 @@ let frontendContainer/generate =
                   }
                 ]
               # additionalEnvironmentVariables
-
-        let resources =
-              Optional/default
-                Kubernetes/ResourceRequirements.Type
-                { limits = Some
-                  [ { mapKey = "cpu", mapValue = "2" }
-                  , { mapKey = "memory", mapValue = "4G" }
-                  ]
-                , requests = Some
-                  [ { mapKey = "cpu", mapValue = "2" }
-                  , { mapKey = "memory", mapValue = "2G" }
-                  ]
-                }
-                overrides.resources
 
         let image =
               Optional/default

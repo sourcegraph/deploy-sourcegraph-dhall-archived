@@ -76,6 +76,10 @@ let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let component = ./component.dhall
 
+let containerResources = ../../configuration/container-resources.dhall
+
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
+
 let ConfigMap/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Postgres.ConfigMap
@@ -135,18 +139,22 @@ let postgresContainer/generate =
                 overrides.image
 
         let resources =
-              Optional/default
-                Kubernetes/ResourceRequirements.Type
-                { limits = Some
-                  [ { mapKey = "cpu", mapValue = "4" }
-                  , { mapKey = "memory", mapValue = "2Gi" }
-                  ]
-                , requests = Some
-                  [ { mapKey = "cpu", mapValue = "4" }
-                  , { mapKey = "memory", mapValue = "2Gi" }
-                  ]
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "4"
+                      , memory = Some "2Gi"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "4"
+                      , memory = Some "2Gi"
+                      }
+                      overrides.resources.requests
                 }
-                overrides.resources
 
         let container =
               Kubernetes/Container::{
@@ -205,18 +213,22 @@ let postgresExporterContainer/generate =
                 overrides.image
 
         let resources =
-              Optional/default
-                Kubernetes/ResourceRequirements.Type
-                { limits = Some
-                  [ { mapKey = "cpu", mapValue = "10m" }
-                  , { mapKey = "memory", mapValue = "50Mi" }
-                  ]
-                , requests = Some
-                  [ { mapKey = "cpu", mapValue = "10m" }
-                  , { mapKey = "memory", mapValue = "50Mi" }
-                  ]
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "10m"
+                      , memory = Some "50Mi"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "10m"
+                      , memory = Some "50Mi"
+                      }
+                      overrides.resources.requests
                 }
-                overrides.resources
 
         let container =
               Kubernetes/Container::{
@@ -241,8 +253,6 @@ let initContainer/generate =
                 "sourcegraph/alpine:3.10@sha256:4d05cd5669726fc38823e92320659a6d1ef7879e62268adec5df658a0bacf65c"
                 overrides.image
 
-        let resources = overrides.resources
-
         let container =
               Kubernetes/Container::{
               , command = Some
@@ -256,7 +266,6 @@ let initContainer/generate =
               , securityContext = Some Kubernetes/SecurityContext::{
                 , runAsUser = Some 0
                 }
-              , resources
               , volumeMounts = Some
                 [ Kubernetes/VolumeMount::{ mountPath = "/data", name = "disk" }
                 ]

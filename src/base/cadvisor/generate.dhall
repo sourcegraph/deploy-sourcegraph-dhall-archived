@@ -33,9 +33,6 @@ let Kubernetes/PodTemplateSpec =
 let Kubernetes/PolicyRule =
       ../../deps/k8s/schemas/io.k8s.api.rbac.v1.PolicyRule.dhall
 
-let Kubernetes/ResourceRequirements =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
-
 let Kubernetes/RoleRef = ../../deps/k8s/schemas/io.k8s.api.rbac.v1.RoleRef.dhall
 
 let Kubernetes/ServiceAccount =
@@ -70,8 +67,32 @@ let Configuration/global = ../../configuration/global.dhall
 
 let Component = ./component.dhall
 
+let containerResources = ../../configuration/container-resources.dhall
+
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
+
 let DaemonSet/generate =
       λ(c : Configuration/global.Type) →
+        let overrides = c.Cadvisor.DaemonSet.Containers.Cadvisor
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "300m"
+                      , memory = Some "2000Mi"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "150m"
+                      , memory = Some "200Mi"
+                      }
+                      overrides.resources.requests
+                }
+
         let daemonSet =
               Kubernetes/DaemonSet::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -131,16 +152,7 @@ let DaemonSet/generate =
                             , protocol = Some "TCP"
                             }
                           ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "300m" }
-                            , { mapKey = "memory", mapValue = "2000Mi" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "150m" }
-                            , { mapKey = "memory", mapValue = "200Mi" }
-                            ]
-                          }
+                        , resources = Some resources
                         , volumeMounts = Some
                           [ Kubernetes/VolumeMount::{
                             , mountPath = "/rootfs"
