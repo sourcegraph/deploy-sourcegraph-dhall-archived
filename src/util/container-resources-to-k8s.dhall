@@ -51,4 +51,44 @@ let tok8s
 
         in  result
 
+let tests =
+      { t1 =
+            assert
+          :   tok8s
+                { limits = Configuration::{
+                  , memory = Some "20Gi"
+                  , cpu = Some "2"
+                  }
+                , requests = Configuration::{
+                  , ephemeralStorage = Some "100MB"
+                  , cpu = Some "500m"
+                  }
+                }
+            ≡ { limits = Some
+                [ { mapKey = "memory", mapValue = "20Gi" }
+                , { mapKey = "cpu", mapValue = "2" }
+                ]
+              , requests = Some
+                [ { mapKey = "cpu", mapValue = "500m" }
+                , { mapKey = "ephemeral-storage", mapValue = "100MB" }
+                ]
+              }
+      , t2 =
+            assert
+          :   tok8s
+                { limits = Configuration::{ ephemeralStorage = Some "200MB" }
+                , requests = Configuration::{
+                  , memory = Some "100MB"
+                  , cpu = Some "500m"
+                  }
+                }
+            ≡ { limits = Some
+                [ { mapKey = "ephemeral-storage", mapValue = "200MB" } ]
+              , requests = Some
+                [ { mapKey = "memory", mapValue = "100MB" }
+                , { mapKey = "cpu", mapValue = "500m" }
+                ]
+              }
+      }
+
 in  tok8s
