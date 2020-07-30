@@ -466,9 +466,9 @@ let storeExporterContainer/generate =
 
 let Store/Deployment/generate =
       λ(c : Configuration/global.Type) →
-        let storeContainer = cacheContainer/generate c
+        let storeContainer = storeContainer/generate c
 
-        let exporterContainer = cacheExporterContainer/generate c
+        let exporterContainer = storeExporterContainer/generate c
 
         let deployment =
               Kubernetes/Deployment::{
