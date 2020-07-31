@@ -1,8 +1,6 @@
-let Generate =
-      ./src/base/generate.dhall sha256:1438389a0f50298789f5deb1adee571accb5aefc552df89aa3ed68cf45180702
+let Generate = ./src/base/generate.dhall
 
-let Configuration/global =
-      ./src/configuration/global.dhall sha256:78ac8cb500fe1399ed094b01eff2bc6ed42ba93f1bde2ca4c3fc2958d18d7157
+let Configuration/global = ./src/configuration/global.dhall
 
 let c =
       Configuration/global::{=}
