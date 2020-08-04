@@ -6,6 +6,8 @@ let shfmt = ./jobs/shfmt.dhall
 
 let checkPipeline = ./jobs/check-rendered-pipeline-up-to-date.dhall
 
+let dhallDiff = ./jobs/dhall-diff.dhall
+
 let dhallFormat = ./jobs/dhall-format.dhall
 
 let dhallLint = ./jobs/dhall-lint.dhall
@@ -18,6 +20,7 @@ in  GitHubActions.Workflow::{
     , jobs = toMap
         { shellcheck
         , shfmt
+        , dhallDiff
         , dhallFormat
         , dhallLint
         , checkPipeline
