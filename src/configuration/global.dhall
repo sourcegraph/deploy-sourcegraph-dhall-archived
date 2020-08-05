@@ -32,6 +32,8 @@ let QueryRunner/configuration = ../base/query-runner/configuration.dhall
 
 let Prometheus/configuration = ../base/prometheus/configuration.dhall
 
+let StorageClass/configuration = ../base/storage-class/configuration.dhall
+
 let configuration =
       { Type =
           { Frontend : Frontend/configuration.Type
@@ -50,6 +52,7 @@ let configuration =
           , Replacer : Replacer/configuration.Type
           , QueryRunner : QueryRunner/configuration.Type
           , Prometheus : Prometheus/configuration.Type
+          , StorageClass : StorageClass/configuration.Type
           }
       , default =
         { Frontend = Frontend/configuration.default
@@ -68,6 +71,7 @@ let configuration =
         , Replacer = Replacer/configuration.default
         , QueryRunner = QueryRunner/configuration.default
         , Prometheus = Prometheus/configuration.default
+        , StorageClass = StorageClass/configuration.default
         }
       }
 

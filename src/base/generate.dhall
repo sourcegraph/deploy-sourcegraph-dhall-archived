@@ -32,6 +32,8 @@ let Symbols/Generate = ./symbols/generate.dhall
 
 let SyntaxHighlighter/Generate = ./syntax-highlighter/generate.dhall
 
+let StorageClass/Generate = ./storage-class/generate.dhall
+
 let component = ./component.dhall
 
 let Configuration/global = ../configuration/global.dhall
@@ -55,6 +57,7 @@ let Generate =
             , Searcher = Searcher/Generate c
             , Symbols = Symbols/Generate c
             , SyntaxHighlighter = SyntaxHighlighter/Generate c
+            , StorageClass = StorageClass/Generate c
             }
         )
       : ∀(c : Configuration/global.Type) → component
