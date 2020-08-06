@@ -47,7 +47,7 @@ let generate
                           , mapValue = "Premium_LRS"
                           }
                         ]
-                      , provisioner = " kubernetes.io/azure-disk"
+                      , provisioner = "kubernetes.io/azure-disk"
                       }
                   )
               , CUSTOM = None Kubernetes/StorageClass.Type
