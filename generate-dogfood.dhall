@@ -139,5 +139,29 @@ let c =
           "1G"
       with Prometheus.Deployment.Containers.Blackbox.resources.requests.cpu = Some
           "500m"
+      with QueryRunner.Deployment.Containers.QueryRunner.image = Some
+          "index.docker.io/sourcegraph/query-runner:insiders@sha256:0732ac488f67afa6bdb3333d3b39fcbeffdcce300d83a52052f89cddca7cf264"
+      with QueryRunner.Deployment.Containers.QueryRunner.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with QueryRunner.Deployment.Containers.QueryRunner.resources.requests.ephemeralStorage = Some
+          "1Gi"
+      with Replacer.Deployment.Containers.Replacer.image = Some
+          "index.docker.io/sourcegraph/replacer:insiders@sha256:1eb8c6daa5d2b5bc3db1f7aed41297346b271332dea481db532c61803d67fcdf"
+      with Replacer.Deployment.Containers.Replacer.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with Replacer.Deployment.Containers.Replacer.resources.requests.ephemeralStorage = Some
+          "1Gi"
+      with RepoUpdater.Deployment.Containers.RepoUpdater.image = Some
+          "index.docker.io/sourcegraph/repo-updater:insiders@sha256:13184df2e431fc7678ca59de9128301562a897acd241268c6d8ac069c14d5d09"
+      with RepoUpdater.Deployment.Containers.RepoUpdater.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with RepoUpdater.Deployment.Containers.RepoUpdater.resources.requests.ephemeralStorage = Some
+          "1Gi"
+      with Searcher.Deployment.Containers.Searcher.image = Some
+          "index.docker.io/sourcegraph/searcher:insiders@sha256:3c7690062c79949cd0a4af1cfdfd22a177d11d22684057b17a2502d97596da49"
+      with Searcher.Deployment.Containers.Searcher.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with Searcher.Deployment.Containers.Searcher.resources.requests.ephemeralStorage = Some
+          "1Gi"
 
 in  Generate c
