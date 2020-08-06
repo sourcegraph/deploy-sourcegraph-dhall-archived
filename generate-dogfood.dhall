@@ -63,16 +63,6 @@ let c =
           "1Gi"
       with Gitserver.StatefulSet.Containers.Gitserver.resources.requests.ephemeralStorage = Some
           "1Gi"
-      with Prometheus.Deployment.Containers.Prometheus.resources.limits.memory = Some
-          "3G"
-      with Prometheus.Deployment.Containers.Prometheus.resources.requests.memory = Some
-          "500M"
-      with Prometheus.Deployment.Containers.Prometheus.image = Some
-          "index.docker.io/sourcegraph/prometheus:insiders@sha256:8906de7028ec7ecfcfecb63335dc47fe70dbf50d8741699eaaa17ea2ddfa857e"
-      with Prometheus.Deployment.Containers.Prometheus.resources.requests.ephemeralStorage = Some
-          "1Gi"
-      with Prometheus.Deployment.Containers.Prometheus.resources.limits.ephemeralStorage = Some
-          "1Gi"
       with Grafana.StatefulSet.Containers.Grafana.image = Some
           "index.docker.io/sourcegraph/grafana:insiders@sha256:3a9f472109f9ab1ab992574e5e55b067a34537a38a0872db093cd877823ac42e"
       with Grafana.StatefulSet.Containers.Grafana.resources.limits.cpu = Some
@@ -127,5 +117,27 @@ let c =
           "1Gi"
       with IndexedSearch.StatefulSet.Containers.ZoektIndexServer.resources.requests.ephemeralStorage = Some
           "1Gi"
+      with Jaeger.Deployment.Containers.JaegerAllInOne.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with Jaeger.Deployment.Containers.JaegerAllInOne.resources.requests.ephemeralStorage = Some
+          "1Gi"
+      with Prometheus.Deployment.Containers.Prometheus.resources.limits.memory = Some
+          "3G"
+      with Prometheus.Deployment.Containers.Prometheus.resources.requests.memory = Some
+          "500M"
+      with Prometheus.Deployment.Containers.Prometheus.image = Some
+          "index.docker.io/sourcegraph/prometheus:insiders@sha256:8906de7028ec7ecfcfecb63335dc47fe70dbf50d8741699eaaa17ea2ddfa857e"
+      with Prometheus.Deployment.Containers.Prometheus.resources.requests.ephemeralStorage = Some
+          "1Gi"
+      with Prometheus.Deployment.Containers.Prometheus.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with Prometheus.Deployment.Containers.Blackbox.resources.limits.memory = Some
+          "1G"
+      with Prometheus.Deployment.Containers.Blackbox.resources.requests.memory = Some
+          "500M"
+      with Prometheus.Deployment.Containers.Blackbox.resources.limits.cpu = Some
+          "1G"
+      with Prometheus.Deployment.Containers.Blackbox.resources.requests.cpu = Some
+          "500m"
 
 in  Generate c
