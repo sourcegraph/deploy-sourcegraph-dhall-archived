@@ -163,5 +163,23 @@ let c =
           "1Gi"
       with Searcher.Deployment.Containers.Searcher.resources.requests.ephemeralStorage = Some
           "1Gi"
+      with Symbols.Deployment.Containers.Symbols.image = Some
+          "index.docker.io/sourcegraph/symbols:insiders@sha256:30ea02d6106d1deb8fdcda719a500e666b0ba7921897ffafb5cbd4f7be3ecd52"
+      with Symbols.Deployment.Containers.Symbols.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with Symbols.Deployment.Containers.Symbols.resources.requests.ephemeralStorage = Some
+          "1Gi"
+      with SyntaxHighlighter.Deployment.Containers.SyntaxHighlighter.image = Some
+          "index.docker.io/sourcegraph/syntax-highlighter:insiders@sha256:aa93514b7bc3aaf7a4e9c92e5ff52ee5052db6fb101255a69f054e5b8cdb46ff"
+      with SyntaxHighlighter.Deployment.Containers.SyntaxHighlighter.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with SyntaxHighlighter.Deployment.Containers.SyntaxHighlighter.resources.requests.ephemeralStorage = Some
+          "1Gi"
+      with Cadvisor.DaemonSet.Containers.Cadvisor.image = Some
+          "us.gcr.io/sourcegraph-dev/cadvisor:0dc33691105dff7ddacb143e63a4a565ba25803d_69148_candidate"
+      with Cadvisor.DaemonSet.Containers.Cadvisor.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with Cadvisor.DaemonSet.Containers.Cadvisor.resources.requests.ephemeralStorage = Some
+          "1Gi"
 
 in  Generate c
