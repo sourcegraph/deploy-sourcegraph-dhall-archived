@@ -181,5 +181,17 @@ let c =
           "1Gi"
       with Cadvisor.DaemonSet.Containers.Cadvisor.resources.requests.ephemeralStorage = Some
           "1Gi"
+      with Redis.Store.Deployment.Containers.Store.image = Some
+          "index.docker.io/sourcegraph/redis-store:insiders@sha256:e8467a8279832207559bdfbc4a89b68916ecd5b44ab5cf7620c995461c005168"
+      with Redis.Store.Deployment.Containers.Store.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with Redis.Store.Deployment.Containers.Store.resources.requests.ephemeralStorage = Some
+          "1Gi"
+      with Redis.Cache.Deployment.Containers.Cache.image = Some
+          "index.docker.io/sourcegraph/redis-cache:insiders@sha256:7820219195ab3e8fdae5875cd690fed1b2a01fd1063bd94210c0e9d529c38e56"
+      with Redis.Cache.Deployment.Containers.Cache.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with Redis.Cache.Deployment.Containers.Cache.resources.requests.ephemeralStorage = Some
+          "1Gi"
 
 in  Generate c
