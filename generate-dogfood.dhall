@@ -91,5 +91,19 @@ let c =
           , value = Some "https://k8s.sgdev.org/-/debug/grafana"
           }
         ]
+      with Postgres.Deployment.Containers.Postgres.image = Some
+          "index.docker.io/sourcegraph/postgres-11.4:insiders@sha256:63090799b34b3115a387d96fe2227a37999d432b774a1d9b7966b8c5d81b56ad"
+      with Postgres.Deployment.Containers.Postgres.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with Postgres.Deployment.Containers.Postgres.resources.requests.ephemeralStorage = Some
+          "1Gi"
+      with Postgres.Deployment.Containers.Postgres.resources.limits.cpu = Some
+          "16"
+      with Postgres.Deployment.Containers.Postgres.resources.limits.memory = Some
+          "24Gi"
+      with Postgres.Deployment.Containers.Postgres.resources.requests.cpu = Some
+          "16"
+      with Postgres.Deployment.Containers.Postgres.resources.requests.memory = Some
+          "24Gi"
 
 in  Generate c
