@@ -105,5 +105,27 @@ let c =
           "16"
       with Postgres.Deployment.Containers.Postgres.resources.requests.memory = Some
           "24Gi"
+      with IndexedSearch.StatefulSet.Containers.ZoektWebServer.image = Some
+          "index.docker.io/sourcegraph/indexed-searcher:insiders@sha256:6b304abe2d84b31357051ae78fd3e1facd57fed9a9fd84e2cce6a96b84de93e1"
+      with IndexedSearch.StatefulSet.Containers.ZoektIndexServer.image = Some
+          "index.docker.io/sourcegraph/search-indexer:insiders@sha256:0b129a124674b821651d26b40edd1f861a75a2ed65e3e9af9c108d721348a666"
+      with IndexedSearch.StatefulSet.Containers.ZoektWebServer.resources.limits.cpu = Some
+          "12"
+      with IndexedSearch.StatefulSet.Containers.ZoektWebServer.resources.limits.memory = Some
+          "120Gi"
+      with IndexedSearch.StatefulSet.Containers.ZoektWebServer.resources.requests.cpu = Some
+          "12"
+      with IndexedSearch.StatefulSet.Containers.ZoektWebServer.resources.requests.memory = Some
+          "120Gi"
+      with IndexedSearch.StatefulSet.replicas = Some 2
+      with IndexedSearch.StatefulSet.persistentVolumeSize = Some "4Ti"
+      with IndexedSearch.StatefulSet.Containers.ZoektWebServer.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with IndexedSearch.StatefulSet.Containers.ZoektWebServer.resources.requests.ephemeralStorage = Some
+          "1Gi"
+      with IndexedSearch.StatefulSet.Containers.ZoektIndexServer.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with IndexedSearch.StatefulSet.Containers.ZoektIndexServer.resources.requests.ephemeralStorage = Some
+          "1Gi"
 
 in  Generate c
