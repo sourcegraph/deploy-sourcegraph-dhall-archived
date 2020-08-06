@@ -193,5 +193,17 @@ let c =
           "1Gi"
       with Redis.Cache.Deployment.Containers.Cache.resources.requests.ephemeralStorage = Some
           "1Gi"
+      with PreciseCodeIntel.BundleManager.Deployment.Containers.BundleManager.image = Some
+          "index.docker.io/sourcegraph/precise-code-intel-bundle-manager:insiders@sha256:abbd9418d424955e6e5236efd5b8b551128f2bcd25490a2ffe911bbc4bc87598"
+      with PreciseCodeIntel.BundleManager.Deployment.Containers.BundleManager.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with PreciseCodeIntel.BundleManager.Deployment.Containers.BundleManager.resources.requests.ephemeralStorage = Some
+          "1Gi"
+      with PreciseCodeIntel.Worker.Deployment.Containers.Worker.image = Some
+          "index.docker.io/sourcegraph/precise-code-intel-worker:insiders@sha256:579a3d5df83c0c771e9f8b18ce6344bfbe3b636d6f1d101b3cec8ac3b266d2a2"
+      with PreciseCodeIntel.Worker.Deployment.Containers.Worker.resources.limits.ephemeralStorage = Some
+          "1Gi"
+      with PreciseCodeIntel.Worker.Deployment.Containers.Worker.resources.requests.ephemeralStorage = Some
+          "1Gi"
 
 in  Generate c
