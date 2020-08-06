@@ -32,9 +32,6 @@ let Kubernetes/PodTemplateSpec =
 
 let Kubernetes/Probe = ../../deps/k8s/schemas/io.k8s.api.core.v1.Probe.dhall
 
-let Kubernetes/ResourceRequirements =
-      ../../deps/k8s/schemas/io.k8s.api.core.v1.ResourceRequirements.dhall
-
 let Kubernetes/Service = ../../deps/k8s/schemas/io.k8s.api.core.v1.Service.dhall
 
 let Kubernetes/ServicePort =
@@ -46,6 +43,10 @@ let Kubernetes/ServiceSpec =
 let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
+
+let containerResources = ../../configuration/container-resources.dhall
+
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
 
 let Service/Query/generate =
       λ(c : Configuration/global.Type) →
@@ -143,6 +144,26 @@ let Service/Collector/generate =
 
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
+        let overrides = c.Jaeger.Deployment.Containers.JaegerAllInOne
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "1"
+                      , memory = Some "1G"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "500m"
+                      , memory = Some "500M"
+                      }
+                      overrides.resources.requests
+                }
+
         let deployment =
               Kubernetes/Deployment::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -230,16 +251,7 @@ let Deployment/generate =
                             }
                           , initialDelaySeconds = Some 5
                           }
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "1" }
-                            , { mapKey = "memory", mapValue = "1G" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "500m" }
-                            , { mapKey = "memory", mapValue = "500M" }
-                            ]
-                          }
+                        , resources = Some resources
                         }
                       ]
                     , securityContext = Some Kubernetes/PodSecurityContext::{

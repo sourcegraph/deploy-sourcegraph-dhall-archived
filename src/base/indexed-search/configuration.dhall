@@ -5,8 +5,13 @@ let Configuration/container = ../../configuration/container.dhall
 let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let containers =
-      { Type = { Zoekt : Configuration/container.Type }
-      , default.Zoekt = Configuration/container.default
+      { Type =
+          { ZoektWebServer : Configuration/container.Type
+          , ZoektIndexServer : Configuration/container.Type
+          }
+      , default =
+            { ZoektWebServer = Configuration/container.default }
+          ∧ { ZoektIndexServer = Configuration/container.default }
       }
 
 let statefulset =
@@ -15,6 +20,7 @@ let statefulset =
           , additionalAnnotations : Optional (List Util/KeyValuePair)
           , additionalLabels : Optional (List Util/KeyValuePair)
           , replicas : Optional Natural
+          , persistentVolumeSize : Optional Text
           , Containers : containers.Type
           }
       , default =
@@ -22,6 +28,7 @@ let statefulset =
         , additionalAnnotations = None (List Util/KeyValuePair)
         , additionalLabels = None (List Util/KeyValuePair)
         , replicas = None Natural
+        , persistentVolumeSize = None Text
         , Containers = containers.default
         }
       }

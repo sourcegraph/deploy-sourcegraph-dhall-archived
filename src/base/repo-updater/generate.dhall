@@ -1,3 +1,6 @@
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
+
 let Kubernetes/RollingUpdateDeployment =
       ../../deps/k8s/schemas/io.k8s.api.apps.v1.RollingUpdateDeployment.dhall
 
@@ -53,6 +56,10 @@ let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
 
+let containerResources = ../../configuration/container-resources.dhall
+
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
+
 let Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
@@ -92,6 +99,32 @@ let Service/generate =
 
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
+        let overrides = c.RepoUpdater.Deployment.Containers.RepoUpdater
+
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/repo-updater:3.17.2@sha256:1db6e1343e65a4bf8f6d0b524dcd722b1fbbe417227e6642b1de824de966ffc8"
+                overrides.image
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "100m"
+                      , memory = Some "500Mi"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "100m"
+                      , memory = Some "500Mi"
+                      }
+                      overrides.resources.requests
+                }
+
         let deployment =
               Kubernetes/Deployment::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -135,8 +168,7 @@ let Deployment/generate =
                   , spec = Some Kubernetes/PodSpec::{
                     , containers =
                       [ Kubernetes/Container::{
-                        , image = Some
-                            "index.docker.io/sourcegraph/repo-updater:3.17.2@sha256:1db6e1343e65a4bf8f6d0b524dcd722b1fbbe417227e6642b1de824de966ffc8"
+                        , image = Some image
                         , name = "repo-updater"
                         , ports = Some
                           [ Kubernetes/ContainerPort::{
@@ -148,16 +180,7 @@ let Deployment/generate =
                             , name = Some "debug"
                             }
                           ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "100m" }
-                            , { mapKey = "memory", mapValue = "500Mi" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "100m" }
-                            , { mapKey = "memory", mapValue = "500Mi" }
-                            ]
-                          }
+                        , resources = Some resources
                         , terminationMessagePolicy = Some
                             "FallbackToLogsOnError"
                         }

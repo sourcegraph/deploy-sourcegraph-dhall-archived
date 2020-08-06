@@ -54,6 +54,9 @@ let Kubernetes/TCPSocketAction =
 
 let Kubernetes/Volume = ../../deps/k8s/schemas/io.k8s.api.core.v1.Volume.dhall
 
+let Kubernetes/SecretVolumeSource =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.SecretVolumeSource.dhall
+
 let Kubernetes/VolumeMount =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.VolumeMount.dhall
 
@@ -207,7 +210,26 @@ let StatefulSet/generate =
 
         let replicas = Optional/default Natural 1 overrides.replicas
 
+        let pvcSize =
+              Optional/default Text "200Gi" overrides.persistentVolumeSize
+
         let gitserverContainer = gitserverContainer/generate c
+
+        let sshVolume =
+              merge
+                { Some =
+                    λ(x : Text) →
+                      [ Kubernetes/Volume::{
+                        , name = "ssh"
+                        , secret = Some Kubernetes/SecretVolumeSource::{
+                          , secretName = Some x
+                          , defaultMode = Some 384
+                          }
+                        }
+                      ]
+                , None = [] : List Kubernetes/Volume.Type
+                }
+                overrides.sshSecretName
 
         let statefulSet =
               Kubernetes/StatefulSet::{
@@ -254,7 +276,8 @@ let StatefulSet/generate =
                     , securityContext = Some Kubernetes/PodSecurityContext::{
                       , runAsUser = Some 0
                       }
-                    , volumes = Some [ Kubernetes/Volume::{ name = "repos" } ]
+                    , volumes = Some
+                        ([ Kubernetes/Volume::{ name = "repos" } ] # sshVolume)
                     }
                   }
                 , updateStrategy = Some
@@ -268,7 +291,7 @@ let StatefulSet/generate =
                       , accessModes = Some [ "ReadWriteOnce" ]
                       , resources = Some Kubernetes/ResourceRequirements::{
                         , requests = Some
-                          [ { mapKey = "storage", mapValue = "200Gi" } ]
+                          [ { mapKey = "storage", mapValue = pvcSize } ]
                         }
                       , storageClassName = Some "sourcegraph"
                       }
