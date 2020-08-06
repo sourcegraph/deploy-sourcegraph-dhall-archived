@@ -360,6 +360,7 @@ let Ingress/generate =
                 , name = Some "sourcegraph-frontend"
                 }
               , spec = Some Kubernetes/IngressSpec::{
+                , tls = overrides.tls
                 , rules = Some
                   [ Kubernetes/IngressRule::{
                     , http = Some Kubernetes/HTTPIngressRuleValue::{

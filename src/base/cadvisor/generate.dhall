@@ -1,3 +1,6 @@
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
+
 let Kubernetes/DaemonSet =
       ../../deps/k8s/schemas/io.k8s.api.apps.v1.DaemonSet.dhall
 
@@ -75,6 +78,12 @@ let DaemonSet/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Cadvisor.DaemonSet.Containers.Cadvisor
 
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/cadvisor:3.17.2@sha256:9fb42b067d1f9cc84558f61b6ec42f8cfe7ad874625c7673efa9b1f047fa3ced"
+                overrides.image
+
         let resources =
               containerResources/tok8s
                 { limits =
@@ -142,8 +151,7 @@ let DaemonSet/generate =
                           [ "--store_container_labels=false"
                           , "--whitelisted_container_labels=io.kubernetes.container.name,io.kubernetes.pod.name,io.kubernetes.pod.namespace,io.kubernetes.pod.uid"
                           ]
-                        , image = Some
-                            "index.docker.io/sourcegraph/cadvisor:3.17.2@sha256:9fb42b067d1f9cc84558f61b6ec42f8cfe7ad874625c7673efa9b1f047fa3ced"
+                        , image = Some image
                         , name = "cadvisor"
                         , ports = Some
                           [ Kubernetes/ContainerPort::{
