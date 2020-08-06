@@ -1,5 +1,7 @@
 let List/null = https://prelude.dhall-lang.org/v17.0.0/List/null
 
+let Util/KeyValuePair = ./key-value-pair.dhall
+
 let Kubernetes/ResourceRequirements =
       ../deps/k8s/types/io.k8s.api.core.v1.ResourceRequirements.dhall
 
@@ -13,14 +15,14 @@ let configurationToK8s
         let memoryItem =
               merge
                 { Some = λ(x : Text) → [ { mapKey = "memory", mapValue = x } ]
-                , None = [] : List { mapKey : Text, mapValue : Text }
+                , None = [] : List Util/KeyValuePair
                 }
                 c.memory
 
         let cpuItem =
               merge
                 { Some = λ(x : Text) → [ { mapKey = "cpu", mapValue = x } ]
-                , None = [] : List { mapKey : Text, mapValue : Text }
+                , None = [] : List Util/KeyValuePair
                 }
                 c.cpu
 
@@ -29,14 +31,14 @@ let configurationToK8s
                 { Some =
                     λ(x : Text) →
                       [ { mapKey = "ephemeral-storage", mapValue = x } ]
-                , None = [] : List { mapKey : Text, mapValue : Text }
+                , None = [] : List Util/KeyValuePair
                 }
                 c.ephemeralStorage
 
         let all = memoryItem # cpuItem # ephemeralStorage
 
-        in  if    List/null { mapKey : Text, mapValue : Text } all
-            then  None (List { mapKey : Text, mapValue : Text })
+        in  if    List/null Util/KeyValuePair all
+            then  None (List Util/KeyValuePair)
             else  Some all
 
 let tok8s

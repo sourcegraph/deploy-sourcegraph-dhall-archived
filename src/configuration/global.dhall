@@ -2,6 +2,8 @@ let Frontend/configuration = ../base/frontend/configuration.dhall
 
 let Gitserver/configuration = ../base/gitserver/configuration.dhall
 
+let GithubProxy/configuration = ../base/github-proxy/configuration.dhall
+
 let Postgres/configuration = ../base/postgres/configuration.dhall
 
 let IndexedSearch/configuration = ../base/indexed-search/configuration.dhall
@@ -12,8 +14,6 @@ let Jaeger/configuration = ../base/jaeger/configuration.dhall
 
 let SyntaxHighlighter/configuration =
       ../base/syntax-highlighter/configuration.dhall
-
-let Searcher/configuration = ../base/syntax-highlighter/configuration.dhall
 
 let RepoUpdater/configuration = ../base/repo-updater/configuration.dhall
 
@@ -32,12 +32,15 @@ let QueryRunner/configuration = ../base/query-runner/configuration.dhall
 
 let Prometheus/configuration = ../base/prometheus/configuration.dhall
 
+let Searcher/configuration = ../base/searcher/configuration.dhall
+
 let StorageClass/configuration = ../base/storage-class/configuration.dhall
 
 let configuration =
       { Type =
           { Frontend : Frontend/configuration.Type
           , Gitserver : Gitserver/configuration.Type
+          , GithubProxy : GithubProxy/configuration.Type
           , Postgres : Postgres/configuration.Type
           , IndexedSearch : IndexedSearch/configuration.Type
           , Symbols : Symbols/configuration.Type
@@ -57,6 +60,7 @@ let configuration =
       , default =
         { Frontend = Frontend/configuration.default
         , Gitserver = Gitserver/configuration.default
+        , GithubProxy = GithubProxy/configuration.default
         , Postgres = Postgres/configuration.default
         , IndexedSearch = IndexedSearch/configuration.default
         , Symbols = Symbols/configuration.default
