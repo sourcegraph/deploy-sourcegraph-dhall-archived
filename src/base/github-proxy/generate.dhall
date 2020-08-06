@@ -1,3 +1,6 @@
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
+
 let Kubernetes/Deployment =
       ../../deps/k8s/schemas/io.k8s.api.apps.v1.Deployment.dhall
 
@@ -53,6 +56,10 @@ let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
 
+let containerResources = ../../configuration/container-resources.dhall
+
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
+
 let Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
@@ -92,6 +99,32 @@ let Service/generate =
 
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
+        let overrides = c.GithubProxy.Deployment.Containers.GithubProxy
+
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/github-proxy:3.17.2@sha256:b54c845d7aa967791ea5f166a19df8f3abeeda408ae7ed9e1251f07e2c83a4f6"
+                overrides.image
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "1"
+                      , memory = Some "1G"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "100m"
+                      , memory = Some "250M"
+                      }
+                      overrides.resources.requests
+                }
+
         let deployment =
               Kubernetes/Deployment::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -134,8 +167,7 @@ let Deployment/generate =
                   , spec = Some Kubernetes/PodSpec::{
                     , containers =
                       [ Kubernetes/Container::{
-                        , image = Some
-                            "index.docker.io/sourcegraph/github-proxy:3.17.2@sha256:b54c845d7aa967791ea5f166a19df8f3abeeda408ae7ed9e1251f07e2c83a4f6"
+                        , image = Some image
                         , name = "github-proxy"
                         , ports = Some
                           [ Kubernetes/ContainerPort::{
@@ -143,16 +175,7 @@ let Deployment/generate =
                             , name = Some "http"
                             }
                           ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "1" }
-                            , { mapKey = "memory", mapValue = "1G" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "100m" }
-                            , { mapKey = "memory", mapValue = "250M" }
-                            ]
-                          }
+                        , resources = Some resources
                         , terminationMessagePolicy = Some
                             "FallbackToLogsOnError"
                         }

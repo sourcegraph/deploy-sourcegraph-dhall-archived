@@ -5,8 +5,14 @@ let Configuration/container = ../../configuration/container.dhall
 let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let containers =
-      { Type = { Prometheus : Configuration/container.Type }
-      , default.Prometheus = Configuration/container.default
+      { Type =
+          { Prometheus : Configuration/container.Type
+          , Blackbox : Configuration/container.Type
+          }
+      , default =
+        { Prometheus = Configuration/container.default
+        , Blackbox = Configuration/container.default
+        }
       }
 
 let Deployment =

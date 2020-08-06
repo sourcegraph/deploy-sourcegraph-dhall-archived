@@ -1,3 +1,6 @@
+let Optional/default =
+      https://prelude.dhall-lang.org/v17.0.0/Optional/default sha256:5bd665b0d6605c374b3c4a7e2e2bd3b9c1e39323d41441149ed5e30d86e889ad
+
 let Kubernetes/Container =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.Container.dhall
 
@@ -53,6 +56,10 @@ let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
 
+let containerResources = ../../configuration/container-resources.dhall
+
+let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
+
 let Service/generate =
       λ(c : Configuration/global.Type) →
         let service =
@@ -92,6 +99,32 @@ let Service/generate =
 
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
+        let overrides = c.QueryRunner.Deployment.Containers.QueryRunner
+
+        let image =
+              Optional/default
+                Text
+                "index.docker.io/sourcegraph/query-runner:3.17.2@sha256:73f1a1116fe12c8384c57f081bb4af50e7000e3589bcc04224c5bfb20f404afd"
+                overrides.image
+
+        let resources =
+              containerResources/tok8s
+                { limits =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "1"
+                      , memory = Some "1G"
+                      }
+                      overrides.resources.limits
+                , requests =
+                    containerResources.overlay
+                      containerResources.Configuration::{
+                      , cpu = Some "500m"
+                      , memory = Some "1G"
+                      }
+                      overrides.resources.requests
+                }
+
         let deployment =
               Kubernetes/Deployment::{
               , metadata = Kubernetes/ObjectMeta::{
@@ -135,8 +168,7 @@ let Deployment/generate =
                   , spec = Some Kubernetes/PodSpec::{
                     , containers =
                       [ Kubernetes/Container::{
-                        , image = Some
-                            "index.docker.io/sourcegraph/query-runner:3.17.2@sha256:73f1a1116fe12c8384c57f081bb4af50e7000e3589bcc04224c5bfb20f404afd"
+                        , image = Some image
                         , name = "query-runner"
                         , ports = Some
                           [ Kubernetes/ContainerPort::{
@@ -144,16 +176,7 @@ let Deployment/generate =
                             , name = Some "http"
                             }
                           ]
-                        , resources = Some Kubernetes/ResourceRequirements::{
-                          , limits = Some
-                            [ { mapKey = "cpu", mapValue = "1" }
-                            , { mapKey = "memory", mapValue = "1G" }
-                            ]
-                          , requests = Some
-                            [ { mapKey = "cpu", mapValue = "500m" }
-                            , { mapKey = "memory", mapValue = "1G" }
-                            ]
-                          }
+                        , resources = Some resources
                         , terminationMessagePolicy = Some
                             "FallbackToLogsOnError"
                         }

@@ -133,7 +133,6 @@ let frontendContainer/generate =
                       containerResources.Configuration::{
                       , cpu = Some "2"
                       , memory = Some "4G"
-                      , ephemeralStorage = None Text
                       }
                       overrides.resources.limits
                 , requests =
@@ -141,7 +140,6 @@ let frontendContainer/generate =
                       containerResources.Configuration::{
                       , cpu = Some "2"
                       , memory = Some "2G"
-                      , ephemeralStorage = None Text
                       }
                       overrides.resources.requests
                 }
@@ -362,6 +360,7 @@ let Ingress/generate =
                 , name = Some "sourcegraph-frontend"
                 }
               , spec = Some Kubernetes/IngressSpec::{
+                , tls = overrides.tls
                 , rules = Some
                   [ Kubernetes/IngressRule::{
                     , http = Some Kubernetes/HTTPIngressRuleValue::{
