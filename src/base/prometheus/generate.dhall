@@ -211,7 +211,7 @@ let Deployment/generate =
                         }
                       , Kubernetes/Volume::{
                         , configMap = Some Kubernetes/ConfigMapVolumeSource::{
-                          , defaultMode = Some 777
+                          , defaultMode = Some 511
                           , name = Some "prometheus"
                           }
                         , name = "config"

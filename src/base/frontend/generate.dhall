@@ -111,7 +111,7 @@ let makeGitserverEnvVar =
         let makeEndpoint =
               λ(i : Natural) → "gitserver-${Natural/show i}.gitserver:3178"
 
-        in  Text/concatMapSep "," Natural makeEndpoint indicies
+        in  Text/concatMapSep " " Natural makeEndpoint indicies
 
 let frontendContainer/generate =
       λ(c : Configuration/global.Type) →

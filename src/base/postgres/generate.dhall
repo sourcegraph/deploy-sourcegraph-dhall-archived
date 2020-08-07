@@ -348,7 +348,7 @@ let Deployment/generate =
                         }
                       , Kubernetes/Volume::{
                         , configMap = Some Kubernetes/ConfigMapVolumeSource::{
-                          , defaultMode = Some 777
+                          , defaultMode = Some 511
                           , name = Some "pgsql-conf"
                           }
                         , name = "pgsql-conf"

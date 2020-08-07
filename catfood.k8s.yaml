@@ -87,7 +87,7 @@ items:
               persistentVolumeClaim:
                 claimName: pgsql
             - configMap:
-                defaultMode: 777
+                defaultMode: 511
                 name: pgsql-conf
               name: pgsql-conf
   - apiVersion: v1
@@ -833,7 +833,7 @@ items:
           containers:
             - args:
                 - run
-              image: "index.docker.io/sourcegraph/gitserver:insiders@sha256:337685e6b581e0c3f86a824b3d767a2e5d8416427630601be54fae1e5c8f656a"
+              image: "index.docker.io/sourcegraph/gitserver:insiders@sha256:4861c686442c66ec5310bb4cac2f88c878c91dbd9f06e42409ddf627d58ca07e"
               livenessProbe:
                 initialDelaySeconds: 5
                 tcpSocket:
@@ -970,7 +970,7 @@ items:
                 - name: PGUSER
                   value: sg
                 - name: SRC_GIT_SERVERS
-                  value: "gitserver-0.gitserver:3178,gitserver-1.gitserver:3178,gitserver-2.gitserver:3178,gitserver-3.gitserver:3178"
+                  value: gitserver-0.gitserver:3178 gitserver-1.gitserver:3178 gitserver-2.gitserver:3178 gitserver-3.gitserver:3178
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
@@ -989,7 +989,7 @@ items:
                   value: "https://cb3bfeb73fb141cf9ed71d06ae1f02b8@sentry.io/1249389"
                 - name: SENTRY_DSN_FRONTEND
                   value: "https://cb3bfeb73fb141cf9ed71d06ae1f02b8@sentry.io/1249389"
-              image: "index.docker.io/sourcegraph/frontend:insiders@sha256:5819cf7e6fb01ad0775a32d4e3c4c40a3f1f5793cf907fa74d7c530d91de8d7f"
+              image: "index.docker.io/sourcegraph/frontend:insiders@sha256:a211568c55c867f78c7ef2070017df1633d2d462dec24cf705f0635cadb9a25a"
               livenessProbe:
                 httpGet:
                   path: /healthz
@@ -1183,7 +1183,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/indexed-searcher:insiders@sha256:6b304abe2d84b31357051ae78fd3e1facd57fed9a9fd84e2cce6a96b84de93e1"
+            - image: "index.docker.io/sourcegraph/indexed-searcher:insiders@sha256:b5547e441474c08ee35e0911d44ac7dd05928f45816999da6b4993e31725a141"
               name: zoekt-webserver
               ports:
                 - containerPort: 6070
@@ -1208,7 +1208,7 @@ items:
               volumeMounts:
                 - mountPath: /data
                   name: data
-            - image: "index.docker.io/sourcegraph/search-indexer:insiders@sha256:0b129a124674b821651d26b40edd1f861a75a2ed65e3e9af9c108d721348a666"
+            - image: "index.docker.io/sourcegraph/search-indexer:insiders@sha256:8eeb86684d66349c34185b6cacd54812048856e6a73b917a05912028fe04ed1d"
               name: zoekt-indexserver
               ports:
                 - containerPort: 6072
@@ -1302,7 +1302,7 @@ items:
                       fieldPath: metadata.name
                 - name: CACHE_DIR
                   value: "/mnt/cache/$(POD_NAME)"
-              image: "index.docker.io/sourcegraph/symbols:insiders@sha256:30ea02d6106d1deb8fdcda719a500e666b0ba7921897ffafb5cbd4f7be3ecd52"
+              image: "index.docker.io/sourcegraph/symbols:insiders@sha256:ea6fd7b5f5b33c563b69f7f014c89caef3e92fb038626b349ab77c7e362d5c82"
               livenessProbe:
                 httpGet:
                   path: /healthz
@@ -1610,7 +1610,7 @@ items:
                       fieldPath: metadata.name
                 - name: CACHE_DIR
                   value: "/mnt/cache/$(POD_NAME)"
-              image: "index.docker.io/sourcegraph/searcher:insiders@sha256:3c7690062c79949cd0a4af1cfdfd22a177d11d22684057b17a2502d97596da49"
+              image: "index.docker.io/sourcegraph/searcher:insiders@sha256:5d4de45c03acb56f22b6f61d922060987b1f5aa5b22e43c9c2ff49a1b3f251c0"
               name: searcher
               ports:
                 - containerPort: 3181
@@ -1719,7 +1719,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/repo-updater:insiders@sha256:13184df2e431fc7678ca59de9128301562a897acd241268c6d8ac069c14d5d09"
+            - image: "index.docker.io/sourcegraph/repo-updater:insiders@sha256:98ff67fe531efa0794ecbba43d403a2f3df1c60ad65c48d16b02a69e8d01cda7"
               name: repo-updater
               ports:
                 - containerPort: 3182
@@ -1812,7 +1812,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/github-proxy:insiders@sha256:9bc0fab1ef7cddd6a09d45d47fe81314be60a7a42ca5b48b4fd3c33b45527dda"
+            - image: "index.docker.io/sourcegraph/github-proxy:insiders@sha256:5df85aaa1fb332322c4eaf6b6f6fd0bd7ff505dbec0b8b8254c0b30ed2f5d930"
               name: github-proxy
               ports:
                 - containerPort: 3180
@@ -2461,7 +2461,7 @@ items:
                       fieldPath: metadata.name
                 - name: CACHE_DIR
                   value: "/mnt/cache/$(POD_NAME)"
-              image: "index.docker.io/sourcegraph/replacer:insiders@sha256:1eb8c6daa5d2b5bc3db1f7aed41297346b271332dea481db532c61803d67fcdf"
+              image: "index.docker.io/sourcegraph/replacer:insiders@sha256:1b1af9ac5ce358009b99b9d5f69c248546e386ab456d61f6cd39d2310a749b09"
               name: replacer
               ports:
                 - containerPort: 3185
@@ -2570,7 +2570,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/query-runner:insiders@sha256:0732ac488f67afa6bdb3333d3b39fcbeffdcce300d83a52052f89cddca7cf264"
+            - image: "index.docker.io/sourcegraph/query-runner:insiders@sha256:e78be29ed758931b60e0e842c949cfe3c9c0f56093e2021928bb258c355f36ee"
               name: query-runner
               ports:
                 - containerPort: 3183
@@ -2658,7 +2658,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/prometheus:insiders@sha256:8906de7028ec7ecfcfecb63335dc47fe70dbf50d8741699eaaa17ea2ddfa857e"
+            - image: "index.docker.io/sourcegraph/prometheus:insiders@sha256:96a07db09f71f4c110eceea813af48555bfc6efc68900231780816b868232292"
               livenessProbe:
                 httpGet:
                   path: /-/healthy
@@ -2698,7 +2698,7 @@ items:
               persistentVolumeClaim:
                 claimName: prometheus
             - configMap:
-                defaultMode: 777
+                defaultMode: 511
                 name: prometheus
               name: config
   - apiVersion: rbac.authorization.k8s.io/v1
@@ -2842,7 +2842,7 @@ items:
                 expr: min by(exported_name) (k8snode_filesystem_avail_bytes / k8snode_filesystem_size_bytes)
       prometheus.yml: |
         global:
-          scrape_interval:     30s
+          scrape_interval: 30s
           evaluation_interval: 30s
         
         alerting:
@@ -2855,7 +2855,7 @@ items:
                   action: keep
         
         rule_files:
-          - '*_rules.yml'
+          - "*_rules.yml"
           - "/sg_config_prometheus/*_rules.yml"
           - "/sg_prometheus_add_ons/*_rules.yml"
         
@@ -2874,7 +2874,7 @@ items:
         # default named port `https`. This works for single API server deployments as
         # well as HA API server deployments.
         scrape_configs:
-          - job_name: 'kubernetes-apiservers'
+          - job_name: "kubernetes-apiservers"
         
             kubernetes_sd_configs:
               - role: endpoints
@@ -2904,11 +2904,16 @@ items:
             # will add targets for each API server which Kubernetes adds an endpoint to
             # the default/kubernetes service.
             relabel_configs:
-              - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+              - source_labels:
+                  [
+                    __meta_kubernetes_namespace,
+                    __meta_kubernetes_service_name,
+                    __meta_kubernetes_endpoint_port_name,
+                  ]
                 action: keep
                 regex: default;kubernetes;https
         
-          - job_name: 'kubernetes-nodes'
+          - job_name: "kubernetes-nodes"
         
             # Default to scraping over https. If required, just disable this or change to
             # `http`.
@@ -2955,16 +2960,18 @@ items:
           # * `prometheus.io/path`: If the metrics path is not `/metrics` override this.
           # * `prometheus.io/port`: If the metrics are exposed on a different port to the
           # service then set this appropriately.
-          - job_name: 'kubernetes-service-endpoints'
+          - job_name: "kubernetes-service-endpoints"
         
             kubernetes_sd_configs:
               - role: endpoints
         
             relabel_configs:
-              - source_labels: [__meta_kubernetes_service_annotation_sourcegraph_prometheus_scrape]
+              - source_labels:
+                  [__meta_kubernetes_service_annotation_sourcegraph_prometheus_scrape]
                 action: keep
                 regex: true
-              - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
+              - source_labels:
+                  [__meta_kubernetes_service_annotation_prometheus_io_scheme]
                 action: replace
                 target_label: __scheme__
                 regex: (https?)
@@ -2972,7 +2979,8 @@ items:
                 action: replace
                 target_label: __metrics_path__
                 regex: (.+)
-              - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+              - source_labels:
+                  [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
                 action: replace
                 target_label: __address__
                 regex: (.+)(?::\d+);(\d+)
@@ -3002,7 +3010,7 @@ items:
           # via the following annotations:
           #
           # * `prometheus.io/probe`: Only probe services that have a value of `true`
-          - job_name: 'kubernetes-services'
+          - job_name: "kubernetes-services"
         
             metrics_path: /probe
             params:
@@ -3012,7 +3020,8 @@ items:
               - role: service
         
             relabel_configs:
-              - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_probe]
+              - source_labels:
+                  [__meta_kubernetes_service_annotation_prometheus_io_probe]
                 action: keep
                 regex: true
               - source_labels: [__address__]
@@ -3038,23 +3047,25 @@ items:
           # * `prometheus.io/scrape`: Only scrape pods that have a value of `true`
           # * `prometheus.io/path`: If the metrics path is not `/metrics` override this.
           # * `prometheus.io/port`: Scrape the pod on the indicated port instead of the default of `9102`.
-          - job_name: 'kubernetes-pods'
+          - job_name: "kubernetes-pods"
         
             kubernetes_sd_configs:
               - role: pod
         
             relabel_configs:
-              - source_labels: [__meta_kubernetes_pod_annotation_sourcegraph_prometheus_scrape]
+              - source_labels:
+                  [__meta_kubernetes_pod_annotation_sourcegraph_prometheus_scrape]
                 action: keep
                 regex: true
               - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
                 action: replace
                 target_label: __metrics_path__
                 regex: (.+)
-              - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+              - source_labels:
+                  [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
                 action: replace
                 regex: (.+):(?:\d+);(\d+)
-                replacement: ''${1}:''${2}
+                replacement: ${1}:${2}
                 target_label: __address__
               - action: labelmap
                 regex: __meta_kubernetes_pod_label_(.+)
@@ -3066,6 +3077,27 @@ items:
               - source_labels: [__meta_kubernetes_pod_name]
                 action: replace
                 target_label: kubernetes_pod_name
+        
+          - job_name: "http_200"
+            metrics_path: /probe
+            params:
+              module: [http_2xx] # Look for a HT != 200 response.
+            static_configs:
+              - targets:
+                  - http://sourcegraph-frontend:30080
+                  - https://k8s.sgdev.org
+                  - http://k8s.sgdev.org
+                  - https://k8s.sgdev.org/favicon.ico
+                  - https://k8s.sgdev.org/login
+                  - https://k8s.sgdev.org/-/godoc/refs?def=Route&pkg=github.com%2Fgorilla%2Fmux&repo=github.com%2Fgorilla%2Fmux
+                  - https://k8s.sgdev.org/github.com/golang/go/-/info/GoPackage/fmt/-/Printf
+            relabel_configs:
+              - source_labels: [__address__]
+                target_label: __param_target
+              - source_labels: [__param_target]
+                target_label: instance
+              - target_label: __address__
+                replacement: blackbox-exporter:9115 # The blackbox exporter's real hostname:port.
       sourcegraph_rules.yml: |
         groups:
           - name: sourcegraph.rules

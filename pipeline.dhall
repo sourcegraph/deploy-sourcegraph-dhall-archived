@@ -1,17 +1,18 @@
 let Sourcegraph =
-      https://raw.githubusercontent.com/sourcegraph/deploy-sourcegraph-dhall/1848e3a917ac11a27ca02a9f3162a9c0cf21e751/package.dhall sha256:370f1572e3e8f093b06bcfa5abc9facf537a1936f809dba00b2eecc2d9742e8f
+      ./package.dhall sha256:1a22c5584b1c51f7b91373f343873fdaa1ac3c3aef30f859ba7901021d6a69b9
 
 let Kubernetes/EnvVar =
       ./src/deps/k8s/schemas/io.k8s.api.core.v1.EnvVar.dhall sha256:94ea00566409bc470cd81ca29903066714557826c723dad8c25a282897c7acb3
 
-let Configuration/CloudProvider = ./src/configuration/cloud-provider.dhall
+let Configuration/CloudProvider =
+      ./src/configuration/cloud-provider.dhall sha256:98cdc6abe01242ad40a6e05e0c102e74227a93b3cbc85825cb5af57bbcb32733
 
 let Render = Sourcegraph.Render
 
 let c =
       Sourcegraph.Configuration::{=}
       with Frontend.Deployment.Containers.SourcegraphFrontend.image = Some
-          "index.docker.io/sourcegraph/frontend:insiders@sha256:5819cf7e6fb01ad0775a32d4e3c4c40a3f1f5793cf907fa74d7c530d91de8d7f"
+          "index.docker.io/sourcegraph/frontend:insiders@sha256:a211568c55c867f78c7ef2070017df1633d2d462dec24cf705f0635cadb9a25a"
       with Frontend.Deployment.Containers.SourcegraphFrontend.resources.limits.cpu = Some
           "8000m"
       with Frontend.Deployment.Containers.SourcegraphFrontend.resources.limits.memory = Some
@@ -53,14 +54,14 @@ let c =
           }
         ]
       with GithubProxy.Deployment.Containers.GithubProxy.image = Some
-          "index.docker.io/sourcegraph/github-proxy:insiders@sha256:9bc0fab1ef7cddd6a09d45d47fe81314be60a7a42ca5b48b4fd3c33b45527dda"
+          "index.docker.io/sourcegraph/github-proxy:insiders@sha256:5df85aaa1fb332322c4eaf6b6f6fd0bd7ff505dbec0b8b8254c0b30ed2f5d930"
       with GithubProxy.Deployment.Containers.GithubProxy.resources.limits.ephemeralStorage = Some
           "1Gi"
       with GithubProxy.Deployment.Containers.GithubProxy.resources.requests.ephemeralStorage = Some
           "1Gi"
       with Gitserver.StatefulSet.replicas = Some 4
       with Gitserver.StatefulSet.Containers.Gitserver.image = Some
-          "index.docker.io/sourcegraph/gitserver:insiders@sha256:337685e6b581e0c3f86a824b3d767a2e5d8416427630601be54fae1e5c8f656a"
+          "index.docker.io/sourcegraph/gitserver:insiders@sha256:4861c686442c66ec5310bb4cac2f88c878c91dbd9f06e42409ddf627d58ca07e"
       with Gitserver.StatefulSet.persistentVolumeSize = Some "4Ti"
       with Gitserver.StatefulSet.sshSecretName = Some "gitserver-ssh"
       with Gitserver.StatefulSet.Containers.Gitserver.resources.limits.ephemeralStorage = Some
@@ -68,7 +69,7 @@ let c =
       with Gitserver.StatefulSet.Containers.Gitserver.resources.requests.ephemeralStorage = Some
           "1Gi"
       with Grafana.StatefulSet.Containers.Grafana.image = Some
-          "index.docker.io/sourcegraph/grafana:insiders@sha256:3a9f472109f9ab1ab992574e5e55b067a34537a38a0872db093cd877823ac42e"
+          "index.docker.io/sourcegraph/grafana:insiders@sha256:68231a60ffcbfb104573ab5319fb8214b7d59292da39b9e5ad2a6c60a9c0e81b"
       with Grafana.StatefulSet.Containers.Grafana.resources.limits.cpu = Some
           "100m"
       with Grafana.StatefulSet.Containers.Grafana.resources.limits.memory = Some
@@ -100,9 +101,9 @@ let c =
       with Postgres.Deployment.Containers.Postgres.resources.requests.memory = Some
           "24Gi"
       with IndexedSearch.StatefulSet.Containers.ZoektWebServer.image = Some
-          "index.docker.io/sourcegraph/indexed-searcher:insiders@sha256:6b304abe2d84b31357051ae78fd3e1facd57fed9a9fd84e2cce6a96b84de93e1"
+          "index.docker.io/sourcegraph/indexed-searcher:insiders@sha256:b5547e441474c08ee35e0911d44ac7dd05928f45816999da6b4993e31725a141"
       with IndexedSearch.StatefulSet.Containers.ZoektIndexServer.image = Some
-          "index.docker.io/sourcegraph/search-indexer:insiders@sha256:0b129a124674b821651d26b40edd1f861a75a2ed65e3e9af9c108d721348a666"
+          "index.docker.io/sourcegraph/search-indexer:insiders@sha256:8eeb86684d66349c34185b6cacd54812048856e6a73b917a05912028fe04ed1d"
       with IndexedSearch.StatefulSet.Containers.ZoektWebServer.resources.limits.cpu = Some
           "12"
       with IndexedSearch.StatefulSet.Containers.ZoektWebServer.resources.limits.memory = Some
@@ -130,7 +131,7 @@ let c =
       with Prometheus.Deployment.Containers.Prometheus.resources.requests.memory = Some
           "500M"
       with Prometheus.Deployment.Containers.Prometheus.image = Some
-          "index.docker.io/sourcegraph/prometheus:insiders@sha256:8906de7028ec7ecfcfecb63335dc47fe70dbf50d8741699eaaa17ea2ddfa857e"
+          "index.docker.io/sourcegraph/prometheus:insiders@sha256:96a07db09f71f4c110eceea813af48555bfc6efc68900231780816b868232292"
       with Prometheus.Deployment.Containers.Prometheus.resources.requests.ephemeralStorage = Some
           "1Gi"
       with Prometheus.Deployment.Containers.Prometheus.resources.limits.ephemeralStorage = Some
@@ -144,31 +145,31 @@ let c =
       with Prometheus.Deployment.Containers.Blackbox.resources.requests.cpu = Some
           "500m"
       with QueryRunner.Deployment.Containers.QueryRunner.image = Some
-          "index.docker.io/sourcegraph/query-runner:insiders@sha256:0732ac488f67afa6bdb3333d3b39fcbeffdcce300d83a52052f89cddca7cf264"
+          "index.docker.io/sourcegraph/query-runner:insiders@sha256:e78be29ed758931b60e0e842c949cfe3c9c0f56093e2021928bb258c355f36ee"
       with QueryRunner.Deployment.Containers.QueryRunner.resources.limits.ephemeralStorage = Some
           "1Gi"
       with QueryRunner.Deployment.Containers.QueryRunner.resources.requests.ephemeralStorage = Some
           "1Gi"
       with Replacer.Deployment.Containers.Replacer.image = Some
-          "index.docker.io/sourcegraph/replacer:insiders@sha256:1eb8c6daa5d2b5bc3db1f7aed41297346b271332dea481db532c61803d67fcdf"
+          "index.docker.io/sourcegraph/replacer:insiders@sha256:1b1af9ac5ce358009b99b9d5f69c248546e386ab456d61f6cd39d2310a749b09"
       with Replacer.Deployment.Containers.Replacer.resources.limits.ephemeralStorage = Some
           "1Gi"
       with Replacer.Deployment.Containers.Replacer.resources.requests.ephemeralStorage = Some
           "1Gi"
       with RepoUpdater.Deployment.Containers.RepoUpdater.image = Some
-          "index.docker.io/sourcegraph/repo-updater:insiders@sha256:13184df2e431fc7678ca59de9128301562a897acd241268c6d8ac069c14d5d09"
+          "index.docker.io/sourcegraph/repo-updater:insiders@sha256:98ff67fe531efa0794ecbba43d403a2f3df1c60ad65c48d16b02a69e8d01cda7"
       with RepoUpdater.Deployment.Containers.RepoUpdater.resources.limits.ephemeralStorage = Some
           "1Gi"
       with RepoUpdater.Deployment.Containers.RepoUpdater.resources.requests.ephemeralStorage = Some
           "1Gi"
       with Searcher.Deployment.Containers.Searcher.image = Some
-          "index.docker.io/sourcegraph/searcher:insiders@sha256:3c7690062c79949cd0a4af1cfdfd22a177d11d22684057b17a2502d97596da49"
+          "index.docker.io/sourcegraph/searcher:insiders@sha256:5d4de45c03acb56f22b6f61d922060987b1f5aa5b22e43c9c2ff49a1b3f251c0"
       with Searcher.Deployment.Containers.Searcher.resources.limits.ephemeralStorage = Some
           "1Gi"
       with Searcher.Deployment.Containers.Searcher.resources.requests.ephemeralStorage = Some
           "1Gi"
       with Symbols.Deployment.Containers.Symbols.image = Some
-          "index.docker.io/sourcegraph/symbols:insiders@sha256:30ea02d6106d1deb8fdcda719a500e666b0ba7921897ffafb5cbd4f7be3ecd52"
+          "index.docker.io/sourcegraph/symbols:insiders@sha256:ea6fd7b5f5b33c563b69f7f014c89caef3e92fb038626b349ab77c7e362d5c82"
       with Symbols.Deployment.Containers.Symbols.resources.limits.ephemeralStorage = Some
           "1Gi"
       with Symbols.Deployment.Containers.Symbols.resources.requests.ephemeralStorage = Some
@@ -198,14 +199,14 @@ let c =
       with Redis.Cache.Deployment.Containers.Cache.resources.requests.ephemeralStorage = Some
           "1Gi"
       with PreciseCodeIntel.BundleManager.Deployment.Containers.BundleManager.image = Some
-          "index.docker.io/sourcegraph/precise-code-intel-bundle-manager:insiders@sha256:abbd9418d424955e6e5236efd5b8b551128f2bcd25490a2ffe911bbc4bc87598"
+          "index.docker.io/sourcegraph/precise-code-intel-bundle-manager:insiders@sha256:5fedf4f0158d56a7cab98fb9a232f17b43e4d4890df5674177b0e358b5ff8a3d"
       with PreciseCodeIntel.BundleManager.Deployment.Containers.BundleManager.resources.limits.ephemeralStorage = Some
           "1Gi"
       with PreciseCodeIntel.BundleManager.Deployment.Containers.BundleManager.resources.requests.ephemeralStorage = Some
           "1Gi"
       with PreciseCodeIntel.Worker.Deployment.Containers.Worker.image = Some
-          "index.docker.io/sourcegraph/precise-code-intel-worker:insiders@sha256:579a3d5df83c0c771e9f8b18ce6344bfbe3b636d6f1d101b3cec8ac3b266d2a2"
-      with PreciseCodeIntel.Worker.Deployment.Containers.Worker.resources.limits.ephemeralStorage = Some
+          "index.docker.io/sourcegraph/precise-code-intel-worker:insiders@sha256:f9cda51f68388b0b809c647e954dbc2aa9643efc4beb8e2cb9cbc56b1b9c1675"
+p      with PreciseCodeIntel.Worker.Deployment.Containers.Worker.resources.limits.ephemeralStorage = Some
           "1Gi"
       with PreciseCodeIntel.Worker.Deployment.Containers.Worker.resources.requests.ephemeralStorage = Some
           "1Gi"
