@@ -32,6 +32,8 @@ let Symbols/Component = ./symbols/component.dhall
 
 let SyntaxHighlighter/Component = ./syntax-highlighter/component.dhall
 
+let StorageClass/Component = ./storage-class/component.dhall
+
 let component =
       { Frontend : Frontend/Component
       , Cadvisor : Cadvisor/Component
@@ -50,6 +52,7 @@ let component =
       , Searcher : Searcher/Component
       , Symbols : Symbols/Component
       , SyntaxHighlighter : SyntaxHighlighter/Component
+      , StorageClass : StorageClass/Component
       }
 
 in  component
