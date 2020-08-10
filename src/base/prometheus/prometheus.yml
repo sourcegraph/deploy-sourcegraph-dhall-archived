@@ -1,5 +1,5 @@
 global:
-  scrape_interval:     30s
+  scrape_interval: 30s
   evaluation_interval: 30s
 
 alerting:
@@ -13,8 +13,8 @@ alerting:
 
 rule_files:
   - '*_rules.yml'
-  - "/sg_config_prometheus/*_rules.yml"
-  - "/sg_prometheus_add_ons/*_rules.yml"
+  - '/sg_config_prometheus/*_rules.yml'
+  - '/sg_prometheus_add_ons/*_rules.yml'
 
 # A scrape configuration for running Prometheus on a Kubernetes cluster.
 # This uses separate scrape configs for cluster components (i.e. API server, node)
@@ -61,7 +61,8 @@ scrape_configs:
     # will add targets for each API server which Kubernetes adds an endpoint to
     # the default/kubernetes service.
     relabel_configs:
-      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+      - source_labels:
+          [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
         action: keep
         regex: default;kubernetes;https
 
@@ -211,7 +212,7 @@ scrape_configs:
       - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
         action: replace
         regex: (.+):(?:\d+);(\d+)
-        replacement: ''${1}:''${2}
+        replacement: ${1}:${2}
         target_label: __address__
       - action: labelmap
         regex: __meta_kubernetes_pod_label_(.+)
@@ -223,3 +224,24 @@ scrape_configs:
       - source_labels: [__meta_kubernetes_pod_name]
         action: replace
         target_label: kubernetes_pod_name
+
+  - job_name: 'http_200'
+    metrics_path: /probe
+    params:
+      module: [http_2xx] # Look for a HT != 200 response.
+    static_configs:
+      - targets:
+          - http://sourcegraph-frontend:30080
+          - https://k8s.sgdev.org
+          - http://k8s.sgdev.org
+          - https://k8s.sgdev.org/favicon.ico
+          - https://k8s.sgdev.org/login
+          - https://k8s.sgdev.org/-/godoc/refs?def=Route&pkg=github.com%2Fgorilla%2Fmux&repo=github.com%2Fgorilla%2Fmux
+          - https://k8s.sgdev.org/github.com/golang/go/-/info/GoPackage/fmt/-/Printf
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115 # The blackbox exporter's real hostname:port.

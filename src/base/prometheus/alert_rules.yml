@@ -8,7 +8,7 @@ groups:
           severity: page
         annotations:
           description: 'Pods missing from {{`{{`}} $labels.app {{`}}`}}: {{`{{`}} $value
-                              {{`}}`}}'
+            {{`}}`}}'
           help: Alerts when pods are missing.
           summary: Pods missing from {{`{{`}} $labels.app {{`}}`}}
       - alert: NoPodsRunning
@@ -18,17 +18,18 @@ groups:
           severity: page
         annotations:
           description: 'No pods are running for {{`{{`}} $labels.app {{`}}`}}: {{`{{`}}
-                              $value {{`}}`}}'
+            $value {{`}}`}}'
           help: Alerts when no pods are running for a service.
           summary: No pods are running for {{`{{`}} $labels.app {{`}}`}}
       - alert: ProdPageLoadLatency
-        expr: histogram_quantile(0.9, sum by(le) (rate(src_http_request_duration_seconds_bucket{job="sourcegraph-frontend",route!="raw"}[10m])))
+        expr:
+          histogram_quantile(0.9, sum by(le) (rate(src_http_request_duration_seconds_bucket{job="sourcegraph-frontend",route!="raw"}[10m])))
           > 20
         labels:
           severity: page
         annotations:
           description: 'Page load latency > 20s (90th percentile over all routes; current
-                              value: {{`{{`}}$value{{`}}`}}s)'
+            value: {{`{{`}}$value{{`}}`}}s)'
           help: Alerts when the page load latency is too high.
           summary: High page load latency
       - alert: GoroutineLeak
@@ -36,7 +37,7 @@ groups:
         for: 10m
         annotations:
           description: '{{`{{`}} $labels.app {{`}}`}} has more than 10k goroutines. This
-                              is probably a regression causing a goroutine leak'
+            is probably a regression causing a goroutine leak'
           help: Alerts when a service has excessive running goroutines.
           summary: Excessive number of goroutines
       - alert: FSINodesRemainingLow
@@ -45,7 +46,7 @@ groups:
           severity: page
         annotations:
           description: '{{`{{`}}$labels.instance{{`}}`}} is using {{`{{`}}humanize $value{{`}}`}}
-                              inodes'
+            inodes'
           help: Alerts when a node's remaining FS inodes are low.
           summary: '{{`{{`}}$labels.instance{{`}}`}} remaining fs inodes is low'
       - alert: DiskSpaceLow
@@ -53,7 +54,7 @@ groups:
         annotations:
           help: Alerts when a node has less than 10% available disk space.
           summary: '{{`{{`}}$labels.exported_name{{`}}`}} has less than 10% available
-                              disk space'
+            disk space'
       - alert: DiskSpaceLowCritical
         expr: node:k8snode_filesystem_avail_bytes:ratio{exported_name=~".*prod.*"} < 0.05
         labels:
@@ -81,9 +82,10 @@ groups:
           help: Alerts when the search service has more than 10% of requests failing.
           summary: Error ratio exceeds 10%
       - alert: PrometheusMetricsBloat
-        expr: http_response_size_bytes{handler="prometheus",job!="kubernetes-apiservers",job!="kubernetes-nodes",quantile="0.5"}
+        expr:
+          http_response_size_bytes{handler="prometheus",job!="kubernetes-apiservers",job!="kubernetes-nodes",quantile="0.5"}
           > 20000
         annotations:
           help: Alerts when a service is probably leaking metrics (unbounded attribute).
           summary: '{{`{{`}}$labels.job{{`}}`}} in {{`{{`}}$labels.ns{{`}}`}} is probably
-                              leaking metrics (unbounded attribute)'
+            leaking metrics (unbounded attribute)'
