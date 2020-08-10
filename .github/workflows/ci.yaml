@@ -4,26 +4,26 @@ jobs:
     name: render-CI-pipeline
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: 'actions/checkout@v2'
       - name: Install asdf
-        uses: "asdf-vm/actions/setup@v1.0.0"
+        uses: 'asdf-vm/actions/setup@v1.0.0'
       - name: Install asdf plugins
-        run: "./ci/asdf-add-plugins.sh"
+        run: './ci/asdf-add-plugins.sh'
       - name: Install asdf tools versions
-        run: "./ci/asdf-install.sh"
+        run: './ci/asdf-install.sh'
       - name: Check that the CI pipeline definition is up-to-date with the dhall configuration
         run: ci/check-rendered-pipeline-up-to-date.sh
   dhallFormat:
     name: dhall-format
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: 'actions/checkout@v2'
       - name: Install asdf
-        uses: "asdf-vm/actions/setup@v1.0.0"
+        uses: 'asdf-vm/actions/setup@v1.0.0'
       - name: Install asdf plugins
-        run: "./ci/asdf-add-plugins.sh"
+        run: './ci/asdf-add-plugins.sh'
       - name: Install asdf tools versions
-        run: "./ci/asdf-install.sh"
+        run: './ci/asdf-install.sh'
       - env:
           CHECK: 'true'
         name: Check that dhall files are formatted
@@ -32,54 +32,67 @@ jobs:
     name: dhall-lint
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: 'actions/checkout@v2'
       - name: Install asdf
-        uses: "asdf-vm/actions/setup@v1.0.0"
+        uses: 'asdf-vm/actions/setup@v1.0.0'
       - name: Install asdf plugins
-        run: "./ci/asdf-add-plugins.sh"
+        run: './ci/asdf-add-plugins.sh'
       - name: Install asdf tools versions
-        run: "./ci/asdf-install.sh"
+        run: './ci/asdf-install.sh'
       - env:
           CHECK: 'true'
         name: Check that dhall files are linted properly
         run: scripts/lint.sh
+  prettier:
+    name: Prettier formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: 'actions/checkout@v2'
+      - name: Install asdf
+        uses: 'asdf-vm/actions/setup@v1.0.0'
+      - name: Install asdf plugins
+        run: './ci/asdf-add-plugins.sh'
+      - name: Install asdf tools versions
+        run: './ci/asdf-install.sh'
+      - name: Check Prettier formatting
+        run: ci/check-prettier.sh
   renderPackage:
     name: typecheck-dhall-package
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: 'actions/checkout@v2'
       - name: Install asdf
-        uses: "asdf-vm/actions/setup@v1.0.0"
+        uses: 'asdf-vm/actions/setup@v1.0.0'
       - name: Install asdf plugins
-        run: "./ci/asdf-add-plugins.sh"
+        run: './ci/asdf-add-plugins.sh'
       - name: Install asdf tools versions
-        run: "./ci/asdf-install.sh"
+        run: './ci/asdf-install.sh'
       - name: Check that deploy-sourcegraph-dhall typechecks without any errors
         run: ci/typecheck-package.sh
   shellcheck:
     name: shellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: 'actions/checkout@v2'
       - name: Install asdf
-        uses: "asdf-vm/actions/setup@v1.0.0"
+        uses: 'asdf-vm/actions/setup@v1.0.0'
       - name: Install asdf plugins
-        run: "./ci/asdf-add-plugins.sh"
+        run: './ci/asdf-add-plugins.sh'
       - name: Install asdf tools versions
-        run: "./ci/asdf-install.sh"
+        run: './ci/asdf-install.sh'
       - name: Lint shell scripts
         run: ci/shellcheck.sh
   shfmt:
     name: shfmt
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: 'actions/checkout@v2'
       - name: Install asdf
-        uses: "asdf-vm/actions/setup@v1.0.0"
+        uses: 'asdf-vm/actions/setup@v1.0.0'
       - name: Install asdf plugins
-        run: "./ci/asdf-add-plugins.sh"
+        run: './ci/asdf-add-plugins.sh'
       - name: Install asdf tools versions
-        run: "./ci/asdf-install.sh"
+        run: './ci/asdf-install.sh'
       - name: Check that scripts are formatted consistently
         run: ci/shfmt.sh
 name: CI

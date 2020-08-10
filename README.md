@@ -14,7 +14,7 @@ Generate all the yaml manifests by running the following command:
 dhall-to-yaml --file ./pipeline.dhall
 ```
 
-## Benchmarks 
+## Benchmarks
 
 Commit: https://github.com/sourcegraph/deploy-sourcegraph-dhall/commit/285b1515ade18682d1fac33f8e70bb32100dd67c
 
@@ -44,7 +44,7 @@ std dev              1.110 s    (19.74 ms .. 1.320 s)
 variance introduced by outliers: 19% (moderately inflated)
 ```
 
-### Normal form size 
+### Normal form size
 
 ```shell
 ❯ dhall --file pipeline.dhall | dhall encode | wc -c
