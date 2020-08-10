@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "prettier": "prettier '**/{*.{js?(on),ts?(x),y?(a)ml,graphql,md,scss,toml},.*.js?(on)}' --write --list-different",
+    "prettier-check": "yarn -s run prettier --write=false"
+  },
+  "name": "tep-alumni-website",
+  "version": "dev",
+  "repository": "git@github.com:alumxi22/website.git",
+  "author": "Geoffrey Gilmore <ggilmore@mit.edu>",
+  "license": "MIT",
+  "devDependencies": {
+    "@sourcegraph/prettierrc": "^3.0.3",
+    "prettier": "^2.0.5",
+    "prettier-plugin-toml": "^0.3.1"
+  }
+}

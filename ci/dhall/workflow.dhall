@@ -12,6 +12,8 @@ let dhallLint = ./jobs/dhall-lint.dhall
 
 let renderPackage = ./jobs/typecheck-package.dhall
 
+let prettier = ./jobs/prettier.dhall
+
 in  GitHubActions.Workflow::{
     , name = "CI"
     , on = GitHubActions.On::{ push = Some GitHubActions.Push::{=} }
@@ -22,5 +24,6 @@ in  GitHubActions.Workflow::{
         , dhallLint
         , checkPipeline
         , renderPackage
+        , prettier
         }
     }
