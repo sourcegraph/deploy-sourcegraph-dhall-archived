@@ -113,6 +113,14 @@ let makeGitserverEnvVar =
 
         in  Text/concatMapSep " " Natural makeEndpoint indicies
 
+let test0GitserverEnvVar =
+        assert
+      :   makeGitserverEnvVar 3
+        ≡ "gitserver-0.gitserver:3178 gitserver-1.gitserver:3178 gitserver-2.gitserver:3178"
+
+let test1GitserverEnvVar =
+      assert : makeGitserverEnvVar 1 ≡ "gitserver-0.gitserver:3178"
+
 let frontendContainer/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Frontend.Deployment.Containers.SourcegraphFrontend
