@@ -206,6 +206,6 @@ let c =
           "1Gi"
       with StorageClass.CloudProvider =
           Sourcegraph.Configuration.CloudProvider.GCP
-      with IngressNginx.Enabled = False
+      with IngressNginx.Enabled = True
 
 in  Render c
