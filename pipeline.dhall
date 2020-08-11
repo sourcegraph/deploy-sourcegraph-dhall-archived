@@ -10,7 +10,7 @@ let Configuration/CloudProvider =
 let Render = Sourcegraph.Render
 
 let c =
-      Sourcegraph.Configuration::{=}
+      Sourcegraph.Configuration.Global::{=}
       with Frontend.Deployment.Containers.SourcegraphFrontend.image = Some
           "index.docker.io/sourcegraph/frontend:insiders@sha256:a211568c55c867f78c7ef2070017df1633d2d462dec24cf705f0635cadb9a25a"
       with Frontend.Deployment.Containers.SourcegraphFrontend.resources.limits.cpu = Some
@@ -206,7 +206,7 @@ let c =
           "1Gi"
       with PreciseCodeIntel.Worker.Deployment.Containers.Worker.image = Some
           "index.docker.io/sourcegraph/precise-code-intel-worker:insiders@sha256:f9cda51f68388b0b809c647e954dbc2aa9643efc4beb8e2cb9cbc56b1b9c1675"
-p      with PreciseCodeIntel.Worker.Deployment.Containers.Worker.resources.limits.ephemeralStorage = Some
+      with PreciseCodeIntel.Worker.Deployment.Containers.Worker.resources.limits.ephemeralStorage = Some
           "1Gi"
       with PreciseCodeIntel.Worker.Deployment.Containers.Worker.resources.requests.ephemeralStorage = Some
           "1Gi"

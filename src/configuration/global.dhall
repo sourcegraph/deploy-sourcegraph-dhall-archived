@@ -36,6 +36,8 @@ let Searcher/configuration = ../base/searcher/configuration.dhall
 
 let StorageClass/configuration = ../base/storage-class/configuration.dhall
 
+let IngressNginx/configuration = ../base/ingress-nginx/configuration.dhall
+
 let configuration =
       { Type =
           { Frontend : Frontend/configuration.Type
@@ -56,6 +58,7 @@ let configuration =
           , QueryRunner : QueryRunner/configuration.Type
           , Prometheus : Prometheus/configuration.Type
           , StorageClass : StorageClass/configuration.Type
+          , IngressNginx : IngressNginx/configuration.Type
           }
       , default =
         { Frontend = Frontend/configuration.default
@@ -76,6 +79,7 @@ let configuration =
         , QueryRunner = QueryRunner/configuration.default
         , Prometheus = Prometheus/configuration.default
         , StorageClass = StorageClass/configuration.default
+        , IngressNginx = IngressNginx/configuration.default
         }
       }
 

@@ -72,6 +72,8 @@ let containerResources = ../../configuration/container-resources.dhall
 
 let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
 
+let Octal = ../../util/octal.dhall
+
 let Service/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Gitserver.Service
@@ -223,7 +225,8 @@ let StatefulSet/generate =
                         , name = "ssh"
                         , secret = Some Kubernetes/SecretVolumeSource::{
                           , secretName = Some x
-                          , defaultMode = Some 384
+                          , defaultMode = Some
+                              (Octal.toNatural Octal.Enum.Oo600)
                           }
                         }
                       ]

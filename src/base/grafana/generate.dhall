@@ -74,6 +74,8 @@ let containerResources = ../../configuration/container-resources.dhall
 
 let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
 
+let Octal = ../../util/octal.dhall
+
 let ServiceAccount/generate =
       λ(c : Configuration/global.Type) →
         let serviceAccount =
@@ -246,7 +248,8 @@ let StatefulSet/generate =
                     , volumes = Some
                       [ Kubernetes/Volume::{
                         , configMap = Some Kubernetes/ConfigMapVolumeSource::{
-                          , defaultMode = Some 777
+                          , defaultMode = Some
+                              (Octal.toNatural Octal.Enum.Oo777)
                           , name = Some "grafana"
                           }
                         , name = "config"
