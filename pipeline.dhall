@@ -1,5 +1,5 @@
 let Sourcegraph =
-      https://raw.githubusercontent.com/sourcegraph/deploy-sourcegraph-dhall/4ca012a5d63e54825f338b77d456e771e028cf08/package.dhall sha256:b58bec6074b1ad69509ef32c2f1dfb44ed4133b8d0af0a7e24079f4a64edfdab
+      https://raw.githubusercontent.com/sourcegraph/deploy-sourcegraph-dhall/d95e9674ebefc6b82b651c8f44fac63ab60f1030/package.dhall sha256:2d68414383b4b368c5be77b533ece77e36b189bf28c41c8c3eec25253607aad4
 
 let Render = Sourcegraph.Render
 
@@ -204,7 +204,8 @@ let c =
           "1Gi"
       with PreciseCodeIntel.Worker.Deployment.Containers.Worker.resources.requests.ephemeralStorage = Some
           "1Gi"
-      with StorageClass.CloudProvider = Sourcegraph.Configuration.CloudProvider.GCP
-      with IngressNginx.Enabled = True
+      with StorageClass.CloudProvider =
+          Sourcegraph.Configuration.CloudProvider.GCP
+      with IngressNginx.Enabled = False
 
 in  Render c
