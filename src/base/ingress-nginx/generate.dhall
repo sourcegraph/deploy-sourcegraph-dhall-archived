@@ -108,6 +108,9 @@ let Kubernetes/ServiceAccount =
 let Kubernetes/JobSpec =
       ../../deps/k8s/schemas/io.k8s.api.batch.v1.JobSpec.dhall
 
+let Kubernetes/Namespace =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.Namespace.dhall
+
 let Configuration/global = ../../configuration/global.dhall
 
 let component = ./component.dhall
@@ -1133,6 +1136,19 @@ let Generate =
                         , namespace = Some "ingress-nginx"
                         }
                       ]
+                    }
+                  , Namespace.ingress-nginx = Kubernetes/Namespace::{
+                    , metadata = Kubernetes/ObjectMeta::{
+                      , labels = Some
+                        [ { mapKey = "app.kubernetes.io/instance"
+                          , mapValue = "ingress-nginx"
+                          }
+                        , { mapKey = "app.kubernetes.io/name"
+                          , mapValue = "ingress-nginx"
+                          }
+                        ]
+                      , name = Some "ingress-nginx"
+                      }
                     }
                   }
 

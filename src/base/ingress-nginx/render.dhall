@@ -50,6 +50,8 @@ let ToList =
                               ig.ClusterRole.ingress-nginx
                           , Kubernetes/TypesUnion.ClusterRoleBinding
                               ig.ClusterRoleBinding.ingress-nginx
+                          , Kubernetes/TypesUnion.Namespace
+                              ig.Namespace.ingress-nginx
                           ]
                     , None = [] : List Kubernetes/TypesUnion
                     }
