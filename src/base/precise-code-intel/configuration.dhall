@@ -1,8 +1,8 @@
 let Configuration/universal = ../../configuration/universal.dhall
 
-let Configuration/container = ../../configuration/container.dhall
+let Configuration/deployment = ../../configuration/deployment.dhall
 
-let Util/KeyValuePair = ../../util/key-value-pair.dhall
+let Configuration/container = ../../configuration/container.dhall
 
 let BundleManager/containers =
       { Type = { BundleManager : Configuration/container.Type }
@@ -11,19 +11,11 @@ let BundleManager/containers =
 
 let BundleManager/deployment =
       { Type =
-          { namespace : Optional Text
-          , additionalAnnotations : Optional (List Util/KeyValuePair)
-          , additionalLabels : Optional (List Util/KeyValuePair)
-          , replicas : Optional Natural
-          , Containers : BundleManager/containers.Type
-          }
+            { Containers : BundleManager/containers.Type }
+          ⩓ Configuration/deployment.Type
       , default =
-        { namespace = None Text
-        , additionalAnnotations = None (List Util/KeyValuePair)
-        , additionalLabels = None (List Util/KeyValuePair)
-        , replicas = None Natural
-        , Containers = BundleManager/containers.default
-        }
+            { Containers = BundleManager/containers.default }
+          ∧ Configuration/deployment.default
       }
 
 let BundleManager/configuration =
@@ -46,19 +38,11 @@ let Worker/containers =
 
 let Worker/deployment =
       { Type =
-          { namespace : Optional Text
-          , additionalAnnotations : Optional (List Util/KeyValuePair)
-          , additionalLabels : Optional (List Util/KeyValuePair)
-          , replicas : Optional Natural
-          , Containers : Worker/containers.Type
-          }
+            { Containers : Worker/containers.Type }
+          ⩓ Configuration/deployment.Type
       , default =
-        { namespace = None Text
-        , additionalAnnotations = None (List Util/KeyValuePair)
-        , additionalLabels = None (List Util/KeyValuePair)
-        , replicas = None Natural
-        , Containers = Worker/containers.default
-        }
+            { Containers = Worker/containers.default }
+          ∧ Configuration/deployment.default
       }
 
 let Worker/configuration =
