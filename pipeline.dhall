@@ -1,11 +1,5 @@
 let Sourcegraph =
-      ./package.dhall sha256:1a22c5584b1c51f7b91373f343873fdaa1ac3c3aef30f859ba7901021d6a69b9
-
-let Kubernetes/EnvVar =
-      ./src/deps/k8s/schemas/io.k8s.api.core.v1.EnvVar.dhall sha256:94ea00566409bc470cd81ca29903066714557826c723dad8c25a282897c7acb3
-
-let Configuration/CloudProvider =
-      ./src/configuration/cloud-provider.dhall sha256:98cdc6abe01242ad40a6e05e0c102e74227a93b3cbc85825cb5af57bbcb32733
+      https://raw.githubusercontent.com/sourcegraph/deploy-sourcegraph-dhall/4ca012a5d63e54825f338b77d456e771e028cf08/package.dhall sha256:b58bec6074b1ad69509ef32c2f1dfb44ed4133b8d0af0a7e24079f4a64edfdab
 
 let Render = Sourcegraph.Render
 
@@ -26,12 +20,12 @@ let c =
       with Frontend.Deployment.Containers.SourcegraphFrontend.resources.requests.ephemeralStorage = Some
           "1Gi"
       with Frontend.Deployment.Containers.SourcegraphFrontend.additionalEnvironmentVariables = Some
-        [ Kubernetes/EnvVar::{
+        [ Sourcegraph.Configuration.EnvVar::{
           , name = "SENTRY_DSN_BACKEND"
           , value = Some
               "https://cb3bfeb73fb141cf9ed71d06ae1f02b8@sentry.io/1249389"
           }
-        , Kubernetes/EnvVar::{
+        , Sourcegraph.Configuration.EnvVar::{
           , name = "SENTRY_DSN_FRONTEND"
           , value = Some
               "https://cb3bfeb73fb141cf9ed71d06ae1f02b8@sentry.io/1249389"
@@ -81,7 +75,7 @@ let c =
       with Grafana.StatefulSet.Containers.Grafana.resources.requests.ephemeralStorage = Some
           "1Gi"
       with Grafana.StatefulSet.Containers.Grafana.additionalEnvironmentVariables = Some
-        [ Kubernetes/EnvVar::{
+        [ Sourcegraph.Configuration.EnvVar::{
           , name = "GF_SERVER_ROOT_URL"
           , value = Some "https://k8s.sgdev.org/-/debug/grafana"
           }
@@ -210,6 +204,6 @@ let c =
           "1Gi"
       with PreciseCodeIntel.Worker.Deployment.Containers.Worker.resources.requests.ephemeralStorage = Some
           "1Gi"
-      with StorageClass.CloudProvider = Configuration/CloudProvider.GCP
+      with StorageClass.CloudProvider = Sourcegraph.Configuration.CloudProvider.GCP
 
 in  Render c

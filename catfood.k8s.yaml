@@ -2054,7 +2054,7 @@ items:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.name
-              image: 'index.docker.io/sourcegraph/precise-code-intel-bundle-manager:3.17.2@sha256:7dff0e7e8c7a3451ce12cf5eb5e4073bb9502752926acf33f13eb370dc570cc8'
+              image: 'index.docker.io/sourcegraph/precise-code-intel-bundle-manager:insiders@sha256:5fedf4f0158d56a7cab98fb9a232f17b43e4d4890df5674177b0e358b5ff8a3d'
               livenessProbe:
                 httpGet:
                   path: /healthz
@@ -2078,9 +2078,11 @@ items:
               resources:
                 limits:
                   cpu: '2'
+                  ephemeral-storage: '1Gi'
                   memory: '2G'
                 requests:
                   cpu: '500m'
+                  ephemeral-storage: '1Gi'
                   memory: '500M'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
@@ -2165,7 +2167,7 @@ items:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.name
-              image: 'index.docker.io/sourcegraph/precise-code-intel-worker:3.17.2@sha256:123ddcab97c273599b569a76bcd2c7dd7c423c1de816fda1c35b781e004b4dde'
+              image: 'index.docker.io/sourcegraph/precise-code-intel-worker:insiders@sha256:f9cda51f68388b0b809c647e954dbc2aa9643efc4beb8e2cb9cbc56b1b9c1675'
               livenessProbe:
                 httpGet:
                   path: /healthz
@@ -2189,9 +2191,11 @@ items:
               resources:
                 limits:
                   cpu: '2'
+                  ephemeral-storage: '1Gi'
                   memory: '4G'
                 requests:
                   cpu: '500m'
+                  ephemeral-storage: '1Gi'
                   memory: '2G'
               terminationMessagePolicy: FallbackToLogsOnError
           securityContext:
@@ -2747,7 +2751,7 @@ items:
                   severity: page
                 annotations:
                   description: 'Pods missing from {{`{{`}} $labels.app {{`}}`}}: {{`{{`}} $value
-                                      {{`}}`}}'
+                    {{`}}`}}'
                   help: Alerts when pods are missing.
                   summary: Pods missing from {{`{{`}} $labels.app {{`}}`}}
               - alert: NoPodsRunning
@@ -2757,17 +2761,18 @@ items:
                   severity: page
                 annotations:
                   description: 'No pods are running for {{`{{`}} $labels.app {{`}}`}}: {{`{{`}}
-                                      $value {{`}}`}}'
+                    $value {{`}}`}}'
                   help: Alerts when no pods are running for a service.
                   summary: No pods are running for {{`{{`}} $labels.app {{`}}`}}
               - alert: ProdPageLoadLatency
-                expr: histogram_quantile(0.9, sum by(le) (rate(src_http_request_duration_seconds_bucket{job="sourcegraph-frontend",route!="raw"}[10m])))
+                expr:
+                  histogram_quantile(0.9, sum by(le) (rate(src_http_request_duration_seconds_bucket{job="sourcegraph-frontend",route!="raw"}[10m])))
                   > 20
                 labels:
                   severity: page
                 annotations:
                   description: 'Page load latency > 20s (90th percentile over all routes; current
-                                      value: {{`{{`}}$value{{`}}`}}s)'
+                    value: {{`{{`}}$value{{`}}`}}s)'
                   help: Alerts when the page load latency is too high.
                   summary: High page load latency
               - alert: GoroutineLeak
@@ -2775,7 +2780,7 @@ items:
                 for: 10m
                 annotations:
                   description: '{{`{{`}} $labels.app {{`}}`}} has more than 10k goroutines. This
-                                      is probably a regression causing a goroutine leak'
+                    is probably a regression causing a goroutine leak'
                   help: Alerts when a service has excessive running goroutines.
                   summary: Excessive number of goroutines
               - alert: FSINodesRemainingLow
@@ -2784,7 +2789,7 @@ items:
                   severity: page
                 annotations:
                   description: '{{`{{`}}$labels.instance{{`}}`}} is using {{`{{`}}humanize $value{{`}}`}}
-                                      inodes'
+                    inodes'
                   help: Alerts when a node's remaining FS inodes are low.
                   summary: '{{`{{`}}$labels.instance{{`}}`}} remaining fs inodes is low'
               - alert: DiskSpaceLow
@@ -2792,7 +2797,7 @@ items:
                 annotations:
                   help: Alerts when a node has less than 10% available disk space.
                   summary: '{{`{{`}}$labels.exported_name{{`}}`}} has less than 10% available
-                                      disk space'
+                    disk space'
               - alert: DiskSpaceLowCritical
                 expr: node:k8snode_filesystem_avail_bytes:ratio{exported_name=~".*prod.*"} < 0.05
                 labels:
@@ -2820,12 +2825,13 @@ items:
                   help: Alerts when the search service has more than 10% of requests failing.
                   summary: Error ratio exceeds 10%
               - alert: PrometheusMetricsBloat
-                expr: http_response_size_bytes{handler="prometheus",job!="kubernetes-apiservers",job!="kubernetes-nodes",quantile="0.5"}
+                expr:
+                  http_response_size_bytes{handler="prometheus",job!="kubernetes-apiservers",job!="kubernetes-nodes",quantile="0.5"}
                   > 20000
                 annotations:
                   help: Alerts when a service is probably leaking metrics (unbounded attribute).
                   summary: '{{`{{`}}$labels.job{{`}}`}} in {{`{{`}}$labels.ns{{`}}`}} is probably
-                                      leaking metrics (unbounded attribute)'
+                    leaking metrics (unbounded attribute)'
       extra_rules.yml: ''
       node_rules.yml: |
         groups:
@@ -2855,9 +2861,9 @@ items:
                   action: keep
 
         rule_files:
-          - "*_rules.yml"
-          - "/sg_config_prometheus/*_rules.yml"
-          - "/sg_prometheus_add_ons/*_rules.yml"
+          - '*_rules.yml'
+          - '/sg_config_prometheus/*_rules.yml'
+          - '/sg_prometheus_add_ons/*_rules.yml'
 
         # A scrape configuration for running Prometheus on a Kubernetes cluster.
         # This uses separate scrape configs for cluster components (i.e. API server, node)
@@ -2874,7 +2880,7 @@ items:
         # default named port `https`. This works for single API server deployments as
         # well as HA API server deployments.
         scrape_configs:
-          - job_name: "kubernetes-apiservers"
+          - job_name: 'kubernetes-apiservers'
 
             kubernetes_sd_configs:
               - role: endpoints
@@ -2905,15 +2911,11 @@ items:
             # the default/kubernetes service.
             relabel_configs:
               - source_labels:
-                  [
-                    __meta_kubernetes_namespace,
-                    __meta_kubernetes_service_name,
-                    __meta_kubernetes_endpoint_port_name,
-                  ]
+                  [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
                 action: keep
                 regex: default;kubernetes;https
 
-          - job_name: "kubernetes-nodes"
+          - job_name: 'kubernetes-nodes'
 
             # Default to scraping over https. If required, just disable this or change to
             # `http`.
@@ -2960,18 +2962,16 @@ items:
           # * `prometheus.io/path`: If the metrics path is not `/metrics` override this.
           # * `prometheus.io/port`: If the metrics are exposed on a different port to the
           # service then set this appropriately.
-          - job_name: "kubernetes-service-endpoints"
+          - job_name: 'kubernetes-service-endpoints'
 
             kubernetes_sd_configs:
               - role: endpoints
 
             relabel_configs:
-              - source_labels:
-                  [__meta_kubernetes_service_annotation_sourcegraph_prometheus_scrape]
+              - source_labels: [__meta_kubernetes_service_annotation_sourcegraph_prometheus_scrape]
                 action: keep
                 regex: true
-              - source_labels:
-                  [__meta_kubernetes_service_annotation_prometheus_io_scheme]
+              - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
                 action: replace
                 target_label: __scheme__
                 regex: (https?)
@@ -2979,8 +2979,7 @@ items:
                 action: replace
                 target_label: __metrics_path__
                 regex: (.+)
-              - source_labels:
-                  [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+              - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
                 action: replace
                 target_label: __address__
                 regex: (.+)(?::\d+);(\d+)
@@ -3010,7 +3009,7 @@ items:
           # via the following annotations:
           #
           # * `prometheus.io/probe`: Only probe services that have a value of `true`
-          - job_name: "kubernetes-services"
+          - job_name: 'kubernetes-services'
 
             metrics_path: /probe
             params:
@@ -3020,8 +3019,7 @@ items:
               - role: service
 
             relabel_configs:
-              - source_labels:
-                  [__meta_kubernetes_service_annotation_prometheus_io_probe]
+              - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_probe]
                 action: keep
                 regex: true
               - source_labels: [__address__]
@@ -3047,22 +3045,20 @@ items:
           # * `prometheus.io/scrape`: Only scrape pods that have a value of `true`
           # * `prometheus.io/path`: If the metrics path is not `/metrics` override this.
           # * `prometheus.io/port`: Scrape the pod on the indicated port instead of the default of `9102`.
-          - job_name: "kubernetes-pods"
+          - job_name: 'kubernetes-pods'
 
             kubernetes_sd_configs:
               - role: pod
 
             relabel_configs:
-              - source_labels:
-                  [__meta_kubernetes_pod_annotation_sourcegraph_prometheus_scrape]
+              - source_labels: [__meta_kubernetes_pod_annotation_sourcegraph_prometheus_scrape]
                 action: keep
                 regex: true
               - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
                 action: replace
                 target_label: __metrics_path__
                 regex: (.+)
-              - source_labels:
-                  [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+              - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
                 action: replace
                 regex: (.+):(?:\d+);(\d+)
                 replacement: ${1}:${2}
@@ -3078,7 +3074,7 @@ items:
                 action: replace
                 target_label: kubernetes_pod_name
 
-          - job_name: "http_200"
+          - job_name: 'http_200'
             metrics_path: /probe
             params:
               module: [http_2xx] # Look for a HT != 200 response.
