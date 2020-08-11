@@ -32,6 +32,8 @@ let SyntaxHighlighter/Render = ./syntax-highlighter/render.dhall
 
 let StorageClass/Render = ./storage-class/render.dhall
 
+let IngressNginx/Render = ./ingress-nginx/render.dhall
+
 let Configuration/global = ../configuration/global.dhall
 
 let List/concatMap =
@@ -61,6 +63,7 @@ let Render =
                   , QueryRunner/Render c
                   , Prometheus/Render c
                   , StorageClass/Render c
+                  , IngressNginx/Render c
                   ]
 
             in  Kubernetes/List::{

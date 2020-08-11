@@ -34,6 +34,8 @@ let SyntaxHighlighter/Component = ./syntax-highlighter/component.dhall
 
 let StorageClass/Component = ./storage-class/component.dhall
 
+let IngressNginx/Component = ./ingress-nginx/component.dhall
+
 let component =
       { Frontend : Frontend/Component
       , Cadvisor : Cadvisor/Component
@@ -53,6 +55,7 @@ let component =
       , Symbols : Symbols/Component
       , SyntaxHighlighter : SyntaxHighlighter/Component
       , StorageClass : StorageClass/Component
+      , IngressNginx : IngressNginx/Component
       }
 
 in  component
