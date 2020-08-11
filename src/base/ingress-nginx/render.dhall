@@ -43,7 +43,7 @@ let ToList =
                           , Kubernetes/TypesUnion.Service
                               ig.Controller.Service.ingress-nginx-controller
                           , Kubernetes/TypesUnion.Service
-                              ig.Controller.Service.ingress-nginx-admission
+                              ig.Controller.Service.ingress-nginx-controller-admission
                           , Kubernetes/TypesUnion.ServiceAccount
                               ig.Controller.ServiceAccount.ingress-nginx
                           , Kubernetes/TypesUnion.ClusterRole
