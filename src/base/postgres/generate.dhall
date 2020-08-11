@@ -80,6 +80,8 @@ let containerResources = ../../configuration/container-resources.dhall
 
 let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
 
+let Octal = ../../util/octal.dhall
+
 let ConfigMap/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Postgres.ConfigMap
@@ -348,7 +350,8 @@ let Deployment/generate =
                         }
                       , Kubernetes/Volume::{
                         , configMap = Some Kubernetes/ConfigMapVolumeSource::{
-                          , defaultMode = Some 777
+                          , defaultMode = Some
+                              (Octal.toNatural Octal.Enum.Oo777)
                           , name = Some "pgsql-conf"
                           }
                         , name = "pgsql-conf"
