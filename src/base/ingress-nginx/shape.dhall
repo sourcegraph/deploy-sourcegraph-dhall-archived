@@ -25,6 +25,9 @@ let Kubernetes/Service = ../../deps/k8s/schemas/io.k8s.api.core.v1.Service.dhall
 let Kubernetes/ServiceAccount =
       ../../deps/k8s/schemas/io.k8s.api.core.v1.ServiceAccount.dhall
 
+let Kubernetes/Namespace =
+      ../../deps/k8s/schemas/io.k8s.api.core.v1.Namespace.dhall
+
 let shape =
       { AdmissionWebhook :
           { ClusterRole :
@@ -60,6 +63,7 @@ let shape =
       , ClusterRole : { ingress-nginx : Kubernetes/ClusterRole.Type }
       , ClusterRoleBinding :
           { ingress-nginx : Kubernetes/ClusterRoleBinding.Type }
+      , Namespace : { ingress-nginx : Kubernetes/Namespace.Type }
       }
 
 in  shape

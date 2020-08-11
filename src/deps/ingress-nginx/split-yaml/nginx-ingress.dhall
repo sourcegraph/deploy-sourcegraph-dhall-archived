@@ -856,5 +856,16 @@ in  { admission-webhook =
             }
           ]
         }
+      , Namespace.ingress-nginx = schemas.Namespace::{
+        , metadata = schemas.ObjectMeta::{
+          , labels = Some
+            [ { mapKey = "app.kubernetes.io/instance"
+              , mapValue = "ingress-nginx"
+              }
+            , { mapKey = "app.kubernetes.io/name", mapValue = "ingress-nginx" }
+            ]
+          , name = Some "ingress-nginx"
+          }
+        }
       }
     }
