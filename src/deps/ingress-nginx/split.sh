@@ -7,7 +7,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-cat ./deploy.yaml | awk -v out="$1" -F": " '
+awk -v out="$1" -F": " '
    $0~/^# Source: / {
        file=out"/"$2;
        if (!(file in filemap)) {
@@ -20,4 +20,4 @@ cat ./deploy.yaml | awk -v out="$1" -F": " '
        if (file) {
            print $0 >> file;
        }
-   }'
+   }' <./deploy/yaml
