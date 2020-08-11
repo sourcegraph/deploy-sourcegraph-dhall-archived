@@ -205,5 +205,6 @@ let c =
       with PreciseCodeIntel.Worker.Deployment.Containers.Worker.resources.requests.ephemeralStorage = Some
           "1Gi"
       with StorageClass.CloudProvider = Sourcegraph.Configuration.CloudProvider.GCP
+      with IngressNginx.Enabled = True
 
 in  Render c
