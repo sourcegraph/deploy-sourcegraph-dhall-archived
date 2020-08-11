@@ -6,6 +6,6 @@ let toNatural
 
 let example0 = assert : toNatural Octal.Oo777 ≡ 511
 
-let example2 = assert : toNatural Octal.Oo600 ≡ 384
+let example1 = assert : toNatural Octal.Oo600 ≡ 384
 
 in  { Enum = Octal, toNatural }
