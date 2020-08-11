@@ -26,7 +26,7 @@ items:
             group: backend
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/postgres-11.4:insiders@sha256:63090799b34b3115a387d96fe2227a37999d432b774a1d9b7966b8c5d81b56ad"
+            - image: 'index.docker.io/sourcegraph/postgres-11.4:insiders@sha256:63090799b34b3115a387d96fe2227a37999d432b774a1d9b7966b8c5d81b56ad'
               livenessProbe:
                 exec:
                   command:
@@ -43,12 +43,12 @@ items:
               resources:
                 limits:
                   cpu: '16'
-                  ephemeral-storage: "1Gi"
-                  memory: "24Gi"
+                  ephemeral-storage: '1Gi'
+                  memory: '24Gi'
                 requests:
                   cpu: '16'
-                  ephemeral-storage: "1Gi"
-                  memory: "24Gi"
+                  ephemeral-storage: '1Gi'
+                  memory: '24Gi'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
                 - mountPath: /data
@@ -57,23 +57,23 @@ items:
                   name: pgsql-conf
             - env:
                 - name: DATA_SOURCE_NAME
-                  value: "postgres://sg:@localhost:5432/?sslmode=disable"
-              image: "wrouesnel/postgres_exporter:v0.7.0@sha256:785c919627c06f540d515aac88b7966f352403f73e931e70dc2cbf783146a98b"
+                  value: 'postgres://sg:@localhost:5432/?sslmode=disable'
+              image: 'wrouesnel/postgres_exporter:v0.7.0@sha256:785c919627c06f540d515aac88b7966f352403f73e931e70dc2cbf783146a98b'
               name: pgsql-exporter
               resources:
                 limits:
-                  cpu: "10m"
-                  memory: "50Mi"
+                  cpu: '10m'
+                  memory: '50Mi'
                 requests:
-                  cpu: "10m"
-                  memory: "50Mi"
+                  cpu: '10m'
+                  memory: '50Mi'
               terminationMessagePolicy: FallbackToLogsOnError
           initContainers:
             - command:
                 - sh
-                - "-c"
-                - "if [ -d /data/pgdata-11 ]; then chmod 750 /data/pgdata-11; fi"
-              image: "sourcegraph/alpine:3.10@sha256:4d05cd5669726fc38823e92320659a6d1ef7879e62268adec5df658a0bacf65c"
+                - '-c'
+                - 'if [ -d /data/pgdata-11 ]; then chmod 750 /data/pgdata-11; fi'
+              image: 'sourcegraph/alpine:3.10@sha256:4d05cd5669726fc38823e92320659a6d1ef7879e62268adec5df658a0bacf65c'
               name: correct-data-dir-permissions
               securityContext:
                 runAsUser: 0
@@ -120,7 +120,7 @@ items:
         - ReadWriteOnce
       resources:
         requests:
-          storage: "200Gi"
+          storage: '200Gi'
       storageClassName: sourcegraph
   - apiVersion: v1
     data:
@@ -156,31 +156,31 @@ items:
         #                GB = gigabytes                     min = minutes
         #                TB = terabytes                     h   = hours
         #                                                   d   = days
-        
+
         #------------------------------------------------------------------------------
         # FILE LOCATIONS
         #------------------------------------------------------------------------------
-        
+
         # The default values of these variables are driven from the -D command-line
         # option or PGDATA environment variable, represented here as ConfigDir.
-        
+
         #data_directory = 'ConfigDir'		# use data in another directory
         # (change requires restart)
         #hba_file = 'ConfigDir/pg_hba.conf'	# host-based authentication file
         # (change requires restart)
         #ident_file = 'ConfigDir/pg_ident.conf'	# ident configuration file
         # (change requires restart)
-        
+
         # If external_pid_file is not explicitly set, no extra PID file is written.
         #external_pid_file = '''			# write an extra PID file
         # (change requires restart)
-        
+
         #------------------------------------------------------------------------------
         # CONNECTIONS AND AUTHENTICATION
         #------------------------------------------------------------------------------
-        
+
         # - Connection Settings -
-        
+
         listen_addresses = '*'
         # comma-separated list of addresses;
         # defaults to 'localhost'; use '*' for all
@@ -197,29 +197,29 @@ items:
         # (change requires restart)
         #bonjour_name = '''			# defaults to the computer name
         # (change requires restart)
-        
+
         # - TCP Keepalives -
         # see "man 7 tcp" for details
-        
+
         #tcp_keepalives_idle = 0		# TCP_KEEPIDLE, in seconds;
         # 0 selects the system default
         #tcp_keepalives_interval = 0		# TCP_KEEPINTVL, in seconds;
         # 0 selects the system default
         #tcp_keepalives_count = 0		# TCP_KEEPCNT;
         # 0 selects the system default
-        
+
         # - Authentication -
-        
+
         #authentication_timeout = 1min		# 1s-600s
         #password_encryption = md5		# md5 or scram-sha-256
         #db_user_namespace = off
-        
+
         # GSSAPI using Kerberos
         #krb_server_keyfile = '''
         #krb_caseins_users = off
-        
+
         # - SSL -
-        
+
         #ssl = off
         #ssl_ca_file = '''
         #ssl_cert_file = 'server.crt'
@@ -231,13 +231,13 @@ items:
         #ssl_dh_params_file = '''
         #ssl_passphrase_command = '''
         #ssl_passphrase_command_supports_reload = off
-        
+
         #------------------------------------------------------------------------------
         # RESOURCE USAGE (except WAL)
         #------------------------------------------------------------------------------
-        
+
         # - Memory -
-        
+
         shared_buffers = 128MB # min 128kB
         # (change requires restart)
         #huge_pages = try			# on, off, or try
@@ -259,34 +259,34 @@ items:
         #   mmap
         # use none to disable dynamic shared memory
         # (change requires restart)
-        
+
         # - Disk -
-        
+
         #temp_file_limit = -1			# limits per-process temp file space
         # in kB, or -1 for no limit
-        
+
         # - Kernel Resources -
-        
+
         #max_files_per_process = 1000		# min 25
         # (change requires restart)
-        
+
         # - Cost-Based Vacuum Delay -
-        
+
         #vacuum_cost_delay = 0			# 0-100 milliseconds
         #vacuum_cost_page_hit = 1		# 0-10000 credits
         #vacuum_cost_page_miss = 10		# 0-10000 credits
         #vacuum_cost_page_dirty = 20		# 0-10000 credits
         #vacuum_cost_limit = 200		# 1-10000 credits
-        
+
         # - Background Writer -
-        
+
         #bgwriter_delay = 200ms			# 10-10000ms between rounds
         #bgwriter_lru_maxpages = 100		# max buffers written/round, 0 disables
         #bgwriter_lru_multiplier = 2.0		# 0-10.0 multiplier on buffers scanned/round
         #bgwriter_flush_after = 512kB		# measured in pages, 0 disables
-        
+
         # - Asynchronous Behavior -
-        
+
         #effective_io_concurrency = 1		# 1-1000; 0 disables prefetching
         #max_worker_processes = 8		# (change requires restart)
         #max_parallel_maintenance_workers = 2	# taken from max_parallel_workers
@@ -297,13 +297,13 @@ items:
         #old_snapshot_threshold = -1		# 1min-60d; -1 disables; 0 is immediate
         # (change requires restart)
         #backend_flush_after = 0		# measured in pages, 0 disables
-        
+
         #------------------------------------------------------------------------------
         # WRITE-AHEAD LOG
         #------------------------------------------------------------------------------
-        
+
         # - Settings -
-        
+
         #wal_level = replica			# minimal, replica, or logical
         # (change requires restart)
         #fsync = on				# flush data to disk for crash safety
@@ -326,21 +326,21 @@ items:
         # (change requires restart)
         #wal_writer_delay = 200ms		# 1-10000 milliseconds
         #wal_writer_flush_after = 1MB		# measured in pages, 0 disables
-        
+
         #commit_delay = 0			# range 0-100000, in microseconds
         #commit_siblings = 5			# range 1-1000
-        
+
         # - Checkpoints -
-        
+
         #checkpoint_timeout = 5min		# range 30s-1d
         max_wal_size = 1GB
         min_wal_size = 80MB
         #checkpoint_completion_target = 0.5	# checkpoint target duration, 0.0 - 1.0
         #checkpoint_flush_after = 256kB		# measured in pages, 0 disables
         #checkpoint_warning = 30s		# 0 disables
-        
+
         # - Archiving -
-        
+
         #archive_mode = off		# enables archiving; off, on, or always
         # (change requires restart)
         #archive_command = '''		# command to use to archive a logfile segment
@@ -349,39 +349,39 @@ items:
         # e.g. 'test ! -f /mnt/server/archivedir/%f && cp %p /mnt/server/archivedir/%f'
         #archive_timeout = 0		# force a logfile segment switch after this
         # number of seconds; 0 disables
-        
+
         #------------------------------------------------------------------------------
         # REPLICATION
         #------------------------------------------------------------------------------
-        
+
         # - Sending Servers -
-        
+
         # Set these on the master and on any standby that will send replication data.
-        
+
         #max_wal_senders = 10		# max number of walsender processes
         # (change requires restart)
         #wal_keep_segments = 0		# in logfile segments; 0 disables
         #wal_sender_timeout = 60s	# in milliseconds; 0 disables
-        
+
         #max_replication_slots = 10	# max number of replication slots
         # (change requires restart)
         #track_commit_timestamp = off	# collect timestamp of transaction commit
         # (change requires restart)
-        
+
         # - Master Server -
-        
+
         # These settings are ignored on a standby server.
-        
+
         #synchronous_standby_names = '''	# standby servers that provide sync rep
         # method to choose sync standbys, number of sync standbys,
         # and comma-separated list of application_name
         # from standby(s); '*' = all
         #vacuum_defer_cleanup_age = 0	# number of xacts by which cleanup is delayed
-        
+
         # - Standby Servers -
-        
+
         # These settings are ignored on a master server.
-        
+
         #hot_standby = on			# "off" disallows queries during recovery
         # (change requires restart)
         #max_standby_archive_delay = 30s	# max delay before canceling queries
@@ -399,21 +399,21 @@ items:
         # in milliseconds; 0 disables
         #wal_retrieve_retry_interval = 5s	# time to wait before retrying to
         # retrieve WAL after a failed attempt
-        
+
         # - Subscribers -
-        
+
         # These settings are ignored on a publisher.
-        
+
         #max_logical_replication_workers = 4	# taken from max_worker_processes
         # (change requires restart)
         #max_sync_workers_per_subscription = 2	# taken from max_logical_replication_workers
-        
+
         #------------------------------------------------------------------------------
         # QUERY TUNING
         #------------------------------------------------------------------------------
-        
+
         # - Planner Method Configuration -
-        
+
         #enable_bitmapscan = on
         #enable_hashagg = on
         #enable_hashjoin = on
@@ -430,9 +430,9 @@ items:
         #enable_partitionwise_aggregate = off
         #enable_parallel_hash = on
         #enable_partition_pruning = on
-        
+
         # - Planner Cost Constants -
-        
+
         #seq_page_cost = 1.0			# measured on an arbitrary scale
         #random_page_cost = 4.0			# same scale as above
         #cpu_tuple_cost = 0.01			# same scale as above
@@ -440,7 +440,7 @@ items:
         #cpu_operator_cost = 0.0025		# same scale as above
         #parallel_tuple_cost = 0.1		# same scale as above
         #parallel_setup_cost = 1000.0	# same scale as above
-        
+
         #jit_above_cost = 100000		# perform JIT compilation if available
         # and query more expensive than this;
         # -1 disables
@@ -449,13 +449,13 @@ items:
         #jit_optimize_above_cost = 500000	# use expensive JIT optimizations if
         # query is more expensive than this;
         # -1 disables
-        
+
         #min_parallel_table_scan_size = 8MB
         #min_parallel_index_scan_size = 512kB
         #effective_cache_size = 4GB
-        
+
         # - Genetic Query Optimizer -
-        
+
         #geqo = on
         #geqo_threshold = 12
         #geqo_effort = 5			# range 1-10
@@ -463,9 +463,9 @@ items:
         #geqo_generations = 0			# selects default based on effort
         #geqo_selection_bias = 2.0		# range 1.5-2.0
         #geqo_seed = 0.0			# range 0.0-1.0
-        
+
         # - Other Planner Options -
-        
+
         #default_statistics_target = 100	# range 1-10000
         #constraint_exclusion = partition	# on, off, or partition
         #cursor_tuple_fraction = 0.1		# range 0.0-1.0
@@ -474,24 +474,24 @@ items:
         # JOIN clauses
         #force_parallel_mode = off
         #jit = off				# allow JIT compilation
-        
+
         #------------------------------------------------------------------------------
         # REPORTING AND LOGGING
         #------------------------------------------------------------------------------
-        
+
         # - Where to Log -
-        
+
         #log_destination = 'stderr'		# Valid values are combinations of
         # stderr, csvlog, syslog, and eventlog,
         # depending on platform.  csvlog
         # requires logging_collector to be on.
-        
+
         # This is used when logging to stderr:
         #logging_collector = off		# Enable capturing of stderr and csvlog
         # into log files. Required to be on for
         # csvlogs.
         # (change requires restart)
-        
+
         # These are only used if logging_collector is on:
         #log_directory = 'log'			# directory where log files are written,
         # can be absolute or relative to PGDATA
@@ -512,19 +512,19 @@ items:
         #log_rotation_size = 10MB		# Automatic rotation of logfiles will
         # happen after that much log output.
         # 0 disables.
-        
+
         # These are relevant when logging to syslog:
         #syslog_facility = 'LOCAL0'
         #syslog_ident = 'postgres'
         #syslog_sequence_numbers = on
         #syslog_split_messages = on
-        
+
         # This is only relevant when logging to eventlog (win32):
         # (change requires restart)
         #event_source = 'PostgreSQL'
-        
+
         # - When to Log -
-        
+
         #log_min_messages = warning		# values in order of decreasing detail:
         #   debug5
         #   debug4
@@ -538,7 +538,7 @@ items:
         #   log
         #   fatal
         #   panic
-        
+
         #log_min_error_statement = error	# values in order of decreasing detail:
         #   debug5
         #   debug4
@@ -552,14 +552,14 @@ items:
         #   log
         #   fatal
         #   panic (effectively off)
-        
+
         #log_min_duration_statement = -1	# -1 is disabled, 0 logs all statements
         # and their durations, > 0 logs only
         # statements running at least this number
         # of milliseconds
-        
+
         # - What to Log -
-        
+
         #debug_print_parse = off
         #debug_print_rewritten = off
         #debug_print_plan = off
@@ -598,39 +598,39 @@ items:
         # than the specified size in kilobytes;
         # -1 disables, 0 logs all temp files
         log_timezone = 'Etc/UTC'
-        
+
         #------------------------------------------------------------------------------
         # PROCESS TITLE
         #------------------------------------------------------------------------------
-        
+
         #cluster_name = '''			# added to process titles if nonempty
         # (change requires restart)
         #update_process_title = on
-        
+
         #------------------------------------------------------------------------------
         # STATISTICS
         #------------------------------------------------------------------------------
-        
+
         # - Query and Index Statistics Collector -
-        
+
         #track_activities = on
         #track_counts = on
         #track_io_timing = off
         #track_functions = none			# none, pl, all
         #track_activity_query_size = 1024	# (change requires restart)
         #stats_temp_directory = 'pg_stat_tmp'
-        
+
         # - Monitoring -
-        
+
         #log_parser_stats = off
         #log_planner_stats = off
         #log_executor_stats = off
         #log_statement_stats = off
-        
+
         #------------------------------------------------------------------------------
         # AUTOVACUUM
         #------------------------------------------------------------------------------
-        
+
         #autovacuum = on			# Enable autovacuum subprocess?  'on'
         # requires track_counts to also be on.
         #log_autovacuum_min_duration = -1	# -1 disables, 0 logs all actions and
@@ -657,13 +657,13 @@ items:
         #autovacuum_vacuum_cost_limit = -1	# default vacuum cost limit for
         # autovacuum, -1 means use
         # vacuum_cost_limit
-        
+
         #------------------------------------------------------------------------------
         # CLIENT CONNECTION DEFAULTS
         #------------------------------------------------------------------------------
-        
+
         # - Statement Behavior -
-        
+
         #client_min_messages = notice		# values in order of decreasing detail:
         #   debug5
         #   debug4
@@ -699,9 +699,9 @@ items:
         #xmloption = 'content'
         #gin_fuzzy_search_limit = 0
         #gin_pending_list_limit = 4MB
-        
+
         # - Locale and Formatting -
-        
+
         datestyle = 'iso, mdy'
         #intervalstyle = 'postgres'
         timezone = 'Etc/UTC'
@@ -715,32 +715,32 @@ items:
         #extra_float_digits = 0			# min -15, max 3
         #client_encoding = sql_ascii		# actually, defaults to database
         # encoding
-        
+
         # These settings are initialized by initdb, but they can be changed.
         lc_messages = 'en_US.utf8' # locale for system error message
         # strings
         lc_monetary = 'en_US.utf8' # locale for monetary formatting
         lc_numeric = 'en_US.utf8'  # locale for number formatting
         lc_time = 'en_US.utf8'     # locale for time formatting
-        
+
         # default configuration for text search
         default_text_search_config = 'pg_catalog.english'
-        
+
         # - Shared Library Preloading -
-        
+
         #shared_preload_libraries = '''	# (change requires restart)
         #local_preload_libraries = '''
         #session_preload_libraries = '''
         #jit_provider = 'llvmjit'		# JIT library to use
-        
+
         # - Other Defaults -
-        
+
         #dynamic_library_path = '$libdir'
-        
+
         #------------------------------------------------------------------------------
         # LOCK MANAGEMENT
         #------------------------------------------------------------------------------
-        
+
         #deadlock_timeout = 1s
         #max_locks_per_transaction = 64		# min 10
         # (change requires restart)
@@ -750,13 +750,13 @@ items:
         # (max_pred_locks_per_transaction
         #  / -max_pred_locks_per_relation) - 1
         #max_pred_locks_per_page = 2            # min 0
-        
+
         #------------------------------------------------------------------------------
         # VERSION AND PLATFORM COMPATIBILITY
         #------------------------------------------------------------------------------
-        
+
         # - Previous PostgreSQL Versions -
-        
+
         #array_nulls = on
         #backslash_quote = safe_encoding	# on, off, or safe_encoding
         #default_with_oids = off
@@ -766,37 +766,37 @@ items:
         #quote_all_identifiers = off
         #standard_conforming_strings = on
         #synchronize_seqscans = on
-        
+
         # - Other Platforms and Clients -
-        
+
         #transform_null_equals = off
-        
+
         #------------------------------------------------------------------------------
         # ERROR HANDLING
         #------------------------------------------------------------------------------
-        
+
         #exit_on_error = off			# terminate session on any error?
         #restart_after_crash = on		# reinitialize after backend crash?
         #data_sync_retry = off			# retry or panic on failure to fsync
         # data?
         # (change requires restart)
-        
+
         #------------------------------------------------------------------------------
         # CONFIG FILE INCLUDES
         #------------------------------------------------------------------------------
-        
+
         # These options allow settings to be loaded from files other than the
         # default postgresql.conf.
-        
+
         #include_dir = '''			# include files ending in '.conf' from
         # a directory, e.g., 'conf.d'
         #include_if_exists = '''			# include file only if it exists
         #include = '''				# include file
-        
+
         #------------------------------------------------------------------------------
         # CUSTOMIZED OPTIONS
         #------------------------------------------------------------------------------
-        
+
         # Add settings for extensions here
     kind: ConfigMap
     metadata:
@@ -833,7 +833,7 @@ items:
           containers:
             - args:
                 - run
-              image: "index.docker.io/sourcegraph/gitserver:insiders@sha256:4861c686442c66ec5310bb4cac2f88c878c91dbd9f06e42409ddf627d58ca07e"
+              image: 'index.docker.io/sourcegraph/gitserver:insiders@sha256:4861c686442c66ec5310bb4cac2f88c878c91dbd9f06e42409ddf627d58ca07e'
               livenessProbe:
                 initialDelaySeconds: 5
                 tcpSocket:
@@ -846,26 +846,26 @@ items:
               resources:
                 limits:
                   cpu: '4'
-                  ephemeral-storage: "1Gi"
-                  memory: "8G"
+                  ephemeral-storage: '1Gi'
+                  memory: '8G'
                 requests:
                   cpu: '4'
-                  ephemeral-storage: "1Gi"
-                  memory: "8G"
+                  ephemeral-storage: '1Gi'
+                  memory: '8G'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
                 - mountPath: /data/repos
                   name: repos
             - args:
-                - "--reporter.grpc.host-port=jaeger-collector:14250"
-                - "--reporter.type=grpc"
+                - '--reporter.grpc.host-port=jaeger-collector:14250'
+                - '--reporter.type=grpc'
               env:
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
                       apiVersion: v1
                       fieldPath: metadata.name
-              image: "index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c"
+              image: 'index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c'
               name: jaeger-agent
               ports:
                 - containerPort: 5775
@@ -879,10 +879,10 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  memory: "500M"
+                  memory: '500M'
                 requests:
-                  cpu: "100m"
-                  memory: "100M"
+                  cpu: '100m'
+                  memory: '100M'
           securityContext:
             runAsUser: 0
           volumes:
@@ -903,7 +903,7 @@ items:
               - ReadWriteOnce
             resources:
               requests:
-                storage: "4Ti"
+                storage: '4Ti'
             storageClassName: sourcegraph
   - apiVersion: v1
     kind: Service
@@ -932,7 +932,7 @@ items:
     kind: Deployment
     metadata:
       annotations:
-        description: "Serves the frontend of Sourcegraph via HTTP(S)."
+        description: 'Serves the frontend of Sourcegraph via HTTP(S).'
       labels:
         deploy: sourcegraph
         sourcegraph-resource-requires: no-cluster-admin
@@ -976,7 +976,7 @@ items:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: CACHE_DIR
-                  value: "/mnt/cache/$(POD_NAME)"
+                  value: '/mnt/cache/$(POD_NAME)'
                 - name: GRAFANA_SERVER_URL
                   value: http://grafana:30070
                 - name: JAEGER_SERVER_URL
@@ -986,10 +986,10 @@ items:
                 - name: PROMETHEUS_URL
                   value: http://prometheus:30090
                 - name: SENTRY_DSN_BACKEND
-                  value: "https://cb3bfeb73fb141cf9ed71d06ae1f02b8@sentry.io/1249389"
+                  value: 'https://cb3bfeb73fb141cf9ed71d06ae1f02b8@sentry.io/1249389'
                 - name: SENTRY_DSN_FRONTEND
-                  value: "https://cb3bfeb73fb141cf9ed71d06ae1f02b8@sentry.io/1249389"
-              image: "index.docker.io/sourcegraph/frontend:insiders@sha256:a211568c55c867f78c7ef2070017df1633d2d462dec24cf705f0635cadb9a25a"
+                  value: 'https://cb3bfeb73fb141cf9ed71d06ae1f02b8@sentry.io/1249389'
+              image: 'index.docker.io/sourcegraph/frontend:insiders@sha256:a211568c55c867f78c7ef2070017df1633d2d462dec24cf705f0635cadb9a25a'
               livenessProbe:
                 httpGet:
                   path: /healthz
@@ -1012,27 +1012,27 @@ items:
                 timeoutSeconds: 5
               resources:
                 limits:
-                  cpu: "8000m"
-                  ephemeral-storage: "1Gi"
-                  memory: "6G"
+                  cpu: '8000m'
+                  ephemeral-storage: '1Gi'
+                  memory: '6G'
                 requests:
-                  cpu: "6000m"
-                  ephemeral-storage: "1Gi"
-                  memory: "4G"
+                  cpu: '6000m'
+                  ephemeral-storage: '1Gi'
+                  memory: '4G'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
                 - mountPath: /mnt/cache
                   name: cache-ssd
             - args:
-                - "--reporter.grpc.host-port=jaeger-collector:14250"
-                - "--reporter.type=grpc"
+                - '--reporter.grpc.host-port=jaeger-collector:14250'
+                - '--reporter.type=grpc'
               env:
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
                       apiVersion: v1
                       fieldPath: metadata.name
-              image: "index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c"
+              image: 'index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c'
               name: jaeger-agent
               ports:
                 - containerPort: 5775
@@ -1046,10 +1046,10 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  memory: "500M"
+                  memory: '500M'
                 requests:
-                  cpu: "100m"
-                  memory: "100M"
+                  cpu: '100m'
+                  memory: '100M'
           securityContext:
             runAsUser: 0
           serviceAccountName: sourcegraph-frontend
@@ -1063,8 +1063,8 @@ items:
         certmanager.k8s.io/acme-challenge-type: http01
         certmanager.k8s.io/issuer: letsencrypt-prod
         kubernetes.io/ingress.class: nginx
-        nginx.ingress.kubernetes.io/proxy-body-size: "150m"
-        nginx.ingress.kubernetes.io/proxy-read-timeout: "1d"
+        nginx.ingress.kubernetes.io/proxy-body-size: '150m'
+        nginx.ingress.kubernetes.io/proxy-read-timeout: '1d'
       labels:
         app: sourcegraph-frontend
         deploy: sourcegraph
@@ -1183,7 +1183,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/indexed-searcher:insiders@sha256:b5547e441474c08ee35e0911d44ac7dd05928f45816999da6b4993e31725a141"
+            - image: 'index.docker.io/sourcegraph/indexed-searcher:insiders@sha256:b5547e441474c08ee35e0911d44ac7dd05928f45816999da6b4993e31725a141'
               name: zoekt-webserver
               ports:
                 - containerPort: 6070
@@ -1198,17 +1198,17 @@ items:
               resources:
                 limits:
                   cpu: '12'
-                  ephemeral-storage: "1Gi"
-                  memory: "120Gi"
+                  ephemeral-storage: '1Gi'
+                  memory: '120Gi'
                 requests:
                   cpu: '12'
-                  ephemeral-storage: "1Gi"
-                  memory: "120Gi"
+                  ephemeral-storage: '1Gi'
+                  memory: '120Gi'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
                 - mountPath: /data
                   name: data
-            - image: "index.docker.io/sourcegraph/search-indexer:insiders@sha256:8eeb86684d66349c34185b6cacd54812048856e6a73b917a05912028fe04ed1d"
+            - image: 'index.docker.io/sourcegraph/search-indexer:insiders@sha256:8eeb86684d66349c34185b6cacd54812048856e6a73b917a05912028fe04ed1d'
               name: zoekt-indexserver
               ports:
                 - containerPort: 6072
@@ -1216,12 +1216,12 @@ items:
               resources:
                 limits:
                   cpu: '8'
-                  ephemeral-storage: "1Gi"
-                  memory: "8G"
+                  ephemeral-storage: '1Gi'
+                  memory: '8G'
                 requests:
                   cpu: '4'
-                  ephemeral-storage: "1Gi"
-                  memory: "4G"
+                  ephemeral-storage: '1Gi'
+                  memory: '4G'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
                 - mountPath: /data
@@ -1244,7 +1244,7 @@ items:
               - ReadWriteOnce
             resources:
               requests:
-                storage: "4Ti"
+                storage: '4Ti'
             storageClassName: sourcegraph
   - apiVersion: v1
     kind: Service
@@ -1301,8 +1301,8 @@ items:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: CACHE_DIR
-                  value: "/mnt/cache/$(POD_NAME)"
-              image: "index.docker.io/sourcegraph/symbols:insiders@sha256:ea6fd7b5f5b33c563b69f7f014c89caef3e92fb038626b349ab77c7e362d5c82"
+                  value: '/mnt/cache/$(POD_NAME)'
+              image: 'index.docker.io/sourcegraph/symbols:insiders@sha256:ea6fd7b5f5b33c563b69f7f014c89caef3e92fb038626b349ab77c7e362d5c82'
               livenessProbe:
                 httpGet:
                   path: /healthz
@@ -1326,26 +1326,26 @@ items:
               resources:
                 limits:
                   cpu: '2'
-                  ephemeral-storage: "1Gi"
-                  memory: "2G"
+                  ephemeral-storage: '1Gi'
+                  memory: '2G'
                 requests:
-                  cpu: "500m"
-                  ephemeral-storage: "1Gi"
-                  memory: "500M"
+                  cpu: '500m'
+                  ephemeral-storage: '1Gi'
+                  memory: '500M'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
                 - mountPath: /mnt/cache
                   name: cache-ssd
             - args:
-                - "--reporter.grpc.host-port=jaeger-collector:14250"
-                - "--reporter.type=grpc"
+                - '--reporter.grpc.host-port=jaeger-collector:14250'
+                - '--reporter.type=grpc'
               env:
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
                       apiVersion: v1
                       fieldPath: metadata.name
-              image: "index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c"
+              image: 'index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c'
               name: jaeger-agent
               ports:
                 - containerPort: 5775
@@ -1359,10 +1359,10 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  memory: "500M"
+                  memory: '500M'
                 requests:
-                  cpu: "100m"
-                  memory: "100M"
+                  cpu: '100m'
+                  memory: '100M'
           securityContext:
             runAsUser: 0
           volumes:
@@ -1422,8 +1422,8 @@ items:
         spec:
           containers:
             - args:
-                - "--memory.max-traces=20000"
-              image: "index.docker.io/sourcegraph/jaeger-all-in-one:3.17.2@sha256:3d885a0dd4dd7b3abd5aebe4baa2a854230178dacf00de5664b57c895f2015fa"
+                - '--memory.max-traces=20000'
+              image: 'index.docker.io/sourcegraph/jaeger-all-in-one:3.17.2@sha256:3d885a0dd4dd7b3abd5aebe4baa2a854230178dacf00de5664b57c895f2015fa'
               name: jaeger
               ports:
                 - containerPort: 5775
@@ -1446,12 +1446,12 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  ephemeral-storage: "1Gi"
-                  memory: "1G"
+                  ephemeral-storage: '1Gi'
+                  memory: '1G'
                 requests:
-                  cpu: "500m"
-                  ephemeral-storage: "1Gi"
-                  memory: "500M"
+                  cpu: '500m'
+                  ephemeral-storage: '1Gi'
+                  memory: '500M'
           securityContext:
             runAsUser: 0
   - apiVersion: v1
@@ -1530,7 +1530,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/syntax-highlighter:insiders@sha256:aa93514b7bc3aaf7a4e9c92e5ff52ee5052db6fb101255a69f054e5b8cdb46ff"
+            - image: 'index.docker.io/sourcegraph/syntax-highlighter:insiders@sha256:aa93514b7bc3aaf7a4e9c92e5ff52ee5052db6fb101255a69f054e5b8cdb46ff'
               livenessProbe:
                 httpGet:
                   path: /health
@@ -1548,12 +1548,12 @@ items:
               resources:
                 limits:
                   cpu: '4'
-                  ephemeral-storage: "1Gi"
-                  memory: "6G"
+                  ephemeral-storage: '1Gi'
+                  memory: '6G'
                 requests:
-                  cpu: "250m"
-                  ephemeral-storage: "1Gi"
-                  memory: "2G"
+                  cpu: '250m'
+                  ephemeral-storage: '1Gi'
+                  memory: '2G'
               terminationMessagePolicy: FallbackToLogsOnError
           securityContext:
             runAsUser: 0
@@ -1609,8 +1609,8 @@ items:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: CACHE_DIR
-                  value: "/mnt/cache/$(POD_NAME)"
-              image: "index.docker.io/sourcegraph/searcher:insiders@sha256:5d4de45c03acb56f22b6f61d922060987b1f5aa5b22e43c9c2ff49a1b3f251c0"
+                  value: '/mnt/cache/$(POD_NAME)'
+              image: 'index.docker.io/sourcegraph/searcher:insiders@sha256:5d4de45c03acb56f22b6f61d922060987b1f5aa5b22e43c9c2ff49a1b3f251c0'
               name: searcher
               ports:
                 - containerPort: 3181
@@ -1627,26 +1627,26 @@ items:
               resources:
                 limits:
                   cpu: '2'
-                  ephemeral-storage: "1Gi"
-                  memory: "2G"
+                  ephemeral-storage: '1Gi'
+                  memory: '2G'
                 requests:
-                  cpu: "500m"
-                  ephemeral-storage: "1Gi"
-                  memory: "500M"
+                  cpu: '500m'
+                  ephemeral-storage: '1Gi'
+                  memory: '500M'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
                 - mountPath: /mnt/cache
                   name: cache-ssd
             - args:
-                - "--reporter.grpc.host-port=jaeger-collector:14250"
-                - "--reporter.type=grpc"
+                - '--reporter.grpc.host-port=jaeger-collector:14250'
+                - '--reporter.type=grpc'
               env:
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
                       apiVersion: v1
                       fieldPath: metadata.name
-              image: "index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c"
+              image: 'index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c'
               name: jaeger-agent
               ports:
                 - containerPort: 5775
@@ -1660,10 +1660,10 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  memory: "500M"
+                  memory: '500M'
                 requests:
-                  cpu: "100m"
-                  memory: "100M"
+                  cpu: '100m'
+                  memory: '100M'
           securityContext:
             runAsUser: 0
           volumes:
@@ -1695,7 +1695,7 @@ items:
     kind: Deployment
     metadata:
       annotations:
-        description: "Handles repository metadata (not Git data) lookups and updates from external code hosts and other similar services."
+        description: 'Handles repository metadata (not Git data) lookups and updates from external code hosts and other similar services.'
       labels:
         deploy: sourcegraph
         sourcegraph-resource-requires: no-cluster-admin
@@ -1719,7 +1719,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/repo-updater:insiders@sha256:98ff67fe531efa0794ecbba43d403a2f3df1c60ad65c48d16b02a69e8d01cda7"
+            - image: 'index.docker.io/sourcegraph/repo-updater:insiders@sha256:98ff67fe531efa0794ecbba43d403a2f3df1c60ad65c48d16b02a69e8d01cda7'
               name: repo-updater
               ports:
                 - containerPort: 3182
@@ -1728,24 +1728,24 @@ items:
                   name: debug
               resources:
                 limits:
-                  cpu: "100m"
-                  ephemeral-storage: "1Gi"
-                  memory: "500Mi"
+                  cpu: '100m'
+                  ephemeral-storage: '1Gi'
+                  memory: '500Mi'
                 requests:
-                  cpu: "100m"
-                  ephemeral-storage: "1Gi"
-                  memory: "500Mi"
+                  cpu: '100m'
+                  ephemeral-storage: '1Gi'
+                  memory: '500Mi'
               terminationMessagePolicy: FallbackToLogsOnError
             - args:
-                - "--reporter.grpc.host-port=jaeger-collector:14250"
-                - "--reporter.type=grpc"
+                - '--reporter.grpc.host-port=jaeger-collector:14250'
+                - '--reporter.type=grpc'
               env:
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
                       apiVersion: v1
                       fieldPath: metadata.name
-              image: "index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c"
+              image: 'index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c'
               name: jaeger-agent
               ports:
                 - containerPort: 5775
@@ -1759,10 +1759,10 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  memory: "500M"
+                  memory: '500M'
                 requests:
-                  cpu: "100m"
-                  memory: "100M"
+                  cpu: '100m'
+                  memory: '100M'
           securityContext:
             runAsUser: 0
   - apiVersion: v1
@@ -1812,7 +1812,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/github-proxy:insiders@sha256:5df85aaa1fb332322c4eaf6b6f6fd0bd7ff505dbec0b8b8254c0b30ed2f5d930"
+            - image: 'index.docker.io/sourcegraph/github-proxy:insiders@sha256:5df85aaa1fb332322c4eaf6b6f6fd0bd7ff505dbec0b8b8254c0b30ed2f5d930'
               name: github-proxy
               ports:
                 - containerPort: 3180
@@ -1820,23 +1820,23 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  ephemeral-storage: "1Gi"
-                  memory: "1G"
+                  ephemeral-storage: '1Gi'
+                  memory: '1G'
                 requests:
-                  cpu: "100m"
-                  ephemeral-storage: "1Gi"
-                  memory: "250M"
+                  cpu: '100m'
+                  ephemeral-storage: '1Gi'
+                  memory: '250M'
               terminationMessagePolicy: FallbackToLogsOnError
             - args:
-                - "--reporter.grpc.host-port=jaeger-collector:14250"
-                - "--reporter.type=grpc"
+                - '--reporter.grpc.host-port=jaeger-collector:14250'
+                - '--reporter.type=grpc'
               env:
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
                       apiVersion: v1
                       fieldPath: metadata.name
-              image: "index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c"
+              image: 'index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c'
               name: jaeger-agent
               ports:
                 - containerPort: 5775
@@ -1850,10 +1850,10 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  memory: "500M"
+                  memory: '500M'
                 requests:
-                  cpu: "100m"
-                  memory: "100M"
+                  cpu: '100m'
+                  memory: '100M'
           securityContext:
             runAsUser: 0
   - apiVersion: v1
@@ -1902,8 +1902,8 @@ items:
           automountServiceAccountToken: false
           containers:
             - args:
-                - "--store_container_labels=false"
-                - "--whitelisted_container_labels=io.kubernetes.container.name,io.kubernetes.pod.name,io.kubernetes.pod.namespace,io.kubernetes.pod.uid"
+                - '--store_container_labels=false'
+                - '--whitelisted_container_labels=io.kubernetes.container.name,io.kubernetes.pod.name,io.kubernetes.pod.namespace,io.kubernetes.pod.uid'
               image: us.gcr.io/sourcegraph-dev/cadvisor:0dc33691105dff7ddacb143e63a4a565ba25803d_69148_candidate
               name: cadvisor
               ports:
@@ -1912,13 +1912,13 @@ items:
                   protocol: TCP
               resources:
                 limits:
-                  cpu: "300m"
-                  ephemeral-storage: "1Gi"
-                  memory: "2000Mi"
+                  cpu: '300m'
+                  ephemeral-storage: '1Gi'
+                  memory: '2000Mi'
                 requests:
-                  cpu: "150m"
-                  ephemeral-storage: "1Gi"
-                  memory: "200Mi"
+                  cpu: '150m'
+                  ephemeral-storage: '1Gi'
+                  memory: '200Mi'
               volumeMounts:
                 - mountPath: /rootfs
                   name: rootfs
@@ -2012,7 +2012,7 @@ items:
       supplementalGroups:
         rule: RunAsAny
       volumes:
-        - "*"
+        - '*'
   - apiVersion: v1
     kind: ServiceAccount
     metadata:
@@ -2054,7 +2054,7 @@ items:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.name
-              image: "index.docker.io/sourcegraph/precise-code-intel-bundle-manager:3.17.2@sha256:7dff0e7e8c7a3451ce12cf5eb5e4073bb9502752926acf33f13eb370dc570cc8"
+              image: 'index.docker.io/sourcegraph/precise-code-intel-bundle-manager:3.17.2@sha256:7dff0e7e8c7a3451ce12cf5eb5e4073bb9502752926acf33f13eb370dc570cc8'
               livenessProbe:
                 httpGet:
                   path: /healthz
@@ -2078,10 +2078,10 @@ items:
               resources:
                 limits:
                   cpu: '2'
-                  memory: "2G"
+                  memory: '2G'
                 requests:
-                  cpu: "500m"
-                  memory: "500M"
+                  cpu: '500m'
+                  memory: '500M'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
                 - mountPath: /lsif-storage
@@ -2126,7 +2126,7 @@ items:
         - ReadWriteOnce
       resources:
         requests:
-          storage: "200Gi"
+          storage: '200Gi'
       storageClassName: sourcegraph
   - apiVersion: apps/v1
     kind: Deployment
@@ -2165,7 +2165,7 @@ items:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.name
-              image: "index.docker.io/sourcegraph/precise-code-intel-worker:3.17.2@sha256:123ddcab97c273599b569a76bcd2c7dd7c423c1de816fda1c35b781e004b4dde"
+              image: 'index.docker.io/sourcegraph/precise-code-intel-worker:3.17.2@sha256:123ddcab97c273599b569a76bcd2c7dd7c423c1de816fda1c35b781e004b4dde'
               livenessProbe:
                 httpGet:
                   path: /healthz
@@ -2189,10 +2189,10 @@ items:
               resources:
                 limits:
                   cpu: '2'
-                  memory: "4G"
+                  memory: '4G'
                 requests:
-                  cpu: "500m"
-                  memory: "2G"
+                  cpu: '500m'
+                  memory: '2G'
               terminationMessagePolicy: FallbackToLogsOnError
           securityContext:
             runAsUser: 0
@@ -2243,7 +2243,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/redis-cache:insiders@sha256:7820219195ab3e8fdae5875cd690fed1b2a01fd1063bd94210c0e9d529c38e56"
+            - image: 'index.docker.io/sourcegraph/redis-cache:insiders@sha256:7820219195ab3e8fdae5875cd690fed1b2a01fd1063bd94210c0e9d529c38e56'
               livenessProbe:
                 initialDelaySeconds: 30
                 tcpSocket:
@@ -2259,28 +2259,28 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  ephemeral-storage: "1Gi"
-                  memory: "6Gi"
+                  ephemeral-storage: '1Gi'
+                  memory: '6Gi'
                 requests:
                   cpu: '1'
-                  ephemeral-storage: "1Gi"
-                  memory: "6Gi"
+                  ephemeral-storage: '1Gi'
+                  memory: '6Gi'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
                 - mountPath: /redis-data
                   name: redis-data
-            - image: "index.docker.io/sourcegraph/redis_exporter:18-02-07_bb60087_v0.15.0@sha256:282d59b2692cca68da128a4e28d368ced3d17945cd1d273d3ee7ba719d77b753"
+            - image: 'index.docker.io/sourcegraph/redis_exporter:18-02-07_bb60087_v0.15.0@sha256:282d59b2692cca68da128a4e28d368ced3d17945cd1d273d3ee7ba719d77b753'
               name: redis-exporter
               ports:
                 - containerPort: 9121
                   name: redisexp
               resources:
                 limits:
-                  cpu: "10m"
-                  memory: "100Mi"
+                  cpu: '10m'
+                  memory: '100Mi'
                 requests:
-                  cpu: "10m"
-                  memory: "100Mi"
+                  cpu: '10m'
+                  memory: '100Mi'
               terminationMessagePolicy: FallbackToLogsOnError
           securityContext:
             runAsUser: 0
@@ -2319,7 +2319,7 @@ items:
         - ReadWriteOnce
       resources:
         requests:
-          storage: "100Gi"
+          storage: '100Gi'
       storageClassName: sourcegraph
   - apiVersion: apps/v1
     kind: Deployment
@@ -2346,7 +2346,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/redis-store:insiders@sha256:e8467a8279832207559bdfbc4a89b68916ecd5b44ab5cf7620c995461c005168"
+            - image: 'index.docker.io/sourcegraph/redis-store:insiders@sha256:e8467a8279832207559bdfbc4a89b68916ecd5b44ab5cf7620c995461c005168'
               livenessProbe:
                 initialDelaySeconds: 30
                 tcpSocket:
@@ -2362,28 +2362,28 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  ephemeral-storage: "1Gi"
-                  memory: "6Gi"
+                  ephemeral-storage: '1Gi'
+                  memory: '6Gi'
                 requests:
                   cpu: '1'
-                  ephemeral-storage: "1Gi"
-                  memory: "6Gi"
+                  ephemeral-storage: '1Gi'
+                  memory: '6Gi'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
                 - mountPath: /redis-data
                   name: redis-data
-            - image: "index.docker.io/sourcegraph/redis_exporter:18-02-07_bb60087_v0.15.0@sha256:282d59b2692cca68da128a4e28d368ced3d17945cd1d273d3ee7ba719d77b753"
+            - image: 'index.docker.io/sourcegraph/redis_exporter:18-02-07_bb60087_v0.15.0@sha256:282d59b2692cca68da128a4e28d368ced3d17945cd1d273d3ee7ba719d77b753'
               name: redis-exporter
               ports:
                 - containerPort: 9121
                   name: redisexp
               resources:
                 limits:
-                  cpu: "10m"
-                  memory: "100Mi"
+                  cpu: '10m'
+                  memory: '100Mi'
                 requests:
-                  cpu: "10m"
-                  memory: "100Mi"
+                  cpu: '10m'
+                  memory: '100Mi'
               terminationMessagePolicy: FallbackToLogsOnError
           securityContext:
             runAsUser: 0
@@ -2422,7 +2422,7 @@ items:
         - ReadWriteOnce
       resources:
         requests:
-          storage: "100Gi"
+          storage: '100Gi'
       storageClassName: sourcegraph
   - apiVersion: apps/v1
     kind: Deployment
@@ -2460,8 +2460,8 @@ items:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: CACHE_DIR
-                  value: "/mnt/cache/$(POD_NAME)"
-              image: "index.docker.io/sourcegraph/replacer:insiders@sha256:1b1af9ac5ce358009b99b9d5f69c248546e386ab456d61f6cd39d2310a749b09"
+                  value: '/mnt/cache/$(POD_NAME)'
+              image: 'index.docker.io/sourcegraph/replacer:insiders@sha256:1b1af9ac5ce358009b99b9d5f69c248546e386ab456d61f6cd39d2310a749b09'
               name: replacer
               ports:
                 - containerPort: 3185
@@ -2478,26 +2478,26 @@ items:
               resources:
                 limits:
                   cpu: '4'
-                  ephemeral-storage: "1Gi"
-                  memory: "500M"
+                  ephemeral-storage: '1Gi'
+                  memory: '500M'
                 requests:
-                  cpu: "500m"
-                  ephemeral-storage: "1Gi"
-                  memory: "500M"
+                  cpu: '500m'
+                  ephemeral-storage: '1Gi'
+                  memory: '500M'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
                 - mountPath: /mnt/cache
                   name: cache-ssd
             - args:
-                - "--reporter.grpc.host-port=jaeger-collector:14250"
-                - "--reporter.type=grpc"
+                - '--reporter.grpc.host-port=jaeger-collector:14250'
+                - '--reporter.type=grpc'
               env:
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
                       apiVersion: v1
                       fieldPath: metadata.name
-              image: "index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c"
+              image: 'index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c'
               name: jaeger-agent
               ports:
                 - containerPort: 5775
@@ -2511,10 +2511,10 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  memory: "500M"
+                  memory: '500M'
                 requests:
-                  cpu: "100m"
-                  memory: "100M"
+                  cpu: '100m'
+                  memory: '100M'
           securityContext:
             runAsUser: 0
           volumes:
@@ -2570,7 +2570,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/query-runner:insiders@sha256:e78be29ed758931b60e0e842c949cfe3c9c0f56093e2021928bb258c355f36ee"
+            - image: 'index.docker.io/sourcegraph/query-runner:insiders@sha256:e78be29ed758931b60e0e842c949cfe3c9c0f56093e2021928bb258c355f36ee'
               name: query-runner
               ports:
                 - containerPort: 3183
@@ -2578,23 +2578,23 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  ephemeral-storage: "1Gi"
-                  memory: "1G"
+                  ephemeral-storage: '1Gi'
+                  memory: '1G'
                 requests:
-                  cpu: "500m"
-                  ephemeral-storage: "1Gi"
-                  memory: "1G"
+                  cpu: '500m'
+                  ephemeral-storage: '1Gi'
+                  memory: '1G'
               terminationMessagePolicy: FallbackToLogsOnError
             - args:
-                - "--reporter.grpc.host-port=jaeger-collector:14250"
-                - "--reporter.type=grpc"
+                - '--reporter.grpc.host-port=jaeger-collector:14250'
+                - '--reporter.type=grpc'
               env:
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
                       apiVersion: v1
                       fieldPath: metadata.name
-              image: "index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c"
+              image: 'index.docker.io/sourcegraph/jaeger-agent:3.17.2@sha256:a29258e098c7d23392411abd359563afdd89529e9852ce1ba73f80188a72fd5c'
               name: jaeger-agent
               ports:
                 - containerPort: 5775
@@ -2608,10 +2608,10 @@ items:
               resources:
                 limits:
                   cpu: '1'
-                  memory: "500M"
+                  memory: '500M'
                 requests:
-                  cpu: "100m"
-                  memory: "100M"
+                  cpu: '100m'
+                  memory: '100M'
           securityContext:
             runAsUser: 0
   - apiVersion: v1
@@ -2658,7 +2658,7 @@ items:
             deploy: sourcegraph
         spec:
           containers:
-            - image: "index.docker.io/sourcegraph/prometheus:insiders@sha256:96a07db09f71f4c110eceea813af48555bfc6efc68900231780816b868232292"
+            - image: 'index.docker.io/sourcegraph/prometheus:insiders@sha256:96a07db09f71f4c110eceea813af48555bfc6efc68900231780816b868232292'
               livenessProbe:
                 httpGet:
                   path: /-/healthy
@@ -2678,12 +2678,12 @@ items:
               resources:
                 limits:
                   cpu: '2'
-                  ephemeral-storage: "1Gi"
-                  memory: "3G"
+                  ephemeral-storage: '1Gi'
+                  memory: '3G'
                 requests:
-                  cpu: "500m"
-                  ephemeral-storage: "1Gi"
-                  memory: "500M"
+                  cpu: '500m'
+                  ephemeral-storage: '1Gi'
+                  memory: '500M'
               terminationMessagePolicy: FallbackToLogsOnError
               volumeMounts:
                 - mountPath: /prometheus
@@ -2844,7 +2844,7 @@ items:
         global:
           scrape_interval: 30s
           evaluation_interval: 30s
-        
+
         alerting:
           alertmanagers:
             - kubernetes_sd_configs:
@@ -2853,19 +2853,19 @@ items:
                 - source_labels: [__meta_kubernetes_service_name]
                   regex: alertmanager
                   action: keep
-        
+
         rule_files:
           - "*_rules.yml"
           - "/sg_config_prometheus/*_rules.yml"
           - "/sg_prometheus_add_ons/*_rules.yml"
-        
+
         # A scrape configuration for running Prometheus on a Kubernetes cluster.
         # This uses separate scrape configs for cluster components (i.e. API server, node)
         # and services to allow each to use different authentication configs.
         #
         # Kubernetes labels will be added as Prometheus labels on metrics via the
         # `labelmap` relabeling action.
-        
+
         # Scrape config for API servers.
         #
         # Kubernetes exposes API servers as endpoints to the default/kubernetes
@@ -2875,14 +2875,14 @@ items:
         # well as HA API server deployments.
         scrape_configs:
           - job_name: "kubernetes-apiservers"
-        
+
             kubernetes_sd_configs:
               - role: endpoints
-        
+
             # Default to scraping over https. If required, just disable this or change to
             # `http`.
             scheme: https
-        
+
             # This TLS & bearer token file config is used to connect to the actual scrape
             # endpoints for cluster components. This is separate to discovery auth
             # configuration because discovery & scraping are two separate concerns in
@@ -2899,7 +2899,7 @@ items:
               #
               # insecure_skip_verify: true
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-        
+
             # Keep only the default/kubernetes service endpoints for the https port. This
             # will add targets for each API server which Kubernetes adds an endpoint to
             # the default/kubernetes service.
@@ -2912,13 +2912,13 @@ items:
                   ]
                 action: keep
                 regex: default;kubernetes;https
-        
+
           - job_name: "kubernetes-nodes"
-        
+
             # Default to scraping over https. If required, just disable this or change to
             # `http`.
             scheme: https
-        
+
             # This TLS & bearer token file config is used to connect to the actual scrape
             # endpoints for cluster components. This is separate to discovery auth
             # configuration because discovery & scraping are two separate concerns in
@@ -2935,10 +2935,10 @@ items:
               #
               insecure_skip_verify: true
             bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-        
+
             kubernetes_sd_configs:
               - role: node
-        
+
             relabel_configs:
               - action: labelmap
                 regex: __meta_kubernetes_node_label_(.+)
@@ -2948,7 +2948,7 @@ items:
                 regex: (.+)
                 target_label: __metrics_path__
                 replacement: /api/v1/nodes/''${1}/proxy/metrics
-        
+
           # Scrape config for service endpoints.
           #
           # The relabeling allows the actual service scrape endpoint to be configured
@@ -2961,10 +2961,10 @@ items:
           # * `prometheus.io/port`: If the metrics are exposed on a different port to the
           # service then set this appropriately.
           - job_name: "kubernetes-service-endpoints"
-        
+
             kubernetes_sd_configs:
               - role: endpoints
-        
+
             relabel_configs:
               - source_labels:
                   [__meta_kubernetes_service_annotation_sourcegraph_prometheus_scrape]
@@ -3003,7 +3003,7 @@ items:
               - source_labels: [__meta_kubernetes_pod_name]
                 action: replace
                 target_label: instance
-        
+
           # Example scrape config for probing services via the Blackbox Exporter.
           #
           # The relabeling allows the actual service scrape endpoint to be configured
@@ -3011,14 +3011,14 @@ items:
           #
           # * `prometheus.io/probe`: Only probe services that have a value of `true`
           - job_name: "kubernetes-services"
-        
+
             metrics_path: /probe
             params:
               module: [http_2xx]
-        
+
             kubernetes_sd_configs:
               - role: service
-        
+
             relabel_configs:
               - source_labels:
                   [__meta_kubernetes_service_annotation_prometheus_io_probe]
@@ -3038,7 +3038,7 @@ items:
                 target_label: ns
               - source_labels: [__meta_kubernetes_service_name]
                 target_label: kubernetes_name
-        
+
           # Example scrape config for pods
           #
           # The relabeling allows the actual pod scrape endpoint to be configured via the
@@ -3048,10 +3048,10 @@ items:
           # * `prometheus.io/path`: If the metrics path is not `/metrics` override this.
           # * `prometheus.io/port`: Scrape the pod on the indicated port instead of the default of `9102`.
           - job_name: "kubernetes-pods"
-        
+
             kubernetes_sd_configs:
               - role: pod
-        
+
             relabel_configs:
               - source_labels:
                   [__meta_kubernetes_pod_annotation_sourcegraph_prometheus_scrape]
@@ -3077,7 +3077,7 @@ items:
               - source_labels: [__meta_kubernetes_pod_name]
                 action: replace
                 target_label: kubernetes_pod_name
-        
+
           - job_name: "http_200"
             metrics_path: /probe
             params:
@@ -3126,7 +3126,7 @@ items:
         - ReadWriteOnce
       resources:
         requests:
-          storage: "200Gi"
+          storage: '200Gi'
       storageClassName: sourcegraph
   - apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
