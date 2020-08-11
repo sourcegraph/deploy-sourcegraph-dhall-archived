@@ -34,6 +34,8 @@ let SyntaxHighlighter/Generate = ./syntax-highlighter/generate.dhall
 
 let StorageClass/Generate = ./storage-class/generate.dhall
 
+let IngressNginx/Generate = ./ingress-nginx/generate.dhall
+
 let component = ./component.dhall
 
 let Configuration/global = ../configuration/global.dhall
@@ -58,6 +60,7 @@ let Generate =
             , Symbols = Symbols/Generate c
             , SyntaxHighlighter = SyntaxHighlighter/Generate c
             , StorageClass = StorageClass/Generate c
+            , IngressNginx = IngressNginx/Generate c
             }
         )
       : ∀(c : Configuration/global.Type) → component
