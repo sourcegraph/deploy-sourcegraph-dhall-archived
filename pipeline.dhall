@@ -207,5 +207,6 @@ let c =
       with StorageClass.CloudProvider =
           Sourcegraph.Configuration.CloudProvider.GCP
       with IngressNginx.Enabled = True
+      with IngressNginx.IPAddress = Some "35.190.34.64"
 
 in  Render c
