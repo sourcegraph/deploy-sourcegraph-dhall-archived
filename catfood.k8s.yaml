@@ -1080,7 +1080,7 @@ items:
                 path: /
       tls:
         - hosts:
-            - k8s.sgdev.org
+            - catfood.sgdev.org
           secretName: sourcegraph-tls
   - apiVersion: rbac.authorization.k8s.io/v1
     kind: Role

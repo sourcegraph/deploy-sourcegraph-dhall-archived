@@ -43,7 +43,7 @@ let c =
           }
         ]
       with Frontend.Ingress.tls = Some
-        [ { hosts = Some [ "k8s.sgdev.org" ]
+        [ { hosts = Some [ "catfood.sgdev.org" ]
           , secretName = Some "sourcegraph-tls"
           }
         ]
