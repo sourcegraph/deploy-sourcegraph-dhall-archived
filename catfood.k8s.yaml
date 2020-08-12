@@ -3648,7 +3648,7 @@ items:
       namespace: ingress-nginx
     spec:
       externalTrafficPolicy: Local
-      loadBalancerIP: '35.190.34.64'
+      loadBalancerIP: '34.66.96.138'
       ports:
         - name: http
           port: 80
