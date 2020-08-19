@@ -13,6 +13,19 @@ jobs:
         run: './ci/asdf-install.sh'
       - name: Check that the CI pipeline definition is up-to-date with the dhall configuration
         run: ci/check-rendered-pipeline-up-to-date.sh
+  dhallDiff:
+    name: diff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: "actions/checkout@v2"
+      - name: Install asdf
+        uses: "asdf-vm/actions/setup@v1.0.0"
+      - name: Install asdf plugins
+        run: "./ci/asdf-add-plugins.sh"
+      - name: Install asdf tools versions
+        run: "./ci/asdf-install.sh"
+      - name: Performs a diff between the base and feature branch
+        run: ci/dhall-diff.sh
   dhallFormat:
     name: dhall-format
     runs-on: ubuntu-latest
