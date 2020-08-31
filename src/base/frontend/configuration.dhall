@@ -5,8 +5,14 @@ let Configuration/container = ../../configuration/container.dhall
 let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
 let containers =
-      { Type = { SourcegraphFrontend : Configuration/container.Type }
-      , default.SourcegraphFrontend = Configuration/container.default
+      { Type =
+          { SourcegraphFrontend : Configuration/container.Type
+          , pgsqlEnvironmentVariables : Optional (List Util/KeyValuePair)
+          }
+      , default =
+          { SourcegraphFrontend = Configuration/container.default
+          , pgsqlEnvironmentVariables = None (List Util/KeyValuePair)
+          }
       }
 
 let Deployment =

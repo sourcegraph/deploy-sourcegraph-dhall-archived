@@ -152,7 +152,9 @@ let frontendContainer/generate =
                       overrides.resources.requests
                 }
 
-        let environment =
+        let pgsqlEnvironmentVariables =
+              Optional/default
+                ( List Kubernetes/EnvVar.Type)
                 [ Kubernetes/EnvVar::{ name = "PGDATABASE", value = Some "sg" }
                 , Kubernetes/EnvVar::{ name = "PGHOST", value = Some "pgsql" }
                 , Kubernetes/EnvVar::{ name = "PGPORT", value = Some "5432" }
@@ -161,6 +163,11 @@ let frontendContainer/generate =
                   , value = Some "disable"
                   }
                 , Kubernetes/EnvVar::{ name = "PGUSER", value = Some "sg" }
+                ]
+                overrides.pgsqlEnvironmentVariables
+
+        let environment =
+              [
                 , Kubernetes/EnvVar::{
                   , name = "SRC_GIT_SERVERS"
                   , value = Some (makeGitserverEnvVar gitserverReplicas)
@@ -193,6 +200,7 @@ let frontendContainer/generate =
                   , value = Some "http://prometheus:30090"
                   }
                 ]
+              # pgsqlEnvironmentVariables
               # additionalEnvironmentVariables
 
         let image =
