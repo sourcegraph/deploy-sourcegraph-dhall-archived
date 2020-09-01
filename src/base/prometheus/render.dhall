@@ -8,20 +8,30 @@ let component = ./component.dhall
 
 let Generate = ./generate.dhall
 
+let shape = ./shape.dhall
+
 let ToList =
         ( λ(c : component) →
-            Kubernetes/List::{
-            , items =
-              [ Kubernetes/TypesUnion.Deployment c.Deployment
-              , Kubernetes/TypesUnion.ClusterRole c.ClusterRole
-              , Kubernetes/TypesUnion.ConfigMap c.ConfigMap
-              , Kubernetes/TypesUnion.PersistentVolumeClaim
-                  c.PersistentVolumeClaim
-              , Kubernetes/TypesUnion.ClusterRoleBinding c.ClusterRoleBinding
-              , Kubernetes/TypesUnion.ServiceAccount c.ServiceAccount
-              , Kubernetes/TypesUnion.Service c.Service
-              ]
-            }
+            let items =
+                  merge
+                    { Some =
+                        λ(prom : shape) →
+                          [ Kubernetes/TypesUnion.Deployment prom.Deployment
+                          , Kubernetes/TypesUnion.ClusterRole prom.ClusterRole
+                          , Kubernetes/TypesUnion.ConfigMap prom.ConfigMap
+                          , Kubernetes/TypesUnion.PersistentVolumeClaim
+                              prom.PersistentVolumeClaim
+                          , Kubernetes/TypesUnion.ClusterRoleBinding
+                              prom.ClusterRoleBinding
+                          , Kubernetes/TypesUnion.ServiceAccount
+                              prom.ServiceAccount
+                          , Kubernetes/TypesUnion.Service prom.Service
+                          ]
+                    , None = [] : List Kubernetes/TypesUnion
+                    }
+                    c
+
+            in  Kubernetes/List::{ items }
         )
       : ∀(c : component) → Kubernetes/List.Type
 
