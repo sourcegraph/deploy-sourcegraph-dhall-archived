@@ -95,6 +95,8 @@ let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
 
 let Octal = ../../util/octal.dhall
 
+let shape = ./shape.dhall
+
 let Deployment/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Prometheus.Deployment.Containers.Prometheus
@@ -412,14 +414,18 @@ let ConfigMap/generate =
 
 let Generate =
         ( λ(c : Configuration/global.Type) →
-            { Deployment = Deployment/generate c
-            , ClusterRole = ClusterRole/generate c
-            , ConfigMap = ConfigMap/generate c
-            , PersistentVolumeClaim = PersistentVolumeClaim/generate c
-            , ClusterRoleBinding = ClusterRoleBinding/generate c
-            , ServiceAccount = ServiceAccount/generate c
-            , Service = Service/generate c
-            }
+            let prometheus
+                : shape
+                = { Deployment = Deployment/generate c
+                  , ClusterRole = ClusterRole/generate c
+                  , ConfigMap = ConfigMap/generate c
+                  , PersistentVolumeClaim = PersistentVolumeClaim/generate c
+                  , ClusterRoleBinding = ClusterRoleBinding/generate c
+                  , ServiceAccount = ServiceAccount/generate c
+                  , Service = Service/generate c
+                  }
+
+            in  if c.Prometheus.Enabled then Some prometheus else None shape
         )
       : ∀(c : Configuration/global.Type) → component
 

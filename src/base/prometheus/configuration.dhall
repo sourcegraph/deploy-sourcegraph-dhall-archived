@@ -40,6 +40,7 @@ let configuration =
           , Service : Configuration/universal.Type
           , ServiceAccount : Configuration/universal.Type
           , ConfigMap : Configuration/universal.Type
+          , Enabled : Bool
           }
       , default =
         { Deployment = Deployment.default
@@ -48,6 +49,7 @@ let configuration =
         , Service = Configuration/universal.default
         , ServiceAccount = Configuration/universal.default
         , ConfigMap = Configuration/universal.default
+        , Enabled = True
         }
       }
 
