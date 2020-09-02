@@ -4,9 +4,19 @@ let Configuration/container = ../../configuration/container.dhall
 
 let Util/KeyValuePair = ../../util/key-value-pair.dhall
 
+let Kubernetes/EnvVar = ../../deps/k8s/schemas/io.k8s.api.core.v1.EnvVar.dhall
+
 let containers =
-      { Type = { SourcegraphFrontend : Configuration/container.Type }
-      , default.SourcegraphFrontend = Configuration/container.default
+      { Type =
+          { SourcegraphFrontend :
+                Configuration/container.Type
+              ⩓ { pgsqlEnvironmentVariables :
+                    Optional (List Kubernetes/EnvVar.Type)
+                }
+          }
+      , default.SourcegraphFrontend =
+            Configuration/container.default
+          ∧ { pgsqlEnvironmentVariables = None (List Kubernetes/EnvVar.Type) }
       }
 
 let Deployment =
