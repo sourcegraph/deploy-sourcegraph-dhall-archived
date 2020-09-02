@@ -8,17 +8,25 @@ let component = ./component.dhall
 
 let Generate = ./generate.dhall
 
+let shape = ./shape.dhall
+
 let ToList =
         ( λ(c : component) →
-            Kubernetes/List::{
-            , items =
-              [ Kubernetes/TypesUnion.Deployment c.Deployment
-              , Kubernetes/TypesUnion.Service c.Service
-              , Kubernetes/TypesUnion.PersistentVolumeClaim
-                  c.PersistentVolumeClaim
-              , Kubernetes/TypesUnion.ConfigMap c.ConfigMap
-              ]
-            }
+            let items =
+                  merge
+                    { Some =
+                        λ(pgsql : shape) →
+                          [ Kubernetes/TypesUnion.Deployment pgsql.Deployment
+                          , Kubernetes/TypesUnion.Service pgsql.Service
+                          , Kubernetes/TypesUnion.PersistentVolumeClaim
+                              pgsql.PersistentVolumeClaim
+                          , Kubernetes/TypesUnion.ConfigMap pgsql.ConfigMap
+                          ]
+                    , None = [] : List Kubernetes/TypesUnion
+                    }
+                    c
+
+            in  Kubernetes/List::{ items }
         )
       : ∀(c : component) → Kubernetes/List.Type
 

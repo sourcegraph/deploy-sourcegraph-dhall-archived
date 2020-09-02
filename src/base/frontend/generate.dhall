@@ -154,7 +154,7 @@ let frontendContainer/generate =
 
         let pgsqlEnvironmentVariables =
               Optional/default
-                ( List Kubernetes/EnvVar.Type)
+                (List Kubernetes/EnvVar.Type)
                 [ Kubernetes/EnvVar::{ name = "PGDATABASE", value = Some "sg" }
                 , Kubernetes/EnvVar::{ name = "PGHOST", value = Some "pgsql" }
                 , Kubernetes/EnvVar::{ name = "PGPORT", value = Some "5432" }
@@ -167,8 +167,7 @@ let frontendContainer/generate =
                 overrides.pgsqlEnvironmentVariables
 
         let environment =
-              [
-                , Kubernetes/EnvVar::{
+                [ Kubernetes/EnvVar::{
                   , name = "SRC_GIT_SERVERS"
                   , value = Some (makeGitserverEnvVar gitserverReplicas)
                   }

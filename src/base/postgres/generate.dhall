@@ -82,6 +82,8 @@ let containerResources/tok8s = ../../util/container-resources-to-k8s.dhall
 
 let Octal = ../../util/octal.dhall
 
+let shape = ./shape.dhall
+
 let ConfigMap/generate =
       λ(c : Configuration/global.Type) →
         let overrides = c.Postgres.ConfigMap
@@ -461,11 +463,15 @@ let Service/generate =
 
 let Generate =
         ( λ(c : Configuration/global.Type) →
-            { Deployment = Deployment/generate c
-            , Service = Service/generate c
-            , PersistentVolumeClaim = PersistentVolumeClaim/generate c
-            , ConfigMap = ConfigMap/generate c
-            }
+            let pgsql
+                : shape
+                = { Deployment = Deployment/generate c
+                  , Service = Service/generate c
+                  , PersistentVolumeClaim = PersistentVolumeClaim/generate c
+                  , ConfigMap = ConfigMap/generate c
+                  }
+
+            in  if c.Postgres.Enabled then Some pgsql else None shape
         )
       : ∀(c : Configuration/global.Type) → component
 

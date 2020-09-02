@@ -40,12 +40,14 @@ let configuration =
           , PersistentVolumeClaim : Configuration/universal.Type
           , ConfigMap : Configuration/universal.Type
           , Service : Configuration/universal.Type
+          , Enabled : Bool
           }
       , default =
         { Deployment = deployment.default
         , PersistentVolumeClaim = Configuration/universal.default
         , ConfigMap = Configuration/universal.default
         , Service = Configuration/universal.default
+        , Enabled = True
         }
       }
 
